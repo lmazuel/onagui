@@ -1,0 +1,279 @@
+/**
+ * 
+ */
+package fr.onagui.gui;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import fr.onagui.alignment.method.LabelAlignmentMethod;
+
+
+/**
+ * @author Laurent Mazuel
+ *
+ */
+public class LabelMethodParameterDialog extends JDialog implements ChangeListener, ActionListener {
+
+	/** To make Java happy */
+	private static final long serialVersionUID = 3730765536056426003L;
+	
+	private static final int NUMBER_OF_LINES_IN_LIST = 6;
+	
+	private int DIALOG_WIDTH = 500;
+	private int DIALOG_HEIGHT = 500;
+
+	private Double selectedValue = null;
+
+	private JSlider slider = null;
+	private JTextField textField = null;
+	private JList<String> langList1 = null;
+	private JList<String> langList2 = null;
+	private JButton okButton = null;
+	private JButton cancelButton = null;
+
+	public LabelMethodParameterDialog(
+			JFrame view,
+			double initialValue,
+			Set<String> langsFrom1,
+			Set<String> langsFrom2) {
+		super(view, Messages.getString("LabelMethodParameterDialogTitle"), true); //$NON-NLS-1$
+		setSize(new Dimension(DIALOG_WIDTH, DIALOG_HEIGHT));
+		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		setResizable(false);
+		GridBagLayout gridbag = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		setLayout(gridbag);
+
+		selectedValue = initialValue;
+
+		slider = new JSlider(0, 100, (int)(initialValue*100));
+		slider.addChangeListener(this);
+		slider.setMajorTickSpacing(10);
+		slider.setMinorTickSpacing(5);
+		slider.setPaintTicks(true);
+		Dictionary<Integer, JLabel> labels = new Hashtable<Integer, JLabel>();
+		labels.put(0, new JLabel("0.0")); //$NON-NLS-1$
+		labels.put(100, new JLabel("1.0")); //$NON-NLS-1$
+		slider.setLabelTable(labels);
+		slider.setPaintLabels(true);
+
+		textField = new JTextField(String.valueOf(selectedValue), 5);
+		
+		Set<String> localLangsFrom1 = new TreeSet<String>(langsFrom1);
+		localLangsFrom1.add(LabelAlignmentMethod.NO_TAG);
+		localLangsFrom1.add(LabelAlignmentMethod.FRAG_URI);
+		langList1 = new JList<>(localLangsFrom1.toArray(new String[0]));
+		langList1.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+//		langList1.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		langList1.setVisibleRowCount(NUMBER_OF_LINES_IN_LIST);
+		langList1.setSelectedValue(LabelAlignmentMethod.FRAG_URI, true);
+		JPanel langPanel1 = new JPanel(new BorderLayout());
+		langPanel1.add(new JLabel(Messages.getString("LabelMethodParameterDialogLang1")), BorderLayout.NORTH); //$NON-NLS-1$
+		JScrollPane scroll1 = new JScrollPane(langList1);
+		langPanel1.add(scroll1, BorderLayout.CENTER);
+
+		Set<String> localLangsFrom2 = new TreeSet<String>(langsFrom2);
+		localLangsFrom2.add(LabelAlignmentMethod.NO_TAG);
+		localLangsFrom2.add(LabelAlignmentMethod.FRAG_URI);
+		langList2 = new JList<>(localLangsFrom2.toArray(new String[0]));
+		langList2.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+//		langList2.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		langList2.setVisibleRowCount(NUMBER_OF_LINES_IN_LIST);
+		langList2.setSelectedValue(LabelAlignmentMethod.FRAG_URI, true);
+		JPanel langPanel2 = new JPanel(new BorderLayout());
+		langPanel2.add(new JLabel(Messages.getString("LabelMethodParameterDialogLang2")), BorderLayout.NORTH); //$NON-NLS-1$
+		JScrollPane scroll2 = new JScrollPane(langList2);
+		langPanel2.add(scroll2, BorderLayout.CENTER);
+		
+		okButton = new JButton(Messages.getString("LabelMethodParameterDialogOkButton")); //$NON-NLS-1$
+		okButton.addActionListener(this);
+
+		cancelButton = new JButton(Messages.getString("LabelMethodParameterDialogCancelButton")); //$NON-NLS-1$
+		cancelButton.addActionListener(this);
+
+		// Position:
+		JPanel textFieldPanel = new JPanel(new BorderLayout());
+		textFieldPanel.add(new JLabel(Messages.getString("LabelMethodParameterDialogThresholdLabel")), BorderLayout.WEST); //$NON-NLS-1$
+		textFieldPanel.add(textField, BorderLayout.CENTER);
+
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 2;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.WEST;
+		c.fill = GridBagConstraints.NONE;
+		gridbag.setConstraints(textFieldPanel, c);
+		this.getContentPane().add(textFieldPanel);
+
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 2;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.WEST;
+		c.fill = GridBagConstraints.NONE;
+		gridbag.setConstraints(slider, c);
+		this.getContentPane().add(slider);
+		
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 2;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.WEST;
+		c.fill = GridBagConstraints.VERTICAL;
+		gridbag.setConstraints(langPanel1, c);
+		this.getContentPane().add(langPanel1);
+
+		c.gridx = 1;
+		c.gridy = 2;
+		c.gridwidth = 2;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.EAST;
+		c.fill = GridBagConstraints.VERTICAL;
+		gridbag.setConstraints(langPanel2, c);
+		this.getContentPane().add(langPanel2);
+		
+		c.gridx = 0;
+		c.gridy = 3;
+		c.gridwidth = 1;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.EAST;
+		c.fill = GridBagConstraints.NONE;
+		gridbag.setConstraints(okButton, c);
+		this.getContentPane().add(okButton);
+
+		c.gridx = 1;
+		c.gridy = 3;
+		c.gridwidth = 1;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.WEST;
+		c.fill = GridBagConstraints.NONE;
+		gridbag.setConstraints(cancelButton, c);
+		this.getContentPane().add(cancelButton);
+		
+		pack();
+		setLocationRelativeTo(null);
+	}
+
+	public Double getSelectedValue() {
+		return selectedValue;
+	}
+	
+	private SortedSet<String> getSelectedLangsFromJList(JList<String> list) {
+		SortedSet<String> result = new TreeSet<String>();
+		List<String> values = list.getSelectedValuesList();
+		for(Object val : values) {
+			String valS = (String)val;
+			result.add(valS);
+		}
+		return result;
+	}
+
+	public SortedSet<String> getSelectedLangFor1() {
+		return getSelectedLangsFromJList(langList1);
+	}
+
+	public SortedSet<String> getSelectedLangFor2() {
+		return getSelectedLangsFromJList(langList2);
+	}
+	
+	// For the slider
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		JSlider source = (JSlider)e.getSource();
+		int intThreshold = source.getValue();
+		double floatThreshold= intThreshold/100.0;
+		// Change in text field
+		textField.setText(String.valueOf(floatThreshold));
+		// Change return value
+		selectedValue = floatThreshold;
+	}
+
+	// For the text field and the buttons
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() == textField) {
+			// Pression "entrée"
+			String value = textField.getText();
+			double floatValue = selectedValue;
+			try {
+				floatValue = Double.valueOf(value);
+			}
+			catch(NumberFormatException e1) {
+				textField.setText(String.valueOf(selectedValue));
+				return;
+			}
+			selectedValue = floatValue;
+			slider.setValue((int)(selectedValue*100));
+		}
+		else if(e.getSource() == okButton) {
+			setVisible(false);
+		}
+		else if(e.getSource() == cancelButton) {
+			selectedValue = -1.0; // Cancel
+			setVisible(false);
+		}
+		else {
+			System.err.println("ERROR: inatendu! Event: "+e); //$NON-NLS-1$
+		}
+	}
+	
+	public static void main(String[] args) {
+		double value = 0.9;
+		List<String> list1 = Arrays.asList("fr","de"); //$NON-NLS-1$ //$NON-NLS-2$
+		List<String> list2 = Arrays.asList("fr","de","hg","frt","ddg"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		
+		LabelMethodParameterDialog testDialog = new LabelMethodParameterDialog(
+				null,
+				value,
+				new TreeSet<String>(list1),
+				new TreeSet<String>(list2));
+		testDialog.setVisible(true);
+		
+		if(testDialog.getSelectedValue() >= 0) {
+			System.out.println(testDialog.getSelectedLangFor1());
+			System.out.println(testDialog.getSelectedLangFor2());
+		}
+		else {
+			System.out.println("Cancel!!!!!!!"); //$NON-NLS-1$
+		}
+	}
+
+}

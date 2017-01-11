@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns="http://knowledgeweb.semanticweb.org/heterogeneity/alignment#">
+  <Alignment>
+    <type>**</type>
+    <level>0</level>
+    <xml>yes</xml>
+    <map>
+      <Cell>
+        <dcterms:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime"
+        >2015-01-28T22:33:43-05:00</dcterms:date>
+        <entity1 rdf:resource="urn:Cpt1éééé"/>
+        <entity2 rdf:resource="urn:Cpt2éééé"/>
+        <measure rdf:datatype="http://www.w3.org/2001/XMLSchema#float"
+        >1.42</measure>
+        <relation>EQUIV</relation>
+        <validity rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >VALID</validity>
+      </Cell>
+    </map>
+    <onto2>
+      <Ontology rdf:about="#urn:onto">
+        <formalism>skos</formalism>
+        <location>urn:onto</location>
+      </Ontology>
+    </onto2>
+    <onto1 rdf:resource="#urn:onto"/>
+  </Alignment>
+</rdf:RDF>

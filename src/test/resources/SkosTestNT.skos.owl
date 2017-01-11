@@ -1,0 +1,17 @@
+<http://www.w3.org/2004/02/skos/core#altLabel> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<http://www.w3.org/2004/02/skos/core#inScheme> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#Root> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#ConceptScheme> .
+<http://www.w3.org/2004/02/skos/core#ConceptScheme> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#FirstCpt> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+<http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#Root> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+<http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#FirstCpt> <http://www.w3.org/2004/02/skos/core#altLabel> "my alt label"@en .
+<http://www.w3.org/2004/02/skos/core#Concept> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#FirstCpt> <http://www.w3.org/2004/02/skos/core#topConceptOf> <http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#Root> .
+<http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#FirstCpt> <http://www.w3.org/2004/02/skos/core#inScheme> <http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#Root> .
+<http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#FirstCpt> <http://www.w3.org/2004/02/skos/core#altLabel> "mon alt label"@fr .
+<http://www.w3.org/2004/02/skos/core#prefLabel> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .
+<http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#FirstCpt> <http://www.w3.org/2004/02/skos/core#prefLabel> "mon premier concept"@fr .
+<http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#FirstCpt> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<http://www.semanticweb.org/ontologies/2010/1/SkosTest.skos.owl#FirstCpt> <http://www.w3.org/2004/02/skos/core#prefLabel> "my first concept"@en .
+<http://www.w3.org/2004/02/skos/core#topConceptOf> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .

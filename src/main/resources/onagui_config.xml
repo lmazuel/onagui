@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OnaguiConfiguration>
+  <OntologyLastOpenDirectory/>
+  <ScoreColorStrategy name="FixedColorManager" activated="true">
+    <Threshold num="1" value="0.75"/>
+    <Threshold num="2" value="0.5"/>
+    <Threshold num="3" value="0.25"/>
+  </ScoreColorStrategy>
+</OnaguiConfiguration>
