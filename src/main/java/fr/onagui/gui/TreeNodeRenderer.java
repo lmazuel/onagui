@@ -26,10 +26,6 @@ public class TreeNodeRenderer extends DefaultTreeCellRenderer {
 	/** To make Java happy */
 	private static final long serialVersionUID = -3129243471376574226L;
 
-	//	private final ImageIcon cercleJaune = new ImageIcon(TreeNodeRenderer.class.getResource("/fr/onagui/images/cerclejaune.gif"));
-	//	private final ImageIcon cercleRouge = new ImageIcon(TreeNodeRenderer.class.getResource("/fr/onagui/images/cerclerouge.gif"));
-	//	private final ImageIcon cercleVert = new ImageIcon(TreeNodeRenderer.class.getResource("/fr/onagui/images/cerclevert.gif"));
-
 	private int ontologyNumber = 0;
 	private AlignmentControler alignmentControler;
 	private ScoreColorConfiguration scc;

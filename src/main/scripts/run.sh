@@ -11,4 +11,4 @@ fi
 # Change this line and make the right amount of memory for Java if you have a "Java Heap Space" error (big ontologies)
 JAVA="$JAVA -Xmx2048m"
 
-$JAVA -jar OnAGUI.jar
+$JAVA -jar onagui*.jar

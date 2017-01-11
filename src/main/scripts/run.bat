@@ -10,5 +10,5 @@ set JAVA=java
 
 set JAVA=%JAVA% -Xmx1024m
 
-
-%JAVA% -jar OnAGUI.jar
+:: This is a hack to start the jar whatever its name
+for %%i in (onagui*.jar) do start "OnAGUI" /b %JAVA% -jar %%i
