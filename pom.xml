@@ -8,8 +8,8 @@
 	<description>Software to help automatic or manual realisation of ontology alignment</description>
 
 	<properties>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<exec.mainClass>fr.onagui.gui.AlignmentGUI</exec.mainClass>
 	</properties>
@@ -53,52 +53,18 @@
 	</build>
 
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.openrdf.sesame/sesame-sail-memory -->
+		<!-- https://mvnrepository.com/artifact/org.eclipse.rdf4j/rdf4j-runtime -->
 		<dependency>
-			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-sail-memory</artifactId>
-			<version>2.7.3</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.openrdf.sesame/sesame-repository-sail -->
-		<dependency>
-			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-repository-sail</artifactId>
-			<version>2.7.3</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.openrdf.sesame/sesame-rio-rdfxml -->
-		<dependency>
-			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-rio-rdfxml</artifactId>
-			<version>2.7.3</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.openrdf.sesame/sesame-rio-turtle -->
-		<dependency>
-			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-rio-turtle</artifactId>
-			<version>2.7.3</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.openrdf.sesame/sesame-rio-ntriples -->
-		<dependency>
-			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-rio-ntriples</artifactId>
-			<version>2.7.3</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.openrdf.sesame/sesame-rio-n3 -->
-		<dependency>
-			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-rio-n3</artifactId>
-			<version>2.7.3</version>
+			<groupId>org.eclipse.rdf4j</groupId>
+			<artifactId>rdf4j-runtime</artifactId>
+			<version>2.1.5</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-jdk14 -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.6.1</version>
+			<version>1.7.22</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/net.sourceforge.owlapi/owlapi-distribution -->

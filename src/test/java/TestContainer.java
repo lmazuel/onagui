@@ -5,9 +5,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFParseException;
 import org.junit.Test;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFParseException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import fr.onagui.alignment.container.DOEOWLContainer;

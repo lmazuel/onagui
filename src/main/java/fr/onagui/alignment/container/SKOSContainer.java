@@ -3,8 +3,6 @@
  */
 package fr.onagui.alignment.container;
 
-import info.aduna.iteration.Iterations;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -20,22 +18,24 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.SKOS;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.helpers.RDFHandlerBase;
-import org.openrdf.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.SKOS;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.helpers.AbstractRDFHandler;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
 import fr.onagui.alignment.OntoContainer;
 import fr.onagui.alignment.OntoVisitor;
@@ -49,10 +49,10 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	private ValueFactory factory = null;
 	private URI onto_uri = null;
 	
-	private static Map<org.openrdf.model.URI, boolean[]> propertyForConcepts = null;
+	private static Map<IRI, boolean[]> propertyForConcepts = null;
 	static {
 		/* First value is "subject is concept", second "object is concept" */
-		propertyForConcepts = new HashMap<org.openrdf.model.URI, boolean[]>();
+		propertyForConcepts = new HashMap<IRI, boolean[]>();
 		propertyForConcepts.put(SKOS.TOP_CONCEPT_OF, new boolean[] {true, false});
 		propertyForConcepts.put(SKOS.HAS_TOP_CONCEPT, new boolean[] {false, true});
 		propertyForConcepts.put(SKOS.BROADER, new boolean[] {true, true});
@@ -93,7 +93,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		}
 	}
 	
-	private class SkosConceptHandler extends RDFHandlerBase {
+	private class SkosConceptHandler extends AbstractRDFHandler {
 		private OntoVisitor<Resource> myvisitor;
 		
 		public SkosConceptHandler(OntoVisitor<Resource> visitor) {
@@ -102,7 +102,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		
 		@Override
 		public void handleStatement(Statement stmt) throws RDFHandlerException {
-			org.openrdf.model.URI predicate = stmt.getPredicate();
+			IRI predicate = stmt.getPredicate();
 			if(predicate.equals(RDF.TYPE) || propertyForConcepts.get(predicate)[0]) { // Subject is concept
 				myvisitor.visit(stmt.getSubject());
 			} 
@@ -119,7 +119,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		try {
 			connect = triplestore.getConnection();
 			connect.exportStatements(null, RDF.TYPE, SKOS.CONCEPT, true, myhandler);
-			for(org.openrdf.model.URI property: propertyForConcepts.keySet()) {
+			for(IRI property: propertyForConcepts.keySet()) {
 				connect.exportStatements(null, property, null, true, myhandler);
 			}
 		} catch (RepositoryException e1) {
@@ -143,7 +143,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		return "skos";
 	}
 	
-	private Set<Resource> getAllFromType(org.openrdf.model.URI type) {
+	private Set<Resource> getAllFromType(IRI type) {
 		Set<Resource> result = new HashSet<Resource>();
 		try {
 			RepositoryConnection connect = triplestore.getConnection();
@@ -294,7 +294,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		return new Vector<Statement>();
 	}	
 	
-	private Set<Resource> getSubjectsWhereProp(RepositoryConnection connect, org.openrdf.model.URI prop) {
+	private Set<Resource> getSubjectsWhereProp(RepositoryConnection connect, IRI prop) {
 		Set<Resource> result = new HashSet<Resource>();
 		// Has top concept
 		try {
@@ -310,7 +310,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		return result;
 	}
 
-	private Set<Resource> getResourceObjectWhereProp(RepositoryConnection connect, org.openrdf.model.URI prop) {
+	private Set<Resource> getResourceObjectWhereProp(RepositoryConnection connect, IRI prop) {
 		Set<Resource> result = new HashSet<Resource>();
 		// Has top concept
 		try {
@@ -346,14 +346,14 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	@Override
 	public URI getURI(Resource cpt) {
 		try {
-			return new URI(((org.openrdf.model.URI) cpt).toString());
+			return new URI(((IRI) cpt).toString());
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Strange resource...");
 		}
 	}
 
-	private Set<String> getLabels(Resource cpt, org.openrdf.model.URI prop) {
+	private Set<String> getLabels(Resource cpt, IRI prop) {
 		if (cpt == null)
 			throw new IllegalArgumentException("cpt cannot be null");
 		Set<String> result = new HashSet<String>();
@@ -375,7 +375,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	}
 
 	private Set<String> getLabels(Resource cpt, String lang,
-			org.openrdf.model.URI prop) {
+			IRI prop) {
 		if (cpt == null || lang == null)
 			throw new IllegalArgumentException(
 					"cpt or lang cannot be null: cpt=" + cpt + " lang=" + lang);
@@ -424,10 +424,10 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		if (this.languages == null) {
 			this.languages = new TreeSet<String>();
 
-			Collection<org.openrdf.model.URI> props = Arrays.asList(
+			Collection<IRI> props = Arrays.asList(
 					SKOS.PREF_LABEL, SKOS.ALT_LABEL);
 
-			for (org.openrdf.model.URI prop : props) {
+			for (IRI prop : props) {
 				try {
 					RepositoryConnection connect = triplestore.getConnection();
 					RepositoryResult<Statement> stmts = connect.getStatements(null,
@@ -436,8 +436,8 @@ public class SKOSContainer implements OntoContainer<Resource> {
 
 					for (Statement s : stmts_list) {
 						Literal literal = (Literal) s.getObject();
-						if (literal.getLanguage() != null)
-							languages.add(literal.getLanguage());
+						if (literal.getLanguage().isPresent())
+							languages.add(literal.getLanguage().get());
 					}
 					connect.close();
 				} catch (RepositoryException e) {
@@ -450,7 +450,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 
 	@Override
 	public Resource getConceptFromURI(URI uri) {
-		return factory.createURI(uri.toString());
+		return factory.createIRI(uri.toString());
 	}
 
 	@Override
@@ -461,7 +461,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	@Override
 	public Resource getRoot() {
 		// Create a fake root with OWL Thing uri. Better than nothing... (joke).
-		return factory.createURI("http://www.w3.org/2002/07/owl#Thing");
+		return factory.createIRI("http://www.w3.org/2002/07/owl#Thing");
 	}
 
 	public Set<Resource> getConceptSchemes() {
