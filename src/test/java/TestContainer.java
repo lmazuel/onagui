@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.Set;
 
+import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.junit.Test;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+
+import com.google.common.collect.Sets;
 
 import fr.onagui.alignment.container.DOEOWLContainer;
 import fr.onagui.alignment.container.SKOSContainer;
@@ -20,6 +24,7 @@ public class TestContainer {
 		URI filename = TestContainer.class.getResource("TestOneConceptXml.owl").toURI();
 		DOEOWLContainer container = new DOEOWLContainer(filename);
 		assertEquals(container.getAllConcepts().size(), 1);
+		assertEquals(container.getAllLanguageInLabels(), Sets.newHashSet());
 	}
 
 	@Test
@@ -27,6 +32,7 @@ public class TestContainer {
 		URI filename = TestContainer.class.getResource("TestOneConceptTurtle.owl").toURI();
 		DOEOWLContainer container = new DOEOWLContainer(filename);
 		assertEquals(container.getAllConcepts().size(), 1);
+		assertEquals(container.getAllLanguageInLabels(), Sets.newHashSet());
 	}
 	
 	@Test
@@ -34,12 +40,21 @@ public class TestContainer {
 		URI filename = TestContainer.class.getResource("SkosTestXml.skos.owl").toURI();
 		SKOSContainer container = new SKOSContainer(Paths.get(filename).toFile());
 		assertEquals(container.getAllConcepts().size(), 1);
+		assertEquals(container.getAllLanguageInLabels(), Sets.newHashSet("en","fr"));
 	}
 
 	@Test
 	public void testSkosNT() throws URISyntaxException, RepositoryException, RDFParseException, IOException {
 		URI filename = TestContainer.class.getResource("SkosTestNT.skos.owl").toURI();
 		SKOSContainer container = new SKOSContainer(Paths.get(filename).toFile());
-		assertEquals(container.getAllConcepts().size(), 1);
-	}	
+		Set<Resource> allConcepts = container.getAllConcepts();
+		assertEquals(allConcepts.size(), 1);
+		assertEquals(container.getAllLanguageInLabels(), Sets.newHashSet("en","fr"));
+
+		Resource cpt = allConcepts.iterator().next();
+		assertEquals(Sets.newHashSet("mon premier concept"), container.getPrefLabels(cpt, "fr"));
+		assertEquals(Sets.newHashSet("my first concept no lang tag"), container.getPrefLabels(cpt, ""));
+		assertEquals(Sets.newHashSet("my first concept no lang tag", "mon premier concept", "my first concept"),
+					 container.getPrefLabels(cpt));
+	}
 }

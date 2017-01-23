@@ -115,6 +115,8 @@
         <skos:altLabel xml:lang="fr">mon alt label</skos:altLabel>
         <skos:prefLabel xml:lang="fr"
             >mon premier concept</skos:prefLabel>
+        <skos:prefLabel
+            >mon premier concept sans lang tag</skos:prefLabel>
         <skos:inScheme rdf:resource="#Root"/>
         <skos:topConceptOf rdf:resource="#Root"/>
     </owl:Thing>

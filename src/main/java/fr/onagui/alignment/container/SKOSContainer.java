@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -388,8 +389,8 @@ public class SKOSContainer implements OntoContainer<Resource> {
 			List<Statement> stmts_list = Iterations.asList(stmts);
 			for (Statement s : stmts_list) {
 				Literal literal = (Literal) s.getObject();
-				if ((lang.equals("") && literal.getLanguage() == null)
-						|| (lang.equals(literal.getLanguage())))
+				Optional<String> language = literal.getLanguage();
+				if (lang.equals(language.orElse("")))
 					result.add(literal.getLabel());
 			}
 			connect.close();
