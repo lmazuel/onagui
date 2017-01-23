@@ -8,6 +8,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -44,7 +45,7 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 	protected OWLDataFactory df;
 	protected OWLReasoner reasoner = null;
 
-	private Set<String> languages = null;
+	private SortedSet<String> languages = null;
 
 	public OWLAPIContainer(URI filename) throws OWLOntologyCreationException {
 		try {
@@ -274,7 +275,7 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 	}
 
 	@Override
-	public Set<String> getAllLanguageInLabels() {
+	public SortedSet<String> getAllLanguageInLabels() {
 		if(languages == null) {
 			languages = new TreeSet<String>();
 			OWLOntologyWalker walker = new OWLOntologyWalker(Collections.singleton(ontology));

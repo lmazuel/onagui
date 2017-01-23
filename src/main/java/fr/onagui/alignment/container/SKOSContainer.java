@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -62,7 +63,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		propertyForConcepts.put(SKOS.NARROWER_TRANSITIVE, new boolean[] {true, true});
 	}
 
-	private Set<String> languages = null; // Lazy initialization
+	private SortedSet<String> languages = null; // Lazy initialization
 	private Set<Resource> conceptSchemes = null; // Lazy initialization
 	private Map<Resource, Resource> topConceptOfCache = null; // Cache
 
@@ -421,7 +422,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	}
 
 	@Override
-	public Set<String> getAllLanguageInLabels() {
+	public SortedSet<String> getAllLanguageInLabels() {
 		if (this.languages == null) {
 			this.languages = new TreeSet<String>();
 

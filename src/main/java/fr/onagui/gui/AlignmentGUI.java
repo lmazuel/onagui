@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -48,7 +49,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -73,10 +73,9 @@ import javax.swing.tree.TreeSelectionModel;
 import fr.onagui.alignment.AbstractAlignmentMethod;
 import fr.onagui.alignment.Alignment;
 import fr.onagui.alignment.Mapping;
-import fr.onagui.alignment.OntoContainer;
 import fr.onagui.alignment.Mapping.MAPPING_TYPE;
 import fr.onagui.alignment.Mapping.VALIDITY;
-import fr.onagui.alignment.io.CSVImpl;
+import fr.onagui.alignment.OntoContainer;
 import fr.onagui.alignment.method.LabelAlignmentMethod;
 import fr.onagui.config.OnaguiConfigImpl;
 import fr.onagui.config.OnaguiConfiguration;
@@ -1305,18 +1304,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			langMenu.removeAll();
 			if(isOntologyLoaded(number)) {
 				ButtonGroup grp = new ButtonGroup();
-				Set<String> languages = alignmentControler.getLanguagesUsedInOnto(number);
-				JRadioButtonMenuItem none = new JRadioButtonMenuItem("Au hasard"); //$NON-NLS-1$
-				none.setSelected(true);
-				grp.add(none);
-				none.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						AlignmentGUI.this.alignmentControler.setCurrentLanguage(intern_number, ""); //$NON-NLS-1$
-					}
-				});
-				langMenu.add(none);
-
+				SortedSet<String> languages = alignmentControler.getLanguagesUsedInOnto(number);
 				for(String lang : languages) {
 					JRadioButtonMenuItem lg = new JRadioButtonMenuItem(lang);
 					grp.add(lg);
@@ -1330,6 +1318,16 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 					});
 					langMenu.add(lg);
 				}
+				JRadioButtonMenuItem noLangTagItem = new JRadioButtonMenuItem(Messages.getString("NoLangTag"));
+				grp.add(noLangTagItem);
+				noLangTagItem.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						AlignmentGUI.this.alignmentControler.setCurrentLanguage(intern_number, ""); //$NON-NLS-1$
+					}
+				});
+				langMenu.add(noLangTagItem);
+				grp.getElements().nextElement().setSelected(true);
 			}
 			else {
 				langMenu.add(new JMenuItem("None")); //$NON-NLS-1$

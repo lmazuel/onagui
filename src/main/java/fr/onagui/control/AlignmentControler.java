@@ -207,7 +207,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		}
 	}
 
-	public Set<String> getLanguagesUsedInOnto(int number) {
+	public SortedSet<String> getLanguagesUsedInOnto(int number) {
 		switch (number) {
 		case 1:
 			return container1.getAllLanguageInLabels();

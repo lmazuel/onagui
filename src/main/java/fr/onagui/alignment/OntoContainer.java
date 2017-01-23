@@ -5,6 +5,7 @@ package fr.onagui.alignment;
 
 import java.net.URI;
 import java.util.Set;
+import java.util.SortedSet;
 
 /** Un meta-modèle d'ontologie pour l'interface avec le logiciel d'alignement. 
  * @author Laurent Mazuel
@@ -90,7 +91,7 @@ public interface OntoContainer<ONTORES> {
 	/** Renvoie la liste des langages utilisés dans les labels.
 	 * @return
 	 */
-	public Set<String> getAllLanguageInLabels();
+	public SortedSet<String> getAllLanguageInLabels();
 	
 	/** Retourne l'ensemble des termes préférés de ce concept de la langue en parametre.
 	 * En general, le resultat est un singleton. 

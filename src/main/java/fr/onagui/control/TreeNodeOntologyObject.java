@@ -68,17 +68,14 @@ public class TreeNodeOntologyObject<ONTORES> {
 	@Override
 	public String toString() {
 		final String currentShowingLanguage = treeModel.getCurrentShowingLanguage();
-		Set<String> prefLabels = new HashSet<String>();
 		// Si j'ai une langue préférée, la chercher
-		if(!currentShowingLanguage.isEmpty()) {
-			prefLabels = getContainer().getPrefLabels(concept, currentShowingLanguage);
-		}
+		Set<String> prefLabels = getContainer().getPrefLabels(concept, currentShowingLanguage);
 		// Si pas de langue préférée ou si ça donne rien, cas général
 		if(prefLabels.isEmpty()) {
 			prefLabels = getContainer().getPrefLabels(concept);
 		}
 		String prefix = (container.isIndividual(concept))?"I: ":"";
-		if(prefLabels != null && !prefLabels.isEmpty())
+		if(!prefLabels.isEmpty())
 			return prefix + prefLabels.iterator().next();
 		URI uri = getContainer().getURI(concept);
 		String fragment = uri.getFragment();

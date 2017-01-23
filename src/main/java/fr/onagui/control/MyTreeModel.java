@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -55,6 +56,11 @@ public class MyTreeModel<ONTORES> extends DefaultTreeModel {
 	public MyTreeModel(OntoContainer<ONTORES> container) {
 		super(null); // False constructor
 		this.container = container;
+
+		// By default, choose a language by alphabetical order
+		SortedSet<String> allLanguageInLabels = this.container.getAllLanguageInLabels();
+		this.setCurrentShowingLanguage(allLanguageInLabels.stream().findFirst().orElse(""));
+
 		DefaultMutableTreeNode top = buildTreeModeFromContainer();
 		setRoot(top);
 	}
