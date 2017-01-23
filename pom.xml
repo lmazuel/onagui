@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.onagui</groupId>
 	<artifactId>onagui</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>0.3.0-alpha-1</version>
 	<name>OnAGUI</name>
 	<description>Software to help automatic or manual realisation of ontology alignment</description>
 
