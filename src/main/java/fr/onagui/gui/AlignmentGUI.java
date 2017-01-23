@@ -141,7 +141,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 
 	/* formulaire de rentrée des alignements */
 	private JTextField scoreFied = null;
-	private JComboBox typeField = null;
+	private JComboBox<MAPPING_TYPE> typeField = null;
 
 	/* center pane */
 	private JTextArea snoComment;
@@ -314,7 +314,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		scorePanel.add(scoreFied);
 		JPanel typePanel = new JPanel(new GridLayout(2,1));
 		typePanel.add(new JLabel(Messages.getString("TypeCenterPanLabel"))); //$NON-NLS-1$
-		typeField = new JComboBox(MAPPING_TYPE.values());
+		typeField = new JComboBox<MAPPING_TYPE>(MAPPING_TYPE.values());
+		typeField.setRenderer(new MappingTypeRenderer());
 		typeField.setSelectedItem(MAPPING_TYPE.EQUIV);
 		typePanel.add(typeField);
 		JButton addButton = new JButton(Messages.getString("AddCenterPanButtonLabel")); //$NON-NLS-1$

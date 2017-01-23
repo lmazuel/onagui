@@ -62,18 +62,28 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 	 * @author Laurent Mazuel
 	 */
 	public enum MAPPING_TYPE {
-		DISJOINT, // Disjoint
-		OVERLAP, // Overlap
-		SUBSUMEDBY("<"), // Subsomption by
-		SUBSUMES(">"), // subsumes
-		EQUIV("equivalence", "=", "eq"); // Equivalence
+		DISJOINT("disjoint"), // Disjoint
+		OVERLAP("closeMatch"), // Overlap
+		SUBSUMEDBY("broadMatch", "<"), // Subsomption by
+		SUBSUMES("narrowMatch", ">"), // subsumes
+		EQUIV("exactMatch","equivalence", "=", "eq"), // Equivalence
+		RELATED("relatedMatch");
 
+		private String label = null;
 		private String[] equivalentForms = null;
 
-		private MAPPING_TYPE(String... equivalentForms) {
+		private MAPPING_TYPE(String label, String... equivalentForms) {
+			this.label = label;
 			this.equivalentForms = equivalentForms;
 		}
 
+		/** Return the label, for UI usage.
+		 * @return
+		 */
+		public String getLabel() {
+			return label;
+		}
+		
 		/**
 		 * Test if the string in parameter can be considered as equivalent of
 		 * this type. Some relation type have different forms, as "equivalence",
