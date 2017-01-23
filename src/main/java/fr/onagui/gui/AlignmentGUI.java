@@ -275,7 +275,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		labelPane.setBorder(BorderFactory.createEmptyBorder());
 
 		// The not found box for 1
-		notFoundFrom1 = new JCheckBox(Messages.getString("AlignNotPossible")); //$NON-NLS-1$
+		notFoundFrom1 = new JCheckBox(Messages.getString("AlignNotPossible.1")); //$NON-NLS-1$
 		notFoundFrom1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -291,7 +291,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			}
 		});
 		// The not found box for 2
-		notFoundFrom2 = new JCheckBox(CSVImpl.CANNOT_BE_ALIGNED);
+		notFoundFrom2 = new JCheckBox(Messages.getString("AlignNotPossible.2")); //$NON-NLS-1$
 		notFoundFrom2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
