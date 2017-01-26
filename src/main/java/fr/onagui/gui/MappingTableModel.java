@@ -111,7 +111,7 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 			else {
 				line[1] = node2.getUserObject();
 			}
-			line[2] = map.getType();
+			line[2] = map.getType().getLabel();
 			line[3] = map.getScore();
 			// Le nom de la methode
 			line[5] = map.getMethod();
