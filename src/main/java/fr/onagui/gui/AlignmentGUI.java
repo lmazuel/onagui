@@ -335,7 +335,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 						(TreeNodeOntologyObject)node2.getUserObject(),
 						score,
 						type,
-				"manual"); //$NON-NLS-1$
+						"manual"); //$NON-NLS-1$
 				// Mise à jour de l'affichage
 				refreshGUIFromModel();
 			}
