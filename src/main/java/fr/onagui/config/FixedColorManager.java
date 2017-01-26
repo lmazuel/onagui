@@ -11,10 +11,10 @@ public class FixedColorManager implements ScoreColorConfiguration {
 
 	/* Color, fixed */
 
-	public static final Color COLOR_1 = new Color(51,255,51);
-	public static final Color COLOR_2 = new Color(255,255,0);
-	public static final Color COLOR_3 = new Color(255,153,0);
-	public static final Color COLOR_4 = new Color(255, 0, 0);
+	public static final Color COLOR_1 = new Color(51,255,51); // Green
+	public static final Color COLOR_2 = new Color(255,255,0); // Yellow
+	public static final Color COLOR_3 = new Color(255,153,0); // Orange
+	public static final Color COLOR_4 = new Color(255, 0, 0); // Red
 
 	/* Threshold, can be modified by constructor */
 
