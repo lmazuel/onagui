@@ -115,16 +115,24 @@ public class Alignment<ONTORES1, ONTORES2> {
 		mapping.add(map);
 	}
 
+	private static <ONTORES1,ONTORES2> void removeMapFromIndex(
+			URI cptUri,
+			Mapping<ONTORES1,ONTORES2> map,
+			SortedMap<URI, SortedSet<Mapping<ONTORES1, ONTORES2>>> index) {
+		if(index.containsKey(cptUri)) {
+			index.get(cptUri).remove(map);
+			if(index.get(cptUri).isEmpty())
+				index.remove(cptUri);
+		}
+	}
+
 	public void removeMap(Mapping<ONTORES1,ONTORES2> map) {
-		// Remove from first index
-		if(index1.containsKey(onto1.getURI(map.getFirstConcept()))) {
-			index1.get(onto1.getURI(map.getFirstConcept())).remove(map);
-		}
-		// Remove from second index
-		if(index2.containsKey(onto2.getURI(map.getSecondConcept()))) {
-			index2.get(onto2.getURI(map.getSecondConcept())).remove(map);
-		}
-		// Remove from all concepts
+		URI uri1 = onto1.getURI(map.getFirstConcept());
+		removeMapFromIndex(uri1, map, index1);
+
+		URI uri2 = onto2.getURI(map.getSecondConcept());
+		removeMapFromIndex(uri2, map, index2);
+
 		mapping.remove(map);
 	}
 
@@ -133,10 +141,8 @@ public class Alignment<ONTORES1, ONTORES2> {
 		if(index1.containsKey(concept1URI)) {
 			for(Mapping<ONTORES1,ONTORES2> map : index1.get(concept1URI)) {
 				URI concept2URI = onto2.getURI(map.getSecondConcept());
-				if(index2.containsKey(concept2URI)) {
-					index2.get(concept2URI).remove(map);
-					mapping.remove(map);
-				}				
+				removeMapFromIndex(concept2URI, map, index2);
+				mapping.remove(map);
 			}
 			index1.remove(concept1URI);
 		}
@@ -147,10 +153,8 @@ public class Alignment<ONTORES1, ONTORES2> {
 		if(index2.containsKey(concept2URI)) {
 			for(Mapping<ONTORES1,ONTORES2> map : index2.get(concept2URI)) {
 				URI concept1URI = onto1.getURI(map.getFirstConcept());
-				if(index1.containsKey(concept1URI)) {
-					index1.get(concept1URI).remove(map);
-					mapping.remove(map);
-				}				
+				removeMapFromIndex(concept1URI, map, index1);
+				mapping.remove(map);
 			}
 			index2.remove(concept2URI);
 		}

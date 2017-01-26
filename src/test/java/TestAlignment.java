@@ -16,6 +16,7 @@ import static org.junit.Assert.*;
 
 import com.google.common.collect.Sets;
 
+import fr.onagui.alignment.Alignment;
 import fr.onagui.alignment.Mapping;
 import fr.onagui.alignment.OntoContainer;
 import fr.onagui.alignment.method.LevenshteinAlignmentMethod;
@@ -92,5 +93,75 @@ public class TestAlignment {
 		computeMapping = method.computeMapping(mockContainer, "urn:cpt3", mockContainer, "urn:cpt4");
 		System.out.println(computeMapping.getScore());
 		assertEquals(1.0, computeMapping.getScore(), 0);
+	}
+
+	@Test
+	public void testAlignmentIndex() {
+		OntoContainer<String> mockContainer1 = mock(OntoContainer.class);
+		when(mockContainer1.getURI(anyString())).then(new Answer<URI>() {
+			@Override
+			public URI answer(InvocationOnMock invocation) throws Throwable {
+				Object[] args = invocation.getArguments();
+				return new URI("urn:"+args[0]);
+			}
+		});
+
+		OntoContainer<String> mockContainer2 = mock(OntoContainer.class);
+		when(mockContainer2.getURI(anyString())).then(new Answer<URI>() {
+			@Override
+			public URI answer(InvocationOnMock invocation) throws Throwable {
+				Object[] args = invocation.getArguments();
+				return new URI("urn:"+args[0]);
+			}
+		});
+
+		Alignment<String, String> alignement = new Alignment<String, String>(mockContainer1, mockContainer2);
+		assertFalse(alignement.alignExist1("cpt1"));
+		assertFalse(alignement.alignExist2("cpt2"));
+		assertTrue(alignement.getAllMappingFor1("cpt1").isEmpty());
+		assertTrue(alignement.getAllMappingFor2("cpt2").isEmpty());
+
+		Mapping<String, String> map = new Mapping<String, String>("cpt1", "cpt2");
+		alignement.addMap(map);
+		assertEquals("cpt1", alignement.getAllMappingFor1("cpt1").first().getFirstConcept());
+		assertEquals("cpt2", alignement.getAllMappingFor1("cpt1").first().getSecondConcept());
+		assertEquals("cpt1", alignement.getAllMappingFor2("cpt2").first().getFirstConcept());
+		assertEquals("cpt2", alignement.getAllMappingFor2("cpt2").first().getSecondConcept());
+		assertTrue(alignement.alignExist1("cpt1"));
+		assertTrue(alignement.alignExist2("cpt2"));
+
+		alignement.removeMap(map);
+		assertTrue(alignement.getAllMappingFor1("cpt1").isEmpty());
+		assertTrue(alignement.getAllMappingFor2("cpt2").isEmpty());
+		assertFalse(alignement.alignExist1("cpt1"));
+		assertFalse(alignement.alignExist2("cpt2"));
+
+		alignement.addMap(map);
+		assertEquals("cpt1", alignement.getAllMappingFor1("cpt1").first().getFirstConcept());
+		assertEquals("cpt2", alignement.getAllMappingFor1("cpt1").first().getSecondConcept());
+		assertEquals("cpt1", alignement.getAllMappingFor2("cpt2").first().getFirstConcept());
+		assertEquals("cpt2", alignement.getAllMappingFor2("cpt2").first().getSecondConcept());
+		assertTrue(alignement.alignExist1("cpt1"));
+		assertTrue(alignement.alignExist2("cpt2"));
+
+		alignement.removeMapFromConcept1("cpt1");
+		assertTrue(alignement.getAllMappingFor1("cpt1").isEmpty());
+		assertTrue(alignement.getAllMappingFor2("cpt2").isEmpty());
+		assertFalse(alignement.alignExist1("cpt1"));
+		assertFalse(alignement.alignExist2("cpt2"));
+
+		alignement.addMap(map);
+		assertEquals("cpt1", alignement.getAllMappingFor1("cpt1").first().getFirstConcept());
+		assertEquals("cpt2", alignement.getAllMappingFor1("cpt1").first().getSecondConcept());
+		assertEquals("cpt1", alignement.getAllMappingFor2("cpt2").first().getFirstConcept());
+		assertEquals("cpt2", alignement.getAllMappingFor2("cpt2").first().getSecondConcept());
+		assertTrue(alignement.alignExist1("cpt1"));
+		assertTrue(alignement.alignExist2("cpt2"));
+
+		alignement.removeMapFromConcept2("cpt2");
+		assertTrue(alignement.getAllMappingFor1("cpt1").isEmpty());
+		assertTrue(alignement.getAllMappingFor2("cpt2").isEmpty());
+		assertFalse(alignement.alignExist1("cpt1"));
+		assertFalse(alignement.alignExist2("cpt2"));
 	}
 }
