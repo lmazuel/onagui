@@ -144,7 +144,7 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 	public Mapping(T firstConcept, V secondConcept, double score,
 			MAPPING_TYPE type) {
 		this(firstConcept, secondConcept, score, type, UNKNOW_METHOD,
-				VALIDITY.VALID);
+				VALIDITY.TO_CONFIRM);
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 	 */
 	public Mapping(T firstConcept, V secondConcept, double score,
 			MAPPING_TYPE type, String method) {
-		this(firstConcept, secondConcept, score, type, method, VALIDITY.VALID);
+		this(firstConcept, secondConcept, score, type, method, VALIDITY.TO_CONFIRM);
 	}
 
 	/**

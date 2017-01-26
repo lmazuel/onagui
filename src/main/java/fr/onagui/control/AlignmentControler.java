@@ -266,7 +266,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 	public void addMapping(TreeNodeOntologyObject<ONTORES1> node1, TreeNodeOntologyObject<ONTORES2> node2, double score, MAPPING_TYPE type, String method) {
 		ONTORES1 cpt1 = node1.getConcept();
 		ONTORES2 cpt2 = node2.getConcept();
-		Mapping<ONTORES1, ONTORES2> map = new Mapping<ONTORES1, ONTORES2>(cpt1, cpt2, score, type, method);
+		Mapping<ONTORES1, ONTORES2> map = new Mapping<ONTORES1, ONTORES2>(cpt1, cpt2, score, type, method, VALIDITY.VALID);
 		alignment.addMap(map);
 	}
 
