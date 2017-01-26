@@ -1540,6 +1540,11 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			if(!task.isDone()) {// Be careful of very quick task!
 				progressBar.setVisible(true);
 			}
+			try {
+				task.get();
+			} catch (InterruptedException | ExecutionException e1) {
+				e1.printStackTrace();
+			}
 			refreshGUIFromModel();
 		}
 	}
