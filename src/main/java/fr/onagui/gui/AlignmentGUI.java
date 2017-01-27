@@ -1143,10 +1143,6 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 									container = GUIUtils.loadSKOSOntologyWithGUI(AlignmentGUI.this, filename);
 								}
 								System.out.println("Loading OK"); //$NON-NLS-1$
-								System.out.println("Found Annotation properties:"); //$NON-NLS-1$
-								for(Object annotProp : container.getAllAnnotationsProperty()) {
-									System.out.println("->"+annotProp.toString()); //$NON-NLS-1$
-								}
 								if(!ontoType.isFirstOntology()) { // Reference ontology
 									ontology2Type = ontoType;
 									ontology2File = filename;

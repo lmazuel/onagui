@@ -39,11 +39,6 @@ public interface OntoContainer<ONTORES> {
 	 */
 	public Set<ONTORES> getAllProperties();
 	
-	/** L'ensemble des propritétés d'annotation de ce modèle.
-	 * @return L'ensemble des propritétés d'annotation de ce modèle. 
-	 */
-	public Set<ONTORES> getAllAnnotationsProperty();
-
 	/** Recupère un concept à partir de l'URI.
 	 * @param uri L'URI d'un concept.
 	 * @return Un concept.

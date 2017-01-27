@@ -32,12 +32,6 @@ public class MyOntoContainerTestAdapter<ONTORES> implements OntoContainer<ONTORE
 	}
 
 	@Override
-	public Set<ONTORES> getAllAnnotationsProperty() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public ONTORES getConceptFromURI(URI uri) {
 		// TODO Auto-generated method stub
 		return null;

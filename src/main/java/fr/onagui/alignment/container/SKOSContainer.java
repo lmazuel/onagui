@@ -338,14 +338,6 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	}
 
 	@Override
-	public Set<Resource> getAllAnnotationsProperty() {
-		Set<Resource> result = new HashSet<Resource>();
-		result.add(SKOS.PREF_LABEL);
-		result.add(SKOS.ALT_LABEL);
-		return result;
-	}
-
-	@Override
 	public URI getURI(Resource cpt) {
 		try {
 			return new URI(((IRI) cpt).toString());

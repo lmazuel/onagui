@@ -132,13 +132,6 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 		result.addAll(ontology.getObjectPropertiesInSignature());
 		return result;
 	}
-
-	@Override
-	public Set<OWLEntity> getAllAnnotationsProperty() {
-		Set<OWLEntity> result = new HashSet<OWLEntity>();
-		result.addAll(ontology.getAnnotationPropertiesInSignature());
-		return result;
-	}
 	
 	/* (non-Javadoc)
 	 * @see agui.alignment.OntoContainer#getPrefLabels(java.lang.Object)
