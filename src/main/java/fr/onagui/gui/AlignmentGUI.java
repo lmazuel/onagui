@@ -35,6 +35,7 @@ import java.util.concurrent.FutureTask;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -69,6 +70,8 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
+import com.google.common.collect.Sets;
 
 import fr.onagui.alignment.AbstractAlignmentMethod;
 import fr.onagui.alignment.Alignment;
@@ -168,6 +171,11 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	/** Lexicalisation panel */
 	LexicalisationPanel lexic1 = null;
 	LexicalisationPanel lexic2 = null;
+	
+	/** Annotations panel */
+	JComboBox<String> annotationChoice = null;
+	AnnotationPanel annot1 = null;
+	AnnotationPanel annot2 = null;
 
 	/** Memoire du dernier dossier ou j'ai ouvert un truc */
 	private File lastDirectory = null;
@@ -418,10 +426,25 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		lexicalisationPanel.add(lexic1);
 		lexicalisationPanel.add(lexic2);
 
+		// Panneau d'annotation
+		JPanel annotationPanel = new JPanel(new BorderLayout());
+		annotationChoice = new JComboBox<String>();
+		annotationPanel.add(annotationChoice, BorderLayout.NORTH);
+		JPanel annotationContentPanel = new JPanel(new GridLayout(1,2));
+		annot1 = new AnnotationPanel();
+		annot2 = new AnnotationPanel();
+		annotationContentPanel.add(annot1);
+		annotationContentPanel.add(annot2);
+		annotationPanel.add(annotationContentPanel, BorderLayout.CENTER);
+		annotationChoice.addActionListener(e -> {
+			refreshGenericAnnotationPanel();
+		});
+		
 		// Tabbed pane
 		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.addTab(Messages.getString("LexicTabLabel"), lexicalisationPanel); //$NON-NLS-1$
 		tabbedPane.addTab(Messages.getString("CommentTabLabel"), commentPane); //$NON-NLS-1$
+		tabbedPane.addTab(Messages.getString("AnnotationLabel"), annotationPanel); //$NON-NLS-1$
 
 		// Add to label view
 		c.gridx = 0;
@@ -1330,6 +1353,40 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			}
 		}
 	}
+	
+	private void refreshGenericAnnotationPanel() {
+		// Get the selected nodes
+		DefaultMutableTreeNode node1 = (DefaultMutableTreeNode)treeFrom1.getLastSelectedPathComponent();
+		DefaultMutableTreeNode node2 = (DefaultMutableTreeNode)treeFrom2.getLastSelectedPathComponent();
+
+		if(node1 != null) {
+			Object userObject = node1.getUserObject();
+			if(userObject instanceof TreeNodeOntologyObject) {
+				TreeNodeOntologyObject nodeOntologyObject = (TreeNodeOntologyObject)userObject;
+				
+				String predicateUri = (String) annotationChoice.getSelectedItem();
+				Set<String> labels = alignmentControler.getLabels(nodeOntologyObject, predicateUri, 1);
+				annot1.setLabelsToPanel(labels);
+			}			
+		}
+		else {
+			annot1.setLabelsToPanel(Sets.newHashSet());
+		}
+
+		if(node2 != null) {
+			Object userObject = node2.getUserObject();
+			if(userObject instanceof TreeNodeOntologyObject) {
+				TreeNodeOntologyObject nodeOntologyObject = (TreeNodeOntologyObject)userObject;
+				
+				String predicateUri = (String) annotationChoice.getSelectedItem();
+				Set<String> labels = alignmentControler.getLabels(nodeOntologyObject, predicateUri, 2);
+				annot2.setLabelsToPanel(labels);
+			}			
+		}
+		else {
+			annot2.setLabelsToPanel(Sets.newHashSet());
+		}
+	}
 
 	public void refreshGUIFromModel() {
 		// Avant de faire quoique que ce soit, memoriser la selection courante au centre:
@@ -1347,6 +1404,9 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		DefaultMutableTreeNode node1 = (DefaultMutableTreeNode)treeFrom1.getLastSelectedPathComponent();
 		DefaultMutableTreeNode node2 = (DefaultMutableTreeNode)treeFrom2.getLastSelectedPathComponent();
 
+		String currentPredicateUri = (String) annotationChoice.getSelectedItem();
+		Set<String> annotationUris = new HashSet<String>();
+		
 		// Get the index in the table
 		if(node1 != null) {
 			Object userObject = node1.getUserObject();
@@ -1365,6 +1425,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				lexic1.setFragURI(fragUri);
 				lexic1.setPrefLabel(prefLabels);
 				lexic1.setAltLabel(altLabels);
+				
+				annotationUris.addAll(alignmentControler.getAnnotationsUri(nodeOntologyObject, 1));
 			}
 		}
 		else {
@@ -1389,6 +1451,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				lexic2.setFragURI(fragUri);
 				lexic2.setPrefLabel(prefLabels);
 				lexic2.setAltLabel(altLabels);
+
+				annotationUris.addAll(alignmentControler.getAnnotationsUri(nodeOntologyObject, 1));
 			}
 		}
 		else {
@@ -1397,6 +1461,25 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			lexic2.setAltLabel(null);
 		}
 
+		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>(
+				annotationUris.toArray(new String[annotationUris.size()]));
+		annotationChoice.setModel(model);
+		/* If same predicate is still here, reload it */
+		if(annotationUris.contains(currentPredicateUri)) {
+			annotationChoice.getModel().setSelectedItem(currentPredicateUri);
+			refreshGenericAnnotationPanel();
+		}
+		/* Force one to have something to show */
+		else if(!annotationUris.isEmpty()) {
+			annotationChoice.getModel().setSelectedItem(annotationUris.stream().findFirst().get());
+			refreshGenericAnnotationPanel();
+		}
+		/* Empty */
+		else {
+			annot1.setLabelsToPanel(null);
+			annot2.setLabelsToPanel(null);
+		}
+		
 		/* La table maintenant */
 		// Concept 1 à retenir?
 		Object concept1 = null;

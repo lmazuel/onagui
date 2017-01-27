@@ -25,6 +25,7 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
@@ -347,6 +348,10 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		}
 	}
 
+	public Set<String> getLabels(Resource cpt, String prop) {
+		return getLabels(cpt, factory.createIRI(prop));
+	}
+	
 	private Set<String> getLabels(Resource cpt, IRI prop) {
 		if (cpt == null)
 			throw new IllegalArgumentException("cpt cannot be null");
@@ -393,6 +398,29 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		return result;
 	}
 
+	public Set<String> getAnnotations(Resource cpt) {
+		if (cpt == null)
+			throw new IllegalArgumentException("cpt cannot be null");
+		Set<String> result = new HashSet<String>();
+		try {
+			RepositoryConnection connect = triplestore.getConnection();
+			RepositoryResult<Statement> stmts = connect.getStatements(cpt,
+					null, null, true);
+			List<Statement> stmts_list = Iterations.asList(stmts);
+			for (Statement s : stmts_list) {
+				IRI predicate = s.getPredicate();
+				Value object = s.getObject();
+				if(object instanceof Literal) {
+					result.add(predicate.toString());
+				}
+			}
+			connect.close();
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}	
+	
 	@Override
 	public Set<String> getPrefLabels(Resource cpt) {
 		return getLabels(cpt, SKOS.PREF_LABEL);

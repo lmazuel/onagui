@@ -39,6 +39,19 @@ public interface OntoContainer<ONTORES> {
 	 */
 	public Set<ONTORES> getAllProperties();
 	
+	/** Get Annotation of this concept
+	 * @param cpt a Concept
+	 * @return A set of URIs
+	 */
+	public Set<String> getAnnotations(ONTORES cpt);
+	
+	/** Get labels for this predicate
+	 * @param cpt The concept
+	 * @param prop The predicate
+	 * @return The set of labels
+	 */
+	public Set<String> getLabels(ONTORES cpt, String prop);
+		
 	/** Recupère un concept à partir de l'URI.
 	 * @param uri L'URI d'un concept.
 	 * @return Un concept.

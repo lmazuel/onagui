@@ -103,4 +103,16 @@ public class MyOntoContainerTestAdapter<ONTORES> implements OntoContainer<ONTORE
 		return null;
 	}
 
+	@Override
+	public Set<String> getAnnotations(ONTORES cpt) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<String> getLabels(ONTORES cpt, String prop) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -16,11 +16,11 @@ import fr.onagui.alignment.AbstractAlignmentMethod;
 import fr.onagui.alignment.Alignment;
 import fr.onagui.alignment.AlignmentFactory;
 import fr.onagui.alignment.Mapping;
+import fr.onagui.alignment.Mapping.MAPPING_TYPE;
+import fr.onagui.alignment.Mapping.VALIDITY;
 import fr.onagui.alignment.NoMappingPossible;
 import fr.onagui.alignment.OntoContainer;
 import fr.onagui.alignment.OntoTools;
-import fr.onagui.alignment.Mapping.MAPPING_TYPE;
-import fr.onagui.alignment.Mapping.VALIDITY;
 import fr.onagui.alignment.io.CSVImpl;
 import fr.onagui.alignment.io.EuzenatRDFImpl;
 import fr.onagui.alignment.io.IOAlignment;
@@ -391,6 +391,28 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		}		
 	}
 
+	public Set<String> getAnnotationsUri(TreeNodeOntologyObject treeNode, int number) {
+		if(number == 1) {
+			ONTORES1 cpt = (ONTORES1)treeNode.getConcept();
+			return container1.getAnnotations(cpt);
+		}
+		else {
+			ONTORES2 cpt = (ONTORES2)treeNode.getConcept();
+			return container2.getAnnotations(cpt);
+		}		
+	}	
+
+	public Set<String> getLabels(TreeNodeOntologyObject treeNode, String predicateUri, int number) {
+		if(number == 1) {
+			ONTORES1 cpt = (ONTORES1)treeNode.getConcept();
+			return container1.getLabels(cpt, predicateUri);
+		}
+		else {
+			ONTORES2 cpt = (ONTORES2)treeNode.getConcept();
+			return container2.getLabels(cpt, predicateUri);
+		}		
+	}		
+	
 	public boolean openRdfAlign(File file) {
 		try {
 			ioEventManager.reset();

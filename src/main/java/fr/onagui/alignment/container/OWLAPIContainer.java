@@ -132,6 +132,12 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 		result.addAll(ontology.getObjectPropertiesInSignature());
 		return result;
 	}
+
+	@Override
+	public Set<String> getAnnotations(OWLEntity cpt) {
+		// FIXME Support for OWL?
+		return new HashSet<String>();
+	}
 	
 	/* (non-Javadoc)
 	 * @see agui.alignment.OntoContainer#getPrefLabels(java.lang.Object)
@@ -293,5 +299,10 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 
 	public OWLReasoner getReasoner() {
 		return reasoner;
+	}
+
+	@Override
+	public Set<String> getLabels(OWLEntity cpt, String prop) {
+		throw new UnsupportedOperationException("Not supported in OWL for now");
 	}
 }
