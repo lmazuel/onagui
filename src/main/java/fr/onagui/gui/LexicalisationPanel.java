@@ -47,17 +47,18 @@ public class LexicalisationPanel extends JPanel {
 		
 		setLayout(new GridLayout(3,1));
 		JPanel fragPanel = new JPanel(new BorderLayout());
-		fragPanel.add(new JLabel("FragURI:"), BorderLayout.NORTH); //$NON-NLS-1$
+		fragPanel.add(new JLabel("URI fragment:"), BorderLayout.NORTH); //$NON-NLS-1$
 		fragPanel.add(fragURI, BorderLayout.CENTER);
 		JPanel prefPanel = new JPanel(new BorderLayout());
-		prefPanel.add(new JLabel("PrefLabels:"), BorderLayout.NORTH); //$NON-NLS-1$
+		prefPanel.add(new JLabel("Libellés préférentiels:"), BorderLayout.NORTH); //$NON-NLS-1$
 		prefPanel.add(prefLabels, BorderLayout.CENTER);
 		JPanel altPanel = new JPanel(new BorderLayout());
-		altPanel.add(new JLabel("AltLabels:"), BorderLayout.NORTH); //$NON-NLS-1$
+		altPanel.add(new JLabel("Synomymes:"), BorderLayout.NORTH); //$NON-NLS-1$
 		altPanel.add(altLabels, BorderLayout.CENTER);
-		add(fragPanel);
+		
 		add(prefPanel);
 		add(altPanel);
+		add(fragPanel);
 		
 		setBorder(new TitledBorder(Messages.getString("LexicalisationPanel.LexiconPanelMainTitle"))); //$NON-NLS-1$
 	}
