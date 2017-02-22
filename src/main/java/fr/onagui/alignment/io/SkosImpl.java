@@ -57,6 +57,7 @@ public class SkosImpl implements IOAlignment {
 			VALIDITY validityWanted) throws IOException {
 		ValueFactory factory = SimpleValueFactory.getInstance();
 		Model model = new LinkedHashModel();
+		model.setNamespace("skos", "http://www.w3.org/2004/02/skos/core#");
 		
 		/*
 		Model model = ModelFactory.createDefaultModel();
@@ -107,25 +108,33 @@ public class SkosImpl implements IOAlignment {
 			res1.addProperty(propertyToUsed, res2);*/
 		}
 		
+		FileOutputStream stream = new FileOutputStream(pathToSave);
+		Rio.write(model, stream, RDFFormat.RDFXML);
+		
 	  /*OutputStream stream = Files.newOutputStream(Paths.get(pathToSave));
 		stream.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".getBytes(ONAGUI_CHARSET));
 		RDFWriter w = model.getWriter("RDF/XML-ABBREV");
 		w.setProperty("showXmlDeclaration", "false");
 		w.write(model, stream, "http://www.w3.org/2004/02/skos/core#");*/
-		FileOutputStream stream = new FileOutputStream(pathToSave);
-		RDFWriter writer = Rio.createWriter(RDFFormat.RDFXML,stream);
-		try {
-			  writer.startRDF();
-			  for (Statement st: model) {
-			    writer.handleStatement(st);
-			  }
-			  writer.endRDF();
-			}
-			catch (RDFHandlerException e) {
-			 // oh no, do something!
-			}
+//		FileOutputStream stream = new FileOutputStream(pathToSave);
+//		RDFWriter writer = Rio.createWriter(RDFFormat.RDFXML,stream);
+//		
+//		
+//		
+//		try {
+//			  writer.startRDF();
+//			  for (Statement st: model) {
+//			    writer.handleStatement(st);
+//			  }
+//			  writer.endRDF();
+//			}
+//			catch (RDFHandlerException e) {
+//			 // oh no, do something!
+//			}
 		
 	}
+	
+	
 }
 
 

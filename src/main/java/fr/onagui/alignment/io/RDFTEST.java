@@ -55,7 +55,7 @@ import fr.onagui.alignment.NoMappingPossible;
 import fr.onagui.alignment.OntoContainer;
 import sun.security.jca.GetInstance;
 
-public class EuzenatRDFImpl implements IOAlignment {
+public class RDFTEST implements IOAlignment {
 
 	// Liste des namespaces
 	public static final String ALIGN_NS = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment#";
@@ -93,7 +93,7 @@ public class EuzenatRDFImpl implements IOAlignment {
 	 * All warning messages are sended to stderr.
 	 * 
 	 */
-	public EuzenatRDFImpl() {
+	public RDFTEST() {
 		this(new IOEventManager() {			
 			@Override
 			public void outputEvent(String msg) {
@@ -110,7 +110,7 @@ public class EuzenatRDFImpl implements IOAlignment {
 	/** Main constructor, with EventManager for warning
 	 * @param ioe
 	 */
-	public EuzenatRDFImpl(IOEventManager ioe) {
+	public RDFTEST(IOEventManager ioe) {
 		this.ioEventManager = ioe;
 		// Initialize relations and types
 	
@@ -457,7 +457,7 @@ public class EuzenatRDFImpl implements IOAlignment {
 		model.add(cellNode, entity2Property,res2);
 		model.add(cellNode, entity1Property,res1);
 		
-		model.add(cellNode, creationDateProperty,factory.createLiteral(mapping.getCreationDate().toDate()));
+		model.add(cellNode, creationDateProperty,factory.createLiteral(mapping.getCreationDate().toString()));
 		
 		
 		final String method = mapping.getMethod();
@@ -466,14 +466,13 @@ public class EuzenatRDFImpl implements IOAlignment {
 			model.add(cellNode, methodProperty,factory.createLiteral(method));
 		}
 		if (!metamap.isEmpty()) {
-			Resource metaRoot = factory.createBNode();
-			model.add(cellNode, metamethodProperty,metaRoot);
+			IRI metaRoot = factory.createIRI(ALIGN_NS);
 			for (Map.Entry<String, String> entry : metamap.entrySet()) {
 				IRI localProp = factory.createIRI(ALIGN_NS
 						+ entry.getKey());
 				model.add(metaRoot, localProp,factory.createLiteral(entry.getValue()));
 			}
-			
+			model.add(cellNode, metamethodProperty,metaRoot);
 		}
 		
 		
