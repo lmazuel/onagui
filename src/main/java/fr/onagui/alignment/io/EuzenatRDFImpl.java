@@ -6,54 +6,45 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.ModelFactory;
+
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.model.impl.TreeModel;
-import org.eclipse.rdf4j.model.util.Models;
+
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
-import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
-import org.eclipse.rdf4j.rio.helpers.StatementCollector;
-import org.eclipse.rdf4j.rio.rdfxml.util.RDFXMLPrettyWriter;
+
 import org.eclipse.rdf4j.rio.rdfxml.util.RDFXMLPrettyWriterFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
-import com.sun.org.apache.xerces.internal.xs.datatypes.XSDateTime;
 
-import antlr.NameSpace;
+
 import fr.onagui.alignment.Alignment;
 import fr.onagui.alignment.Mapping;
 import fr.onagui.alignment.Mapping.MAPPING_TYPE;
 import fr.onagui.alignment.Mapping.VALIDITY;
 import fr.onagui.alignment.NoMappingPossible;
 import fr.onagui.alignment.OntoContainer;
-import sun.security.jca.GetInstance;
+
 
 public class EuzenatRDFImpl implements IOAlignment {
 
@@ -178,22 +169,9 @@ public class EuzenatRDFImpl implements IOAlignment {
 				Resource entity2 = (Resource)getRequiredProperty(cellNode, entity2Property, model);
 				Value measureValue =getRequiredProperty(cellNode, measureProperty, model);
 				
-				// FIXME "cellNode" devrait être un un noeud de Type Cell.
-				// Verification à faire?
-//				Statement entity1Stmt = cellNode
-//						.getRequiredProperty(entity1Property);
-//				Resource entity1 = entity1Stmt.getResource();
-//				Statement entity2Stmt = cellNode
-//						.getRequiredProperty(entity2Property);
-//				Resource entity2 = entity2Stmt.getResource();
-//				Statement measureStmt = cellNode
-//						.getRequiredProperty(measureProperty);
-				// measureStmt.getDouble() makes weird results...
-//				double score = Double.valueOf(measureStmt.getString());
+				
 				double score = Double.valueOf(((Literal)measureValue).stringValue());
-				// Manage relation, using different forms
-//				Statement relationStmt = cellNode
-//						.getRequiredProperty(relationProperty);
+
 				Value relationStmt = getRequiredProperty(cellNode, relationProperty, model);
 				final String relationStringFromRDF = relationStmt.stringValue();
 				MAPPING_TYPE type = MAPPING_TYPE
@@ -206,29 +184,27 @@ public class EuzenatRDFImpl implements IOAlignment {
 							+ relationStringFromRDF);
 				}
 				// Manage method
-//				Statement methodStmt = cellNode.getProperty(methodProperty);
+
 				Value methodValue = getRequiredProperty(cellNode,methodProperty,model);
 				
 				String method = (methodValue != null) ? methodValue.stringValue()
 						: Mapping.UNKNOW_METHOD;
 				// Manage validity
-				//Statement validStmt = cellNode.getProperty(validProperty);
+				
 				Value validValue = getRequiredProperty(cellNode,validProperty,model);
 				VALIDITY valid = (validValue != null) ? VALIDITY
 						.valueOf(validValue.stringValue()) : VALIDITY.TO_CONFIRM;
 				// Manage creation date
-//				Statement creationDateStmt = cellNode
-//						.getProperty(creationDateProperty);
 				Value creationDateValue =getRequiredProperty(cellNode,creationDateProperty,model);
 				DateTime date = (creationDateValue != null) ? timeFormatter
 						.parseDateTime(creationDateValue.stringValue())
 						: new DateTime();
 				// Manage meta
-				//Statement metaStmt = cellNode.getProperty(metamethodProperty);
+				
 				Resource metaRes = (Resource)getRequiredProperty(cellNode,metamethodProperty,model);
 				Map<String, String> metaMap = new TreeMap<String, String>();
 				if (metaRes != null) {
-					//StmtIterator it = anonymousNode.listProperties();
+					
 					for (Statement metaStmt: model.filter(metaRes, null,null)) {
 						// Manage predidate
 						IRI metaProp = metaStmt.getPredicate();
@@ -241,7 +217,7 @@ public class EuzenatRDFImpl implements IOAlignment {
 				}
 				// Manage comment
 				Value commentValue =getRequiredProperty(cellNode,RDFS.COMMENT,model);
-				//Statement commentStmt = cellNode.getProperty(RDFS.comment);
+		
 
 				try {
 					String uri1 = entity1.stringValue();
@@ -388,7 +364,7 @@ public class EuzenatRDFImpl implements IOAlignment {
 		
 		
 		FileOutputStream stream = new FileOutputStream(pathToSave);
-		
+	
 		RDFWriter prettyWriter = new RDFXMLPrettyWriterFactory().getWriter(stream);
 		Rio.write(model, prettyWriter);
 		
