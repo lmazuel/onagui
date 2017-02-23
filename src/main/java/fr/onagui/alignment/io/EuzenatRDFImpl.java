@@ -7,9 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.TreeMap;
-
 
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
@@ -23,12 +23,13 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
-import org.eclipse.rdf4j.rio.rdfxml.util.RDFXMLPrettyWriterFactory;
+import org.eclipse.rdf4j.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -97,7 +98,7 @@ public class EuzenatRDFImpl implements IOAlignment {
 	 */
 	public EuzenatRDFImpl(IOEventManager ioe) {
 		this.ioEventManager = ioe;
-		timeFormatter = ISODateTimeFormat.dateTime();
+		timeFormatter = ISODateTimeFormat.dateTimeNoMillis();
 	}
 
 	/* (non-Javadoc)
@@ -161,23 +162,23 @@ public class EuzenatRDFImpl implements IOAlignment {
 				}
 				// Manage method
 
-				Value methodValue = getRequiredProperty(cellNode,METHOD_PROPERTY,model);
-				
+				Value methodValue = getProperty(cellNode,METHOD_PROPERTY,model);
 				String method = (methodValue != null) ? methodValue.stringValue()
 						: Mapping.UNKNOW_METHOD;
-				// Manage validity
 				
-				Value validValue = getRequiredProperty(cellNode,VALID_PROPERTY,model);
+				// Manage validity				
+				Value validValue = getProperty(cellNode,VALID_PROPERTY,model);
 				VALIDITY valid = (validValue != null) ? VALIDITY
 						.valueOf(validValue.stringValue()) : VALIDITY.TO_CONFIRM;
+						
 				// Manage creation date
-				Value creationDateValue =getRequiredProperty(cellNode,CREATION_DATE_PROPERTY,model);
+				Value creationDateValue = getProperty(cellNode,CREATION_DATE_PROPERTY,model);
 				DateTime date = (creationDateValue != null) ? timeFormatter
 						.parseDateTime(creationDateValue.stringValue())
 						: new DateTime();
-				// Manage meta
-				
-				Resource metaRes = (Resource)getRequiredProperty(cellNode,METAMETHOD_PROPERTY,model);
+						
+				// Manage meta				
+				Resource metaRes = (Resource)getProperty(cellNode,METAMETHOD_PROPERTY,model);
 				Map<String, String> metaMap = new TreeMap<String, String>();
 				if (metaRes != null) {
 					
@@ -191,9 +192,9 @@ public class EuzenatRDFImpl implements IOAlignment {
 						metaMap.put(key, value);
 					}
 				}
+				
 				// Manage comment
 				Value commentValue = getProperty(cellNode,RDFS.COMMENT,model);
-		
 
 				try {
 					String uri1 = entity1.stringValue();
@@ -236,8 +237,8 @@ public class EuzenatRDFImpl implements IOAlignment {
 				Resource cellNode = (Resource)cellNodeStmt.getObject();
 				// FIXME "cellNode" devrait être un un noeud de Type Cell.
 				// Verification à faire?
-				Resource entity1 = (Resource)getRequiredProperty(cellNode, ENTITY1_PROPERTY, model);
-				Resource entity2 = (Resource)getRequiredProperty(cellNode, ENTITY2_PROPERTY, model);
+				Resource entity1 = (Resource)getProperty(cellNode, ENTITY1_PROPERTY, model);
+				Resource entity2 = (Resource)getProperty(cellNode, ENTITY2_PROPERTY, model);
 
 				try {
 					if (entity1 != null) {
@@ -320,7 +321,7 @@ public class EuzenatRDFImpl implements IOAlignment {
 		
 		FileOutputStream stream = new FileOutputStream(pathToSave);
 	
-		RDFWriter prettyWriter = new RDFXMLPrettyWriterFactory().getWriter(stream);
+		RDFWriter prettyWriter = new RDFXMLPrettyWriter(stream);
 		Rio.write(model, prettyWriter);
 		
 		
@@ -388,7 +389,10 @@ public class EuzenatRDFImpl implements IOAlignment {
 		model.add(cellNode, ENTITY2_PROPERTY,res2);
 		model.add(cellNode, ENTITY1_PROPERTY,res1);
 		
-		model.add(cellNode, CREATION_DATE_PROPERTY,factory.createLiteral(new java.util.Date(mapping.getCreationDate().toDate().getTime())));
+		// we force the date format to be exactly what we want
+		// see http://stackoverflow.com/questions/10614771/java-simpledateformat-pattern-for-w3c-xml-dates-with-timezone
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+		model.add(cellNode, CREATION_DATE_PROPERTY,factory.createLiteral(sdf.format(mapping.getCreationDate().toDate()), XMLSchema.DATETIME));
 		
 		
 		final String method = mapping.getMethod();
