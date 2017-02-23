@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.TreeMap;
 
+
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -38,7 +39,6 @@ import fr.onagui.alignment.Mapping.MAPPING_TYPE;
 import fr.onagui.alignment.Mapping.VALIDITY;
 import fr.onagui.alignment.NoMappingPossible;
 import fr.onagui.alignment.OntoContainer;
-
 
 public class EuzenatRDFImpl implements IOAlignment {
 
@@ -148,6 +148,7 @@ public class EuzenatRDFImpl implements IOAlignment {
 				double score = Double.valueOf(((Literal)measureValue).stringValue());
 
 				Value relationStmt = getRequiredProperty(cellNode, RELATION_PROPERTY, model);
+
 				final String relationStringFromRDF = relationStmt.stringValue();
 				MAPPING_TYPE type = MAPPING_TYPE
 						.getTypeFromString(relationStringFromRDF);
