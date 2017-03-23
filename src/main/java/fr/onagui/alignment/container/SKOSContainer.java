@@ -29,6 +29,10 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
@@ -269,6 +273,26 @@ public class SKOSContainer implements OntoContainer<Resource> {
 			for (Statement s : Iterations.asList(stmts)) {
 				result.add(s.getSubject());
 			}
+			//no top concept 
+			if(result.isEmpty()){
+			String queryString = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
+					+ "select ?racine where {  "
+												+ "FILTER NOT EXISTS {?racine skos:broader ?x1.}"
+												+ "FILTER NOT EXISTS {?x2 skos:narrower ?racine.} "
+												+ "?racine skos:inScheme <"+scheme+">."
+											
+										+ "} ";
+			TupleQuery tupleQuery = connect.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
+			try (TupleQueryResult res = tupleQuery.evaluate()) {
+			  while (res.hasNext()) {  // iterate over the result
+				  
+				   BindingSet bindingSet = res.next();
+				   Resource racine= (Resource)bindingSet.getValue("racine");
+				   result.add(racine);
+			
+			  }
+			}
+		}
 			connect.close();
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
