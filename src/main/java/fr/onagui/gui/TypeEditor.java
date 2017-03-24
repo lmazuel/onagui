@@ -22,7 +22,7 @@ public class TypeEditor extends DefaultCellEditor implements ItemListener {
 	private MAPPING_TYPE lasttype;
 	private AlignmentGUI gui;
 
-	public TypeEditor(JComboBox checkBox, MappingTableModel model, AlignmentGUI gui) {
+	public TypeEditor(JCheckBox checkBox, MappingTableModel model, AlignmentGUI gui) {
 		super(checkBox);
 		this.model = model;
 		this.gui = gui;
@@ -33,9 +33,9 @@ public class TypeEditor extends DefaultCellEditor implements ItemListener {
 		Mapping map = model.getMappingAt(table.convertRowIndexToModel(row));
 		MAPPING_TYPE val = (MAPPING_TYPE)value;
 		// Rotate
-		if(val == MAPPING_TYPE.EQUIV)
+		if(val.equals(MAPPING_TYPE.EQUIV))
 			lasttype = MAPPING_TYPE.OVERLAP;
-		else if(val == MAPPING_TYPE.OVERLAP)
+		else if(val.equals(MAPPING_TYPE.OVERLAP))
 			lasttype = MAPPING_TYPE.EQUIV;		
 		map.setType(lasttype);
 		// Repaint model

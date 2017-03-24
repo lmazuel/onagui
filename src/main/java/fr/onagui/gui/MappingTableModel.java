@@ -6,6 +6,7 @@ package fr.onagui.gui;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.swing.JComboBox;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -13,6 +14,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 import fr.onagui.alignment.Mapping;
+import fr.onagui.alignment.Mapping.MAPPING_TYPE;
 import fr.onagui.alignment.Mapping.VALIDITY;
 import fr.onagui.control.AlignmentControler;
 
@@ -28,6 +30,7 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 	private TreeMap<Mapping<O1, O2>, Integer> index = null;
 	
 	private static final DateTimeFormatter timeFormatter = ISODateTimeFormat.basicDateTimeNoMillis();
+	
 	
 	/**
 	 * @param controler
@@ -71,11 +74,10 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		// Only validity is editable
-		if( (columnIndex == 4)|| (columnIndex == 2)){
-			return true;
-		}else{
-			return false;
-		}
+		
+			return columnIndex == 4;
+		
+		
 		
 	}
 
@@ -116,6 +118,7 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 			else {
 				line[1] = node2.getUserObject();
 			}
+			
 			line[2] = map.getType().getLabel();
 			line[3] = map.getScore();
 			// Le nom de la methode
