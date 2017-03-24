@@ -29,6 +29,10 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
@@ -359,6 +363,12 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		// "prefLabel"
 		try {
 			RepositoryConnection connect = triplestore.getConnection();
+			String queryString = "PREFIX skos:<http://www.w3.org/2004/02/skos/core#>"
+					+"PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>"
+					+ "INSERT {	?x skos:prefLabel ?y} "
+						+ "WHERE {?x skosxl:prefLabel/skosxl:literalForm ?y}";
+			//TupleQuery tupleQuery = connect.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
+			connect.prepareUpdate(QueryLanguage.SPARQL, queryString);
 			RepositoryResult<Statement> stmts = connect.getStatements(cpt,
 					prop, null, true);
 			List<Statement> stmts_list = Iterations.asList(stmts);
@@ -366,6 +376,10 @@ public class SKOSContainer implements OntoContainer<Resource> {
 				Literal literal = (Literal) s.getObject();
 				result.add(literal.getLabel());
 			}
+			
+			
+				
+			
 			connect.close();
 		} catch (RepositoryException e) {
 			e.printStackTrace();
@@ -382,6 +396,12 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		// "prefLabel"
 		try {
 			RepositoryConnection connect = triplestore.getConnection();
+			String queryString = "PREFIX skos:<http://www.w3.org/2004/02/skos/core#>"
+					+"PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>"
+					+ "INSERT {	?x skos:prefLabel ?y} "
+						+ "WHERE {?x skosxl:prefLabel/skosxl:literalForm ?y}";
+			//TupleQuery tupleQuery = connect.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
+			connect.prepareUpdate(QueryLanguage.SPARQL, queryString);
 			RepositoryResult<Statement> stmts = connect.getStatements(cpt,
 					prop, null, true);
 			List<Statement> stmts_list = Iterations.asList(stmts);
