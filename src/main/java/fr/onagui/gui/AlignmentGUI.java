@@ -399,7 +399,9 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		centerTable.setDefaultRenderer(Double.class, new ScoreColorRenderer(scm));
 		centerTable.setDefaultRenderer(VALIDITY.class, new ValidityRenderer());
 		centerTable.setDefaultEditor(VALIDITY.class, new ValidityEditor(new JCheckBox(), tableModel, this));
-
+		centerTable.setDefaultRenderer(MAPPING_TYPE.class, new TypeRenderer());
+		centerTable.setDefaultEditor(MAPPING_TYPE.class, new TypeEditor(new JComboBox<MAPPING_TYPE>(MAPPING_TYPE.values()), tableModel, this));
+		
 		// The comment pane (with JLabel included)		
 		JPanel commentPane = new JPanel(new BorderLayout());
 		commentPane.add(new JLabel(Messages.getString("CommentTitleLabel")), BorderLayout.NORTH); //$NON-NLS-1$
@@ -1647,18 +1649,27 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	public void createCenterPopupMenu() {
 		//Create the popup menu.
 		JPopupMenu popup = new JPopupMenu();
-		JMenu menu = new JMenu(Messages.getString("PopupMenuLabel")); //$NON-NLS-1$
-		popup.add(menu);
+		JMenu menuvalidity = new JMenu(Messages.getString("PopupMenuLabel1")); //$NON-NLS-1$
+		popup.add(menuvalidity);
 		JMenuItem valid = new JMenuItem(Messages.getString("ValidChoice")); //$NON-NLS-1$
-		menu.add(valid);
+		menuvalidity.add(valid);
 		JMenuItem to_confirm = new JMenuItem(Messages.getString("ToConfirmChoice")); //$NON-NLS-1$
-		menu.add(to_confirm);
+		menuvalidity.add(to_confirm);
 		JMenuItem invalid = new JMenuItem(Messages.getString("InvalidChoice")); //$NON-NLS-1$
-		menu.add(invalid);
-		CenterPopupActionListener cpal = new CenterPopupActionListener(valid, to_confirm, invalid);
+		menuvalidity.add(invalid);
+		
+		JMenu menutype = new JMenu(Messages.getString("PopupMenuLabel2")); //$NON-NLS-1$
+		popup.add(menutype);
+		JMenuItem exactmatch = new JMenuItem(Messages.getString("ExactMatch")); //$NON-NLS-1$
+		menutype.add(exactmatch);
+		JMenuItem closematch = new JMenuItem(Messages.getString("CloseMatch")); //$NON-NLS-1$
+		menutype.add(closematch);
+		CenterPopupActionListener cpal = new CenterPopupActionListener(valid, to_confirm, invalid,exactmatch,closematch);
 		valid.addActionListener(cpal);
 		to_confirm.addActionListener(cpal);
 		invalid.addActionListener(cpal);
+		exactmatch.addActionListener(cpal);
+		closematch.addActionListener(cpal);
 
 		//Add listener to the text area so the popup menu can come up.
 		MouseListener popupListener = new PopupListener(popup);
@@ -1669,23 +1680,30 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		private JMenuItem valid_menu = null;
 		private JMenuItem to_confirm_menu = null;
 		private JMenuItem invalid_menu = null;
+		private JMenuItem exactmatch_menu = null;
+		private JMenuItem closematch_menu = null;
 
 		/**
 		 * @param validMenu
 		 * @param toConfirmMenu
 		 * @param invalidMenu
+		 * @param exactmatch_menu
+		 * @param closematch_menu
 		 */
 		public CenterPopupActionListener(JMenuItem validMenu,
-				JMenuItem toConfirmMenu, JMenuItem invalidMenu) {
+				JMenuItem toConfirmMenu, JMenuItem invalidMenu,JMenuItem exactMatchMenu,JMenuItem closeMatchMenu) {
 			valid_menu = validMenu;
 			to_confirm_menu = toConfirmMenu;
 			invalid_menu = invalidMenu;
+			exactmatch_menu=exactMatchMenu;
+			closematch_menu=closeMatchMenu;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JMenuItem source = (JMenuItem)(e.getSource());
-			VALIDITY to_use;
+			VALIDITY to_use=null;
+			MAPPING_TYPE used=null;
 			if(source.equals(valid_menu)) {
 				to_use = VALIDITY.VALID;
 			}
@@ -1695,6 +1713,12 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			else if(source.equals(invalid_menu)){
 				to_use = VALIDITY.INVALID;
 			}
+			else if(source.equals(exactmatch_menu)) {
+				used = MAPPING_TYPE.EQUIV;
+			}
+			else if(source.equals(closematch_menu)){
+				used = MAPPING_TYPE.OVERLAP;
+			}
 			else {
 				System.err.println("Don't know the menu which ask me something!"); //$NON-NLS-1$
 				return;
@@ -1702,7 +1726,11 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 
 			for(int index : centerTable.getSelectedRows()) {
 				Mapping<?, ?> map = tableModel.getMappingAt(centerTable.convertRowIndexToModel(index));
-				map.setValidity(to_use);
+				if(to_use!=null){
+					map.setValidity(to_use);
+				}else if(used!=null){
+					map.setType(used);
+				}
 			}
 			// Refresh GUI
 			AlignmentGUI.this.refreshGUIFromModel();			

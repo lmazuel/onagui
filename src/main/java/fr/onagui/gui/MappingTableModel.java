@@ -71,7 +71,12 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		// Only validity is editable
-		return columnIndex == 4;
+		if( (columnIndex == 4)|| (columnIndex == 2)){
+			return true;
+		}else{
+			return false;
+		}
+		
 	}
 
 	public Mapping<O1, O2> getMappingAt(int index) {

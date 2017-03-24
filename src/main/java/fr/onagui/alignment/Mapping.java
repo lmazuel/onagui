@@ -243,6 +243,10 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 	public MAPPING_TYPE getType() {
 		return type;
 	}
+	
+	public void setType(MAPPING_TYPE type) {
+		this.type = type;
+	}
 
 	public Map<String, String> getMeta() {
 		return meta;
