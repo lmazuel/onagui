@@ -71,6 +71,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
+
 import com.google.common.collect.Sets;
 
 import fr.onagui.alignment.AbstractAlignmentMethod;
@@ -180,6 +186,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	/** Memoire du dernier dossier ou j'ai ouvert un truc */
 	private File lastDirectory = null;
 
+	private Repository triplestore = null;
 	/* used for debug only */
 	//	private static boolean DEBUG = false;
 
@@ -1145,6 +1152,22 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		int returnVal = chooser.showOpenDialog(null);
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			final File selectedFile = chooser.getSelectedFile();
+			//changing skosxl prefLabel to skos prefLabel when we load the file
+			triplestore = new SailRepository(new MemoryStore());
+			triplestore.initialize();
+			RepositoryConnection connect = triplestore.getConnection();
+			String queryString = "PREFIX skos:<http://www.w3.org/2004/02/skos/core#>"
+					+"PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>"
+					+ "INSERT {	?x skos:prefLabel ?y} "
+						+ "WHERE {?x skosxl:prefLabel/skosxl:literalForm ?y}";
+			connect.prepareUpdate(QueryLanguage.SPARQL, queryString);
+			
+			String queryString1 = "PREFIX skos:<http://www.w3.org/2004/02/skos/core#>"
+					+"PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>"
+					+ "INSERT {	?x skos:altLabel ?y} "
+						+ "WHERE {?x skosxl:altLabel/skosxl:literalForm ?y}";
+			connect.prepareUpdate(QueryLanguage.SPARQL, queryString1);
+			
 			// Copy to cache the last directory to use it in future FileChooser
 			lastDirectory = selectedFile.getParentFile();
 			saveDynamicOnaguiInfos(lastDirectory);
