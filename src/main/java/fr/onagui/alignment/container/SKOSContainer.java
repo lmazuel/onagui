@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,8 +28,13 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
@@ -269,6 +275,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 			for (Statement s : Iterations.asList(stmts)) {
 				result.add(s.getSubject());
 			}
+	
 			connect.close();
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
@@ -501,4 +508,34 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		}
 		return this.conceptSchemes;
 	}
+
+	@Override
+	public Date getModifiedDate(Resource cpt) {
+		
+		Date date=null;
+		RepositoryConnection connect = null;
+		try {
+			connect = triplestore.getConnection();
+			String queryString = "PREFIX dcterms: <http://purl.org/dc/terms/>"
+								+"PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
+					
+									+"select ?date where {<"+cpt+"> dcterms:modified ?date} ";
+			TupleQuery tupleQuery = connect.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
+			try (TupleQueryResult res = tupleQuery.evaluate()) {
+			  while (res.hasNext()) {  // iterate over the result				  
+				   BindingSet bindingSet = res.next();
+				   date = ((Literal)bindingSet.getValue("date")).calendarValue().toGregorianCalendar().getTime();
+				   
+			  }
+			}
+			System.out.println(date);
+			connect.close();
+		} catch (RepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return date;
+	}
+	
 }
+	

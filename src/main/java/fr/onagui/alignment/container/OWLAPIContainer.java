@@ -6,6 +6,7 @@ package fr.onagui.alignment.container;
 import java.io.File;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
@@ -304,5 +305,11 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 	@Override
 	public Set<String> getLabels(OWLEntity cpt, String prop) {
 		throw new UnsupportedOperationException("Not supported in OWL for now");
+	}
+
+	@Override
+	public Date getModifiedDate(OWLEntity cpt) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

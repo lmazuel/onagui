@@ -10,7 +10,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -31,7 +35,14 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
+import com.github.lgooddatepicker.components.DateTimePicker;
+import com.github.lgooddatepicker.components.TimePicker;
+
 import fr.onagui.alignment.method.LabelAlignmentMethod;
+
+
 
 
 /**
@@ -45,17 +56,25 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 	
 	private static final int NUMBER_OF_LINES_IN_LIST = 6;
 	
-	private int DIALOG_WIDTH = 500;
-	private int DIALOG_HEIGHT = 500;
+	private int DIALOG_WIDTH = 1100;
+	private int DIALOG_HEIGHT = 800;
 
 	private Double selectedValue = null;
-
+	private String date1=null;
+	private String date2=null; 
+	
 	private JSlider slider = null;
 	private JTextField textField = null;
+	private DatePicker dateField1 = null;
+	private DatePicker dateField2 = null;
+	protected String dateFields ;
 	private JList<String> langList1 = null;
 	private JList<String> langList2 = null;
 	private JButton okButton = null;
 	private JButton cancelButton = null;
+	
+	
+	private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
 	public LabelMethodParameterDialog(
 			JFrame view,
@@ -69,7 +88,7 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		setLayout(gridbag);
-
+		
 		selectedValue = initialValue;
 
 		slider = new JSlider(0, 100, (int)(initialValue*100));
@@ -121,6 +140,15 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		JPanel textFieldPanel = new JPanel(new BorderLayout());
 		textFieldPanel.add(new JLabel(Messages.getString("LabelMethodParameterDialogThresholdLabel")), BorderLayout.WEST); //$NON-NLS-1$
 		textFieldPanel.add(textField, BorderLayout.CENTER);
+		
+		//set calendar for the two concepts
+		
+		JPanel dateFieldPanel1 = new JPanel(new BorderLayout());
+		JLabel label1=new JLabel("Onto1 date d'alignement");
+		JLabel label2=new JLabel("Onto2 date d'alignement");
+		
+		JPanel dateFieldPanel2 = new JPanel(new BorderLayout());
+		calendar(dateFieldPanel1, dateFieldPanel2);
 
 		c.gridx = 0;
 		c.gridy = 0;
@@ -128,7 +156,7 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		c.weightx = 0.0;
 		c.weighty = 0.0;
 		c.insets = new Insets(10, 10, 10, 10);
-		c.anchor = GridBagConstraints.WEST;
+		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.NONE;
 		gridbag.setConstraints(textFieldPanel, c);
 		this.getContentPane().add(textFieldPanel);
@@ -139,7 +167,7 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		c.weightx = 0.0;
 		c.weighty = 0.0;
 		c.insets = new Insets(10, 10, 10, 10);
-		c.anchor = GridBagConstraints.WEST;
+		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.NONE;
 		gridbag.setConstraints(slider, c);
 		this.getContentPane().add(slider);
@@ -168,23 +196,68 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		
 		c.gridx = 0;
 		c.gridy = 3;
-		c.gridwidth = 1;
+		c.gridwidth = 2;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.NONE;
+		gridbag.setConstraints(label1, c);
+		this.getContentPane().add(label1);
+		
+		c.gridx = 0;
+		c.gridy = 4;
+		c.gridwidth = 2;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.VERTICAL;
+		gridbag.setConstraints(dateFieldPanel1, c);
+		this.getContentPane().add(dateFieldPanel1);
+		
+		
+		c.gridx = 0;
+		c.gridy = 5;
+		c.gridwidth = 2;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.NONE;
+		gridbag.setConstraints(label2, c);
+		this.getContentPane().add(label2);
+		
+		c.gridx = 0;
+		c.gridy = 6;
+		c.gridwidth = 2;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.VERTICAL;
+		gridbag.setConstraints(dateFieldPanel2, c);
+		this.getContentPane().add(dateFieldPanel2);
+		
+		c.gridx = 0;
+		c.gridy = 7;
+		c.gridwidth = 2;
 		c.weightx = 0.0;
 		c.weighty = 0.0;
 		c.insets = new Insets(10, 10, 10, 10);
 		c.anchor = GridBagConstraints.EAST;
-		c.fill = GridBagConstraints.NONE;
+		c.fill = GridBagConstraints.VERTICAL;
 		gridbag.setConstraints(okButton, c);
 		this.getContentPane().add(okButton);
 
 		c.gridx = 1;
-		c.gridy = 3;
-		c.gridwidth = 1;
+		c.gridy = 7;
+		c.gridwidth =2;
 		c.weightx = 0.0;
 		c.weighty = 0.0;
 		c.insets = new Insets(10, 10, 10, 10);
 		c.anchor = GridBagConstraints.WEST;
-		c.fill = GridBagConstraints.NONE;
+		c.fill = GridBagConstraints.VERTICAL;
 		gridbag.setConstraints(cancelButton, c);
 		this.getContentPane().add(cancelButton);
 		
@@ -214,6 +287,48 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		return getSelectedLangsFromJList(langList2);
 	}
 	
+	public String getDate1() {
+		return date1;
+	}
+
+	public void setDate1(String date) {
+		this.date1 = date;
+	}
+	public String getDate2() {
+		return date2;
+	}
+
+	public void setDate2(String date) {
+		this.date2 = date;
+	}
+	
+	/**
+	 * Renvoie la date saisie sous forme de Date java, ou null si le parsing échoue.
+	 * @return
+	 * @throws ParseException
+	 */
+	public Date getDate1AsDate() throws ParseException {	
+		return asDate(getDate1());
+	}
+	
+	/**
+	 * Renvoie la date saisie sous forme de Date java, ou null si le parsing échoue.
+	 * @return
+	 * @throws ParseException
+	 */
+	public Date getDate2AsDate() throws ParseException {
+		return asDate(getDate2());
+	}
+	
+	private Date asDate(String s) {
+		try {
+			return dateFormatter.parse(s);
+		} catch (Exception e) {
+			System.err.print("Cannot parse date value : "+e.getMessage());
+			return null;
+		}
+	}
+
 	// For the slider
 	@Override
 	public void stateChanged(ChangeEvent e) {
@@ -225,7 +340,6 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		// Change return value
 		selectedValue = floatThreshold;
 	}
-
 	// For the text field and the buttons
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -244,6 +358,10 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 			slider.setValue((int)(selectedValue*100));
 		}
 		else if(e.getSource() == okButton) {
+			String date1 = dateField1.getText();
+			String date2 = dateField2.getText();
+			setDate1(date1);
+			setDate2(date2);
 			setVisible(false);
 		}
 		else if(e.getSource() == cancelButton) {
@@ -255,6 +373,28 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		}
 	}
 	
+	private void calendar(JPanel dateFieldPanel1,JPanel dateFieldPanel2) {
+		//calendar onto 1
+		
+	    DatePickerSettings dateSettings1 = new DatePickerSettings();
+	    dateSettings1.setFormatForDatesCommonEra("yyyy-MM-dd");
+	    dateSettings1.setFirstDayOfWeek(DayOfWeek.MONDAY);
+	    dateField1 = new DatePicker(dateSettings1);
+	    
+	    dateFieldPanel1.add(dateField1,BorderLayout.CENTER);
+	    
+	    //calendar onto 2
+	    DatePickerSettings dateSettings2 = new DatePickerSettings();
+	    dateSettings2.setFormatForDatesCommonEra("yyyy-MM-dd");
+	    dateSettings2.setFirstDayOfWeek(DayOfWeek.MONDAY);
+	    dateFieldPanel2.add(new JLabel("Onto2 date d'align:"), BorderLayout.CENTER); //$NON-NLS-1$ 
+	    dateField2= new DatePicker(dateSettings2);
+	    dateFieldPanel2.add(dateField2,BorderLayout.CENTER);
+        
+	} 
+	
+	
+
 	public static void main(String[] args) {
 		double value = 0.9;
 		List<String> list1 = Arrays.asList("fr","de"); //$NON-NLS-1$ //$NON-NLS-2$

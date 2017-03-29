@@ -20,6 +20,76 @@ import fr.onagui.gui.OntologyType;
  * 
  * Prise en compte d'un nouveau paramètre dans l'algorithme de l'alignement ISubAlignment
  * 
+ *  
+ * 
+ * 1-Vérification de l'existence des labels
+ * 
+ * 	 voir les méthodes LabelAlignmentMethod.getLangsForm1 et 2  et LabelAlignmentMethod.getLabelsForAlignement(model1, cpt1Inst, langs1)
+     
+     //retourne les langues 
+    
+ 		SortedSet<String> langs1 = getLangsFrom1();pour le premier fichier
+		SortedSet<String> langs2 = getLangsFrom2();// retourne les langues pour le deuxième fichier
+		
+	Il faudra au préalable les définir les langues grâce aux méthodes LabelAlignmentMethod.setLangsFrom1 et 2
+	
+	(voir  la méthode AlignmentAlgorithmMenuListener.setLangsForm1 et 2 dans la classe AlignmentGUI)
+	
+	La classe AlignmentAlgorithmMenuListener se trouvant dans AlignmentGUI a pour constructeur
+ * 
+ *     AlignmentAlgorithmMenuListener(AbstractAlignmentMethod<ONTORES1, ONTORES2> method)
+ *     
+ *   Ce constructeur prend en paramètre la methode d'alignement : ISubAlignment,ExactAlignment etc... 
+ *   
+ *   Cette méthode est obtenue en faisant appel à la méthode getLoadedAlignmentMethods() de la classe AlignmentControl.
+ *   
+ *   Il est appelé dans la classe AlignmentGUI pour mettre un ActionListener(attente d'un click) sur le menu Alignement crée.
+ 
+	
+	//Renvoie les labels en fonction des langues choisies. Pour obtenir les labels sans tags de langue, ajouter la chaine vide "" dans la liste
+		
+	Collection<LabelInformation> cpt1Labels = getLabelsForAlignement(model1, cpt1Inst, langs1);
+ *   
+ *   
+ *   2- Faudra créer une méthode pour lire et écrire la date de modification des fichiers au chargement des fichiers.
+ *   
+ *    FileTime getModifiedTime(File file) throws IOException {
+    	 Path p = Paths.get(file.getAbsolutePath());
+         BasicFileAttributes view= Files.getFileAttributeView(p, BasicFileAttributeView.class).readAttributes();
+    	 FileTime fileTime=view.lastModifiedTime();
+    	 
+    //  also available view.lastAccessTine and view.creationTime()
+     
+    	return fileTime;
+  }
+  
+  
+ *   Il faudra appeler cette méthode dans la méthode loadOntologyWithFileChooser
+ *   
+ *   Exemple:
+ *   
+ *   if(OntologyType.FIRST_ONTO_SKOS){
+ *   	DateTime date1=getModifiedTime(file).toMillis();
+ *   	setDateFile1(date1);
+ *   }
+ *   if(OntologyType.SECOND_ONTO_SKOS){
+ *   	DateTime date2=getModifiedTime(file).toMillis();
+ *   	setDateFile2(date2);
+ *   }
+ *   
+ *   3- Récupérer dans la méthode computeMapping les dates de modifications des fichiers
+ *   
+ *   	DateTime datefile1=new Alignment.getDateFile1();
+ *      DateTime datefile2=new Alignment.getDateFile2();	
+ *   
+ *   4-Prendre en compte les dates dans les tests d'équivalence (à voir)
+ *   
+ *   if(datefile1.equals(datefile2)){
+ *   	traitement 1
+ *   }else{
+ *   	traitement 2
+ *   }
+ *  
  *  NB: chaque de méthode d'alignement  est utilisée dans ALignmentControler dans le constructeur de la manière suivante :
  *  
  *  public void AlignmentControler(){
@@ -29,14 +99,13 @@ import fr.onagui.gui.OntologyType;
  *  	classes.add(ExactAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
  *  }
  */
-public class ISubAlignmentMethod<ONTORES1, ONTORES2> extends LabelAlignmentMethod<ONTORES1, ONTORES2> {
+public class AlignmentTest<ONTORES1, ONTORES2> extends LabelAlignmentMethod<ONTORES1, ONTORES2> {
 	
 	public static final double DEFAULT_ISUB_THRESHOLD = 0.90;
-	
-	/**
+/**
 	 * @param current_threshlod
 	 */
-	public ISubAlignmentMethod(double current_threshlod) {
+	public AlignmentTest(double current_threshlod) {
 		setThreshold(current_threshlod);
 	}
 	
@@ -44,7 +113,7 @@ public class ISubAlignmentMethod<ONTORES1, ONTORES2> extends LabelAlignmentMetho
 	 * Utilise le seuil {@link #DEFAULT_ISUB_THRESHOLD}.
 	 * 
 	 */
-	public ISubAlignmentMethod() {
+	public AlignmentTest() {
 		this(DEFAULT_ISUB_THRESHOLD);
 	}
 
@@ -61,6 +130,7 @@ public class ISubAlignmentMethod<ONTORES1, ONTORES2> extends LabelAlignmentMetho
 		// Verifier que des labels existents, sinon je ne peux rien
 		SortedSet<String> langs1 = getLangsFrom1();
 		SortedSet<String> langs2 = getLangsFrom2();
+		
 		
 		Collection<LabelInformation> cpt1Labels = getLabelsForAlignement(model1, cpt1Inst, langs1);
 		if(cpt1Labels.isEmpty()) return null;
@@ -107,7 +177,7 @@ public class ISubAlignmentMethod<ONTORES1, ONTORES2> extends LabelAlignmentMetho
 	
 	@Override
 	public String toString() {
-		return "I-Sub distance"; 
+		return "New Alignment"; 
 	}
 
 }

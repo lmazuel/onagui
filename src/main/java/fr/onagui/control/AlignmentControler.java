@@ -4,13 +4,19 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.function.Predicate;
 
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
+
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
 
 import fr.onagui.alignment.AbstractAlignmentMethod;
 import fr.onagui.alignment.Alignment;
@@ -25,6 +31,7 @@ import fr.onagui.alignment.io.CSVImpl;
 import fr.onagui.alignment.io.EuzenatRDFImpl;
 import fr.onagui.alignment.io.IOAlignment;
 import fr.onagui.alignment.io.SkosImpl;
+import fr.onagui.alignment.method.AlignmentTest;
 import fr.onagui.alignment.method.ExactAlignmentMethod;
 import fr.onagui.alignment.method.ISubAlignmentMethod;
 import fr.onagui.alignment.method.LevenshteinAlignmentMethod;
@@ -45,7 +52,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 	private class IOEventManagerJDialog implements IOAlignment.IOEventManager {
 
 		private int nbWarning = 0;
-		
+
 		@Override
 		public void inputEvent(String msg) {
 			System.err.println(msg);
@@ -57,11 +64,11 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 			System.err.println(msg);
 			++nbWarning;
 		}
-		
+
 		public void reset() {
 			nbWarning = 0;
 		}
-		
+
 		public void showDialog() {
 			if(nbWarning > 0) {
 				JOptionPane.showMessageDialog(null,
@@ -71,13 +78,13 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 			}
 		}
 	}
-	
+
 	private IOAlignment ioEuzenatManager = null;
 	private IOAlignment ioCsvManager = null;
 	private IOAlignment ioSkosManager = null;
 	private IOEventManagerJDialog ioEventManager = null;
-	
-	
+
+
 	public AlignmentControler() {
 		alignment = new Alignment<ONTORES1, ONTORES2>(null, null);
 		ioEventManager = new IOEventManagerJDialog();
@@ -91,6 +98,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		classes.add(LevenshteinAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(ISubAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(ExactAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
+		classes.add(AlignmentTest.class.asSubclass(AbstractAlignmentMethod.class));
 		methods = buildInstancesFromClass(classes);
 	}
 
@@ -288,22 +296,50 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		alignment.addAll(newAlignment);
 	}
 
+
 	public void computeAndAddMapping(
 			AbstractAlignmentMethod<ONTORES1, ONTORES2> method,
 			PropertyChangeListener listener,
 			DefaultMutableTreeNode rootFrom1,
-			DefaultMutableTreeNode rootFrom2) {
+			DefaultMutableTreeNode rootFrom2, Date date1, Date date2) {
 		// D'abord, calculer l'ensemble des concepts en Jeu
 
 		// Pour le container 1
 		TreeNodeOntologyObject<ONTORES1> userObject1 = (TreeNodeOntologyObject<ONTORES1>) rootFrom1.getUserObject();
 		Set<ONTORES1> concepts1 = OntoTools.getAllDescendants(container1, userObject1.getConcept());
-		
+
 		// Pour le container 2
 		TreeNodeOntologyObject<ONTORES2> userObject2 = (TreeNodeOntologyObject<ONTORES2>) rootFrom2.getUserObject();
 		Set<ONTORES2> concepts2 = OntoTools.getAllDescendants(container2, userObject2.getConcept());
+		
+		if(  date1 != null ) {
+			System.out.println("date1 différente de null");
+			//on parcours les concepts 
+			//on retire ceux qui ont une date lue antérieure 
+			//à la date saisie pour les 2 concepts
+			concepts1.removeIf(t -> { 
+				Date datelue1=container1.getModifiedDate(t);
+				if(datelue1==null){
+					return false;
+				}else{
+					return datelue1.before(date1);
+				}
+				
+			});
+		}
+		if(  date2 != null ) {
+			System.out.println("date2 différente de null");
+			concepts2.removeIf(h -> { 
+				Date datelue2=container2.getModifiedDate(h);
+				if(datelue2==null){
+					return false;
+				}else{
+					return datelue2.before(date2);
+				}
+			});
+		}
 
-		// Maintenant on peux faire l'alignement
+		//lancement de l'alignement
 		AlignmentFactory<ONTORES1, ONTORES2> factory = new AlignmentFactory<ONTORES1, ONTORES2>(method);
 		factory.addPropertyChangeListener(listener);
 		Alignment<ONTORES1, ONTORES2> newAlignment = factory.computeMapping(
@@ -412,7 +448,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 			return container2.getLabels(cpt, predicateUri);
 		}		
 	}		
-	
+
 	public boolean openRdfAlign(File file) {
 		try {
 			ioEventManager.reset();
@@ -468,7 +504,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		ioSkosManager.saveAlignment(alignment, path, null); // SKOS export all
 		ioEventManager.showDialog();
 	}
-	
+
 	/** Calcule quelque stat sur sysout
 	 * La complexité est atroce, mais c'est pas grave pour notre situation.
 	 * @param root La racine a considérer

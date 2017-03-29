@@ -20,7 +20,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +43,7 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -167,7 +171,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	/** the label of reference bar */
 	private JLabel refText1 = new JLabel(REF_PREFIX_1);
 	private JLabel refText2 = new JLabel(REF_PREFIX_2);
-
+	
+	
 	/** Lexicalisation panel */
 	LexicalisationPanel lexic1 = null;
 	LexicalisationPanel lexic2 = null;
@@ -177,6 +182,11 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	AnnotationPanel annot1 = null;
 	AnnotationPanel annot2 = null;
 
+	/***
+	 * label
+	 */
+	LabelMethodParameterDialog labelParameterDialog = null;
+	
 	/** Memoire du dernier dossier ou j'ai ouvert un truc */
 	private File lastDirectory = null;
 
@@ -1558,12 +1568,11 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			// Assume que c'est JOptionPane.OK_OPTION
 			final boolean useRoot1 = rootChooserDialog.isUseRootFor1();
 			final boolean useRoot2 = rootChooserDialog.isUseRootFor2();
-
 			// Si je suis une methode label, j'ai des parametres générique à donner
 			if(method instanceof LabelAlignmentMethod) {
 				LabelAlignmentMethod labelMethod = (LabelAlignmentMethod)method;
 
-				LabelMethodParameterDialog labelParameterDialog = new LabelMethodParameterDialog(
+				 labelParameterDialog = new LabelMethodParameterDialog(
 						AlignmentGUI.this,
 						labelMethod.getThreshold(),
 						alignmentControler.getLanguagesUsedInOnto(1),
@@ -1576,8 +1585,9 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				labelMethod.setThreshold(newThreshold);
 				labelMethod.setLangsFrom1(labelParameterDialog.getSelectedLangFor1());
 				labelMethod.setLangsFrom2(labelParameterDialog.getSelectedLangFor2());
+	
 			}
-
+			
 			// Map<OWLEntity, Set<Mapping<OWLEntity, SKOSConcept>>> return type
 			FutureTask<Alignment<ONTORES1, ONTORES2>> task = new FutureTask<Alignment<ONTORES1, ONTORES2>>(
 					new Callable<Alignment<ONTORES1, ONTORES2>>() {
@@ -1605,8 +1615,13 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 									System.err.println("Pas de noeud sélectionné dans l'arbre 2, j'envoie la racine pour l'alignement"); //$NON-NLS-1$
 									selected2 = (DefaultMutableTreeNode)treeFrom2.getModel().getRoot();
 								}
-
-								alignmentControler.computeAndAddMapping(method, listener, selected1, selected2);
+								try {
+									System.out.println(labelParameterDialog.getDate1AsDate()+"and "+labelParameterDialog.getDate2AsDate());
+									alignmentControler.computeAndAddMapping(method, listener, selected1, selected2,labelParameterDialog.getDate1AsDate(),labelParameterDialog.getDate2AsDate());
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 							}
 
 							progressBar.setVisible(false);
