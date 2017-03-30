@@ -81,7 +81,11 @@ public interface OntoContainer<ONTORES> {
 	 */
 	public Set<ONTORES> getChildren(ONTORES cpt);
 	
-	
+	/**
+	 * Renvoi la date de modification du concept passé en paramètre
+	 * @param cpt
+	 * @return
+	 */
 	
 	public Date getModifiedDate(ONTORES cpt);
 	

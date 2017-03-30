@@ -286,7 +286,10 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 	public SortedSet<String> getSelectedLangFor2() {
 		return getSelectedLangsFromJList(langList2);
 	}
-	
+	/**
+	 * recupère la date sous forme de texte
+	 * @return
+	 */
 	public String getDate1() {
 		return date1;
 	}
@@ -294,6 +297,9 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 	public void setDate1(String date) {
 		this.date1 = date;
 	}
+	/**
+	 * recupère la date sous forme de texte
+	 */
 	public String getDate2() {
 		return date2;
 	}
