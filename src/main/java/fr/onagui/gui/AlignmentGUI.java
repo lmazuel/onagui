@@ -1668,25 +1668,34 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		menutype.add(closematch);
 		JMenuItem relatedMatch = new JMenuItem(Messages.getString("RelatedMatch")); //$NON-NLS-1$
 		menutype.add(relatedMatch);
-		JMenuItem disjoint = new JMenuItem(Messages.getString("Disjoint")); //$NON-NLS-1$
-		menutype.add(disjoint);
-		JMenuItem narrowMatch = new JMenuItem(Messages.getString("NarrowMatch")); //$NON-NLS-1$
-		menutype.add(narrowMatch);
 		JMenuItem broaderMatch = new JMenuItem(Messages.getString("BroaderMatch")); //$NON-NLS-1$
 		menutype.add(broaderMatch);
+		JMenuItem narrowMatch = new JMenuItem(Messages.getString("NarrowMatch")); //$NON-NLS-1$
+		menutype.add(narrowMatch);
+		JMenuItem disjoint = new JMenuItem(Messages.getString("Disjoint")); //$NON-NLS-1$
+		menutype.add(disjoint);
 		
 		CenterPopupActionListener cpal = new CenterPopupActionListener(
 																	   valid,
 																	   to_confirm, 
 																	   invalid,
-																	   exactmatch,closematch,disjoint,
-																	   relatedMatch,narrowMatch,broaderMatch
+																	   exactmatch,
+																	   closematch,
+																	   disjoint,
+																	   relatedMatch,
+																	   narrowMatch,
+																	   broaderMatch
 																	);
 		valid.addActionListener(cpal);
 		to_confirm.addActionListener(cpal);
 		invalid.addActionListener(cpal);
+		
 		exactmatch.addActionListener(cpal);
 		closematch.addActionListener(cpal);
+		relatedMatch.addActionListener(cpal);
+		disjoint.addActionListener(cpal);
+		narrowMatch.addActionListener(cpal);
+		broaderMatch.addActionListener(cpal);
 
 		//Add listener to the text area so the popup menu can come up.
 		MouseListener popupListener = new PopupListener(popup);
@@ -1712,9 +1721,17 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		 * @param exactmatch_menu
 		 * @param closematch_menu
 		 */
-		public CenterPopupActionListener(JMenuItem validMenu,
-				JMenuItem toConfirmMenu, JMenuItem invalidMenu,JMenuItem exactMatchMenu,JMenuItem closeMatchMenu,JMenuItem disjoint,
-				JMenuItem relatedMatch,JMenuItem narrowMatch,JMenuItem broaderMatch) {
+		public CenterPopupActionListener(
+				JMenuItem validMenu,
+				JMenuItem toConfirmMenu,
+				JMenuItem invalidMenu,
+				JMenuItem exactMatchMenu,
+				JMenuItem closeMatchMenu,
+				JMenuItem disjoint,
+				JMenuItem relatedMatch,
+				JMenuItem narrowMatch,
+				JMenuItem broaderMatch
+		) {
 			valid_menu = validMenu;
 			to_confirm_menu = toConfirmMenu;
 			invalid_menu = invalidMenu;
@@ -1729,34 +1746,34 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JMenuItem source = (JMenuItem)(e.getSource());
-			VALIDITY to_use=null;
-			MAPPING_TYPE used=null;
+			VALIDITY validity_to_use=null;
+			MAPPING_TYPE type_to_use=null;
 			if(source.equals(valid_menu)) {
-				to_use = VALIDITY.VALID;
+				validity_to_use = VALIDITY.VALID;
 			}
 			else if(source.equals(to_confirm_menu)) {
-				to_use = VALIDITY.TO_CONFIRM;
+				validity_to_use = VALIDITY.TO_CONFIRM;
 			}
 			else if(source.equals(invalid_menu)){
-				to_use = VALIDITY.INVALID;
+				validity_to_use = VALIDITY.INVALID;
 			}
 			else if(source.equals(exactmatch_menu)) {
-				used = MAPPING_TYPE.EQUIV;
+				type_to_use = MAPPING_TYPE.EQUIV;
 			}
 			else if(source.equals(closematch_menu)){
-				used = MAPPING_TYPE.OVERLAP;
+				type_to_use = MAPPING_TYPE.OVERLAP;
 			}
 			else if(source.equals(disjoint_menu)) {
-				used = MAPPING_TYPE.DISJOINT;
+				type_to_use = MAPPING_TYPE.DISJOINT;
 			}
 			else if(source.equals(relatedMatch_menu)){
-				used = MAPPING_TYPE.RELATED;
+				type_to_use = MAPPING_TYPE.RELATED;
 			}
 			else if(source.equals(narrowMatch_menu)) {
-				used = MAPPING_TYPE.SUBSUMES;
+				type_to_use = MAPPING_TYPE.SUBSUMES;
 			}
 			else if(source.equals(broaderMatch_menu)){
-				used = MAPPING_TYPE.SUBSUMEDBY;
+				type_to_use = MAPPING_TYPE.SUBSUMEDBY;
 			}
 			else {
 				System.err.println("Don't know the menu which ask me something!"); //$NON-NLS-1$
@@ -1766,10 +1783,10 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			for(int index : centerTable.getSelectedRows()) {
 				Mapping<?, ?> map = tableModel.getMappingAt(centerTable.convertRowIndexToModel(index));
 				
-				if(to_use!=null){
-					map.setValidity(to_use);
-				}else if(used!=null){
-					map.setType(used);
+				if(validity_to_use!=null){
+					map.setValidity(validity_to_use);
+				}else if(type_to_use!=null){
+					map.setType(type_to_use);
 				}
 			}
 			// Refresh GUI

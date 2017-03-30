@@ -74,11 +74,8 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		// Only validity is editable
-		
-			return columnIndex == 4;
-		
-		
-		
+		// Or mapping type
+		return (columnIndex == 2 || columnIndex == 4);
 	}
 
 	public Mapping<O1, O2> getMappingAt(int index) {
@@ -119,7 +116,7 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 				line[1] = node2.getUserObject();
 			}
 			
-			line[2] = map.getType().getLabel();
+			line[2] = map.getType();
 			line[3] = map.getScore();
 			// Le nom de la methode
 			line[5] = map.getMethod();

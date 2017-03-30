@@ -28,15 +28,30 @@ public class TypeEditor extends DefaultCellEditor implements ItemListener {
 		this.gui = gui;
 	}
 
-	public Component getTableCellEditorComponent(JTable table, Object value,
-			boolean isSelected, int row, int column) {
+	public Component getTableCellEditorComponent(
+			JTable table,
+			Object value,
+			boolean isSelected,
+			int row,
+			int column
+	) {
 		Mapping map = model.getMappingAt(table.convertRowIndexToModel(row));
 		MAPPING_TYPE val = (MAPPING_TYPE)value;
+		
 		// Rotate
 		if(val.equals(MAPPING_TYPE.EQUIV))
 			lasttype = MAPPING_TYPE.OVERLAP;
 		else if(val.equals(MAPPING_TYPE.OVERLAP))
-			lasttype = MAPPING_TYPE.EQUIV;		
+			lasttype = MAPPING_TYPE.RELATED;
+		else if(val.equals(MAPPING_TYPE.RELATED))
+			lasttype = MAPPING_TYPE.SUBSUMEDBY;
+		else if(val.equals(MAPPING_TYPE.SUBSUMEDBY))
+			lasttype = MAPPING_TYPE.SUBSUMES;
+		else if(val.equals(MAPPING_TYPE.SUBSUMES))
+			lasttype = MAPPING_TYPE.DISJOINT;
+		else if(val.equals(MAPPING_TYPE.DISJOINT))
+			lasttype = MAPPING_TYPE.EQUIV;
+		
 		map.setType(lasttype);
 		// Repaint model
 		gui.refreshGUIFromModel();

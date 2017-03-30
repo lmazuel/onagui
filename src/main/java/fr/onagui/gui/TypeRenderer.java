@@ -28,37 +28,19 @@ public class TypeRenderer extends JLabel implements TableCellRenderer {
 	}
 	@Override
 	public Component getTableCellRendererComponent(
-			JTable table, Object object,
-			boolean isSelected, boolean hasFocus,
-			int row, int column) {
+			JTable table,
+			Object object,
+			boolean isSelected,
+			boolean hasFocus,
+			int row,
+			int column
+	) {
 		MAPPING_TYPE type = (MAPPING_TYPE)object;
 		
-		switch(type) {
-		case EQUIV:
-
-			setText(MAPPING_TYPE.OVERLAP.getLabel());
-			break;
-		case OVERLAP:
-
-			setText(MAPPING_TYPE.EQUIV.getLabel());
-			break;
-		case DISJOINT:
-
-			setText(MAPPING_TYPE.SUBSUMES.getLabel());
-			break;
-		case RELATED:
-			setText(MAPPING_TYPE.DISJOINT.getLabel());
-			break;
-		case SUBSUMES:
-			setText(MAPPING_TYPE.SUBSUMEDBY.getLabel());
-			break;
-		case SUBSUMEDBY:
-			setText(MAPPING_TYPE.EQUIV.getLabel());
-			break;
-
-		default:
-			break;			
+		if(type != null) {
+			setText(type.getLabel());
 		}
+		
 		if (isSelected) {
 			if (selectedBorder == null) {
 				selectedBorder = BorderFactory.createMatteBorder(2,5,2,5,
