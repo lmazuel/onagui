@@ -4,6 +4,7 @@
 package fr.onagui.alignment.container;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Date;
@@ -12,6 +13,20 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.OWL;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.FileDocumentSource;
 import org.semanticweb.owlapi.model.IRI;
@@ -40,7 +55,7 @@ import fr.onagui.alignment.OntoVisitor;
 public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 
 	protected URI filename = null;
-	
+	private Repository triplestore = null;
 	protected OWLOntology ontology = null;
 	protected OWLOntologyManager manager = null;
 	protected OWLDataFactory df;
@@ -50,6 +65,8 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 
 	public OWLAPIContainer(URI filename) throws OWLOntologyCreationException {
 		try {
+			
+			
 			this.filename = filename;
 			manager = OWLManager.createOWLOntologyManager();
 			df = manager.getOWLDataFactory();
@@ -62,6 +79,22 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 			// Pour eviter un long calcul
 			getAllLanguageInLabels();
 			System.out.println("Found");
+			triplestore = new SailRepository(new MemoryStore());
+			triplestore.initialize();
+			/*RepositoryConnection connect = triplestore.getConnection();
+			File file=new File(filename.getPath());
+			// Try RDF/XML, fallback to N3 and fail if it's not enough
+			try {
+				try {
+					connect.add(file, null, RDFFormat.RDFXML);
+				} catch (RDFParseException e) {
+					connect.add(file, null, RDFFormat.N3);
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			connect.close();*/
 			
 //			try {
 //				System.out.println("Let's try Sesame");
@@ -309,7 +342,7 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 
 	@Override
 	public Date getModifiedDate(OWLEntity cpt) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method 
 		return null;
 	}
 }
