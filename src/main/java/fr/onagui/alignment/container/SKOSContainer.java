@@ -33,6 +33,7 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
@@ -85,6 +86,22 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		} catch (RDFParseException e) {
 			connect.add(physicalPath, null, RDFFormat.N3);
 		}
+		
+		//changing skosxl prefLabel to skos prefLabel when we load the file
+		String queryString1 = "PREFIX skos:<http://www.w3.org/2004/02/skos/core#>"
+				+"PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>"
+				+ "INSERT {	?x skos:prefLabel ?y} "
+					+ "WHERE {?x skosxl:prefLabel/skosxl:literalForm ?y}";
+		Update u1 = connect.prepareUpdate(QueryLanguage.SPARQL, queryString1);
+		u1.execute();
+		
+		String queryString2 = "PREFIX skos:<http://www.w3.org/2004/02/skos/core#>"
+				+"PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>"
+				+ "INSERT {	?x skos:altLabel ?y} "
+					+ "WHERE {?x skosxl:altLabel/skosxl:literalForm ?y}";
+		Update u2 = connect.prepareUpdate(QueryLanguage.SPARQL, queryString2);
+		u2.execute();		
+		
 		connect.close();
 
 		onto_uri = physicalPath.toURI();
