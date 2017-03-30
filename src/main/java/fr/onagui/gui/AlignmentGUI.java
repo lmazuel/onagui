@@ -711,6 +711,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		 * **************************** */
 
 		JMenuBar menuBar = new JMenuBar();
+		JMenu langueMenu = new JMenu(Messages.getString("Application")); //$NON-NLS-
+		JMenuItem francaisMenu = new JMenuItem(Messages.getString("français")); //$NON-NLS-1$
 		// La barre "fichier"
 		JMenu fichierMenu = new JMenu(Messages.getString("FileMenu")); //$NON-NLS-1$
 		menuBar.add(fichierMenu);
