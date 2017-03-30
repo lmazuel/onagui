@@ -31,7 +31,7 @@ import fr.onagui.alignment.io.CSVImpl;
 import fr.onagui.alignment.io.EuzenatRDFImpl;
 import fr.onagui.alignment.io.IOAlignment;
 import fr.onagui.alignment.io.SkosImpl;
-import fr.onagui.alignment.method.AlignmentTest;
+import fr.onagui.alignment.method.NewAlignment;
 import fr.onagui.alignment.method.ExactAlignmentMethod;
 import fr.onagui.alignment.method.ISubAlignmentMethod;
 import fr.onagui.alignment.method.LevenshteinAlignmentMethod;
@@ -98,7 +98,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		classes.add(LevenshteinAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(ISubAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(ExactAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
-		classes.add(AlignmentTest.class.asSubclass(AbstractAlignmentMethod.class));
+		classes.add(NewAlignment.class.asSubclass(AbstractAlignmentMethod.class));
 		methods = buildInstancesFromClass(classes);
 	}
 

@@ -99,13 +99,13 @@ import fr.onagui.gui.OntologyType;
  *  	classes.add(ExactAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
  *  }
  */
-public class AlignmentTest<ONTORES1, ONTORES2> extends LabelAlignmentMethod<ONTORES1, ONTORES2> {
+public class NewAlignment<ONTORES1, ONTORES2> extends LabelAlignmentMethod<ONTORES1, ONTORES2> {
 	
 	public static final double DEFAULT_ISUB_THRESHOLD = 0.90;
 /**
 	 * @param current_threshlod
 	 */
-	public AlignmentTest(double current_threshlod) {
+	public NewAlignment(double current_threshlod) {
 		setThreshold(current_threshlod);
 	}
 	
@@ -113,7 +113,7 @@ public class AlignmentTest<ONTORES1, ONTORES2> extends LabelAlignmentMethod<ONTO
 	 * Utilise le seuil {@link #DEFAULT_ISUB_THRESHOLD}.
 	 * 
 	 */
-	public AlignmentTest() {
+	public NewAlignment() {
 		this(DEFAULT_ISUB_THRESHOLD);
 	}
 
