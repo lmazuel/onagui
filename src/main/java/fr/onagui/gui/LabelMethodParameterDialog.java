@@ -144,8 +144,8 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		//set calendar for the two concepts
 		
 		JPanel dateFieldPanel1 = new JPanel(new BorderLayout());
-		JLabel label1=new JLabel(Messages.getString("LabelDate1ConceptsModifiedAfter"));
-		JLabel label2=new JLabel(Messages.getString("LabelDate2ConceptsModifiedAfter"));
+		JLabel label1=new JLabel(Messages.getString("LabelDate1ParameterDialog"));
+		JLabel label2=new JLabel(Messages.getString("LabelDate2ParameterDialog"));
 		
 		JPanel dateFieldPanel2 = new JPanel(new BorderLayout());
 		calendar(dateFieldPanel1, dateFieldPanel2);
