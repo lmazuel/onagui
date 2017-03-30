@@ -8,40 +8,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
-import java.text.SimpleDateFormat;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 import fr.onagui.alignment.Alignment;
 import fr.onagui.alignment.Mapping;
 import fr.onagui.alignment.Mapping.MAPPING_TYPE;
 import fr.onagui.alignment.Mapping.VALIDITY;
-import fr.onagui.alignment.NoMappingPossible;
 import fr.onagui.alignment.OntoContainer;
 
 public class SkosImpl implements IOAlignment {
@@ -54,39 +38,50 @@ public class SkosImpl implements IOAlignment {
 	// Type et propriétés perso
 	private IOEventManager ioEventManager = null;
 
-
+	/** Default constructor.
+	 * All warning messages are sended to stderr.
+	 * 
+	 */
+	public SkosImpl() {
+		this(new IOEventManager() {			
+			@Override
+			public void outputEvent(String msg) {
+				System.err.println(msg);
+			}
+			
+			@Override
+			public void inputEvent(String msg) {
+				System.err.println(msg);
+			}
+		});
+	}
+	
+	
 	public SkosImpl(IOEventManager ioe) {
 		this.ioEventManager = ioe;
 	}
+	
 	/* (non-Javadoc)
 	 * @see fr.onagui.alignment.io.IOAlignment#loadAlignment(fr.onagui.alignment.OntoContainer, fr.onagui.alignment.OntoContainer, java.io.File)
 	 */
 	@Override
 	public <ONTORES1, ONTORES2> Alignment<ONTORES1, ONTORES2> loadAlignment(
-			OntoContainer<ONTORES1> onto1, OntoContainer<ONTORES2> onto2,
-			File file) {
+			OntoContainer<ONTORES1> onto1,
+			OntoContainer<ONTORES2> onto2,
+			File file
+	) {
 
 		if (file == null || !file.exists() || !file.isFile())
 			throw new IllegalArgumentException(
 					"File parameter is not a valid existing file.");
 
+		// la date des correspondances sera toujours mise à la date de création du fichier
+		DateTime date=new DateTime(file.lastModified());
+		
 		Model model = new LinkedHashModel();
-		Path p = Paths.get(file.getAbsolutePath());
-		DateTime date=null;
-		BasicFileAttributes view;
-		try {
-			view = Files.getFileAttributeView(p, BasicFileAttributeView.class)
-					.readAttributes();
-			FileTime fileTime=view.creationTime();
-			date=new DateTime(fileTime.toMillis());
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 
 		try {
 			model=readModel(file,model);
-			System.out.println("taille model: "+model.size());
 		} catch (Exception e) {
 			// Impossible, j'ai testé l'existence au dessus...
 			e.printStackTrace();
@@ -97,7 +92,6 @@ public class SkosImpl implements IOAlignment {
 				onto1, onto2);
 
 		for (Statement unTriplet: model) {
-			System.out.println("unTriplet : "+unTriplet);	
 
 			if(
 					unTriplet.getPredicate().equals(SKOS.EXACT_MATCH)
@@ -114,7 +108,7 @@ public class SkosImpl implements IOAlignment {
 				// Manage method
 				String method = METHOD;
 				// Manage validity
-				VALIDITY valid =VALIDITY.TO_CONFIRM;
+				VALIDITY valid = VALIDITY.VALID;
 				// Manage creation date				
 				//DateTime date = new DateTime();
 				double score =1.0;
