@@ -34,6 +34,7 @@ public class Messages {
 			return '!' + key + '!';
 		}
 	}
+	
 	public static void changeLanguage(String langue){
 		System.out.println(langue);
 		ResourceBundle.clearCache();
