@@ -59,6 +59,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -711,8 +712,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		 * **************************** */
 
 		JMenuBar menuBar = new JMenuBar();
-		JMenu langueMenu = new JMenu(Messages.getString("Application")); //$NON-NLS-
-		JMenuItem francaisMenu = new JMenuItem(Messages.getString("français")); //$NON-NLS-1$
+		
 		// La barre "fichier"
 		JMenu fichierMenu = new JMenu(Messages.getString("FileMenu")); //$NON-NLS-1$
 		menuBar.add(fichierMenu);
@@ -837,7 +837,36 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		menuBar.add(statMenu);
 		statAlignItem = new JMenuItem(Messages.getString("AlignmentStatMenu")); //$NON-NLS-1$
 		statMenu.add(statAlignItem);
+		
+		//Menu Application
+		
+		JMenu langueMenu = new JMenu(Messages.getString("Application")); //$NON-NLS-
+		menuBar.add(langueMenu);
+		JMenuItem francaisMenu = new JMenuItem(Messages.getString("Français")); //$NON-NLS-1$
+		JMenuItem anglaisMenu = new JMenuItem(Messages.getString("Anglais")); //$NON-NLS-1$
+		langueMenu.add(francaisMenu);
+		langueMenu.add(anglaisMenu);
 
+		
+		francaisMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Messages.changeLanguage("fr");
+				System.out.println(Messages.getString("AlignmentStatMenu"));
+				AlignmentGUI.this.update(getGraphics());
+				
+			}
+		});
+		anglaisMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Messages.changeLanguage("en");
+				System.out.println(Messages.getString("AlignmentStatMenu"));
+				AlignmentGUI.this.repaint();
+				AlignmentGUI.this.revalidate();
+				
+			}
+		});
 		loadLocalOwlMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
