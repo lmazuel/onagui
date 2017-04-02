@@ -1,31 +1,38 @@
 package fr.onagui.alignment.io;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
+import org.eclipse.rdf4j.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFWriter;
-import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.util.FileManager;
-import com.hp.hpl.jena.vocabulary.RDF;
-import com.hp.hpl.jena.vocabulary.RDFS;
 
 import fr.onagui.alignment.Alignment;
 import fr.onagui.alignment.Mapping;
@@ -41,28 +48,28 @@ public class EuzenatRDFImpl implements IOAlignment {
 	public static final String DCTERMS_NS = "http://purl.org/dc/terms/";
 
 	// Type et propriété conforme à J.Euzenat
-	private Property xmlProperty = null;
-	private Property levelProperty = null;
-	private Property typeProperty = null;
-	private Property locationProperty = null;
-	private Property formalismProperty = null;
-	private Property entity1Property = null;
-	private Property entity2Property = null;
-	private Property measureProperty = null;
-	private Property relationProperty = null;
-	private Property onto1Property = null;
-	private Property onto2Property = null;
-	private Property mapProperty = null;
-	private Property methodProperty = null;
-	private Property validProperty = null;
-	private Property creationDateProperty = null;
-	private Property metamethodProperty = null;
-	private Resource alignmentType = null;
-	private Resource ontologyType = null;
-//	private Resource formalismType = null;
-	private Resource cellType = null;
+	public static IRI XML_PROPERTY =SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "xml");
+	public static IRI LEVEL_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "level");
+	public static IRI TYPE_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "type");
+	public static IRI LOCATION_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "location");
+	public static IRI FORMALISM_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "formalism");
+	public static IRI ENTITY1_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "entity1");
+	public static IRI ENTITY2_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "entity2");
+	public static IRI MEASURE_PROPERTY =SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "measure");
+	public static IRI RELATION_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "relation");
+	public static IRI ONTO1_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "onto1");
+	public static IRI ONTO2_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "onto2");
+	public static IRI MAP_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "map");
+	public static IRI METHOD_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "method");
+	public static IRI VALID_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "validity");
+	public static IRI CREATION_DATE_PROPERTY = SimpleValueFactory.getInstance().createIRI(DCTERMS_NS + "date");
+	public static IRI METAMETHOD_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "metamethod");
+	public static IRI ALIGNMENT_TYPE = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "Alignment");
+	public static IRI ONTOLOGY_TYPE = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "Ontology");
+	//	private Resource formalismType = null;
+	public static IRI CELL_TYPE = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "Cell");
 	// Type et propriétés perso
-	private Property nomapProperty = null;
+	public static IRI NOMAP_PROPERTY = SimpleValueFactory.getInstance().createIRI(ALIGN_NS + "nomap");
 
 	private DateTimeFormatter timeFormatter = null;
 	
@@ -91,31 +98,6 @@ public class EuzenatRDFImpl implements IOAlignment {
 	 */
 	public EuzenatRDFImpl(IOEventManager ioe) {
 		this.ioEventManager = ioe;
-		// Initialize relations and types
-		Model model = ModelFactory.createDefaultModel();
-		model.setNsPrefix("", ALIGN_NS);
-		xmlProperty = model.createProperty(ALIGN_NS + "xml");
-		levelProperty = model.createProperty(ALIGN_NS + "level");
-		typeProperty = model.createProperty(ALIGN_NS + "type");
-		locationProperty = model.createProperty(ALIGN_NS + "location");
-		formalismProperty = model.createProperty(ALIGN_NS + "formalism");
-		entity1Property = model.createProperty(ALIGN_NS + "entity1");
-		entity2Property = model.createProperty(ALIGN_NS + "entity2");
-		measureProperty = model.createProperty(ALIGN_NS + "measure");
-		relationProperty = model.createProperty(ALIGN_NS + "relation");
-		onto1Property = model.createProperty(ALIGN_NS + "onto1");
-		onto2Property = model.createProperty(ALIGN_NS + "onto2");
-		mapProperty = model.createProperty(ALIGN_NS + "map");
-		methodProperty = model.createProperty(ALIGN_NS + "method");
-		validProperty = model.createProperty(ALIGN_NS + "validity");
-		creationDateProperty = model.createProperty(DCTERMS_NS + "date");
-		metamethodProperty = model.createProperty(ALIGN_NS + "metamethod");
-		alignmentType = model.createResource(ALIGN_NS + "Alignment");
-		ontologyType = model.createResource(ALIGN_NS + "Ontology");
-		cellType = model.createResource(ALIGN_NS + "Cell");
-
-		nomapProperty = model.createProperty(ALIGN_NS + "nomap");
-
 		timeFormatter = ISODateTimeFormat.dateTimeNoMillis();
 	}
 
@@ -131,49 +113,44 @@ public class EuzenatRDFImpl implements IOAlignment {
 			throw new IllegalArgumentException(
 					"File parameter is not a valid existing file.");
 
-		Model model = ModelFactory.createDefaultModel();
+		Model model = new LinkedHashModel();
+		
+		// read the RDF/XML file
 		try {
-			FileManager.get().readModel(model, file.getAbsolutePath());
-		} catch (Exception e) {
+			RDFFormat format = Rio.getParserFormatForFileName(file.getAbsolutePath()).orElse(RDFFormat.RDFXML);
+			model = Rio.parse(new FileInputStream(file), file.getAbsolutePath(), format);
+		} catch (FileNotFoundException e) {
 			// Impossible, j'ai testé l'existence au dessus...
 			e.printStackTrace();
 			throw new IllegalArgumentException("Unable to read file. Right problem?");
+		} catch (RDFParseException e) {
+			throw new RuntimeException("Unable to read RDF file "+file.getAbsolutePath(), e);
+		} catch (UnsupportedRDFormatException e) {
+			throw new RuntimeException("Unable to read RDF file "+file.getAbsolutePath(), e);
+		} catch (IOException e) {
+			throw new RuntimeException("Unable to read RDF file "+file.getAbsolutePath(), e);
 		}
-		// read the RDF/XML file
+		
+		
 		Alignment<ONTORES1, ONTORES2> alignment = new Alignment<ONTORES1, ONTORES2>(
 				onto1, onto2);
-
-		ResIterator resIterator = model.listResourcesWithProperty(RDF.type,
-				alignmentType);
-		while (resIterator.hasNext()) {
-			// Le noeud Alignment
-			Resource alignmentResource = resIterator.nextResource();
-
-			// FIXME ici il faudrait que je verifie la provenance de
-			// l'alignement...
+		
+		
+		for (Resource alignement: model.filter(null, RDF.TYPE, ALIGNMENT_TYPE).subjects()) {
 
 			// Ajouter chaque mapping
-			StmtIterator iterator = alignmentResource
-					.listProperties(mapProperty);
-			while (iterator.hasNext()) {
-				Statement cellNodeStmt = iterator.nextStatement();
-				Resource cellNode = cellNodeStmt.getResource();
-				// FIXME "cellNode" devrait être un un noeud de Type Cell.
-				// Verification à faire?
-				Statement entity1Stmt = cellNode
-						.getRequiredProperty(entity1Property);
-				Resource entity1 = entity1Stmt.getResource();
-				Statement entity2Stmt = cellNode
-						.getRequiredProperty(entity2Property);
-				Resource entity2 = entity2Stmt.getResource();
-				Statement measureStmt = cellNode
-						.getRequiredProperty(measureProperty);
-				// measureStmt.getDouble() makes weird results...
-				double score = Double.valueOf(measureStmt.getString());
-				// Manage relation, using different forms
-				Statement relationStmt = cellNode
-						.getRequiredProperty(relationProperty);
-				final String relationStringFromRDF = relationStmt.getString();
+			for (Value cellValue: model.filter(alignement, MAP_PROPERTY, null).objects()) {
+				Resource cellNode = (Resource)cellValue;
+				Resource entity1 = (Resource)getRequiredProperty(cellNode, ENTITY1_PROPERTY, model);
+				Resource entity2 = (Resource)getRequiredProperty(cellNode, ENTITY2_PROPERTY, model);
+				Value measureValue =getRequiredProperty(cellNode, MEASURE_PROPERTY, model);
+				
+				
+				double score = Double.valueOf(((Literal)measureValue).stringValue());
+
+				Value relationStmt = getRequiredProperty(cellNode, RELATION_PROPERTY, model);
+
+				final String relationStringFromRDF = relationStmt.stringValue();
 				MAPPING_TYPE type = MAPPING_TYPE
 						.getTypeFromString(relationStringFromRDF);
 				// FIXME Si je trouves une "Cell" mais que je ne reconnais pas
@@ -184,43 +161,44 @@ public class EuzenatRDFImpl implements IOAlignment {
 							+ relationStringFromRDF);
 				}
 				// Manage method
-				Statement methodStmt = cellNode.getProperty(methodProperty);
-				String method = (methodStmt != null) ? methodStmt.getString()
+
+				Value methodValue = getProperty(cellNode,METHOD_PROPERTY,model);
+				String method = (methodValue != null) ? methodValue.stringValue()
 						: Mapping.UNKNOW_METHOD;
-				// Manage validity
-				Statement validStmt = cellNode.getProperty(validProperty);
-				VALIDITY valid = (validStmt != null) ? VALIDITY
-						.valueOf(validStmt.getString()) : VALIDITY.TO_CONFIRM;
+				
+				// Manage validity				
+				Value validValue = getProperty(cellNode,VALID_PROPERTY,model);
+				VALIDITY valid = (validValue != null) ? VALIDITY
+						.valueOf(validValue.stringValue()) : VALIDITY.TO_CONFIRM;
+						
 				// Manage creation date
-				Statement creationDateStmt = cellNode
-						.getProperty(creationDateProperty);
-				DateTime date = (creationDateStmt != null) ? timeFormatter
-						.parseDateTime(creationDateStmt.getString())
+				Value creationDateValue = getProperty(cellNode,CREATION_DATE_PROPERTY,model);
+				DateTime date = (creationDateValue != null) ? timeFormatter
+						.parseDateTime(creationDateValue.stringValue())
 						: new DateTime();
-				// Manage meta
-				Statement metaStmt = cellNode.getProperty(metamethodProperty);
+						
+				// Manage meta				
+				Resource metaRes = (Resource)getProperty(cellNode,METAMETHOD_PROPERTY,model);
 				Map<String, String> metaMap = new TreeMap<String, String>();
-				if (metaStmt != null) {
-					Resource anonymousNode = metaStmt.getResource();
-					StmtIterator it = anonymousNode.listProperties();
-					Statement metaValue;
-					while (it.hasNext()) {
-						metaValue = it.nextStatement();
+				if (metaRes != null) {
+					
+					for (Statement metaStmt: model.filter(metaRes, null,null)) {
 						// Manage predidate
-						Property metaProp = metaValue.getPredicate();
+						IRI metaProp = metaStmt.getPredicate();
 						String key = metaProp.getLocalName();
 						// Manage object
-						String value = metaValue.getString();
+						String value = metaStmt.getObject().stringValue();
 						// Adding to metamap
 						metaMap.put(key, value);
 					}
 				}
+				
 				// Manage comment
-				Statement commentStmt = cellNode.getProperty(RDFS.comment);
+				Value commentValue = getProperty(cellNode,RDFS.COMMENT,model);
 
 				try {
-					String uri1 = entity1.getURI();
-					String uri2 = entity2.getURI();
+					String uri1 = entity1.stringValue();
+					String uri2 = entity2.stringValue();
 					// Prepare errMSg, maybe....
 					String errMsg = "Loading alignment between " + uri1
 							+ " and " + uri2
@@ -238,8 +216,8 @@ public class EuzenatRDFImpl implements IOAlignment {
 
 					Mapping<ONTORES1, ONTORES2> map = new Mapping<ONTORES1, ONTORES2>(
 							cpt1, cpt2, score, type, method, valid, date);
-					if (commentStmt != null) {
-						map.setComment(commentStmt.getString());
+					if (commentValue != null) {
+						map.setComment(commentValue.stringValue());
 					}
 					if (!metaMap.isEmpty()) {
 						map.setMeta(metaMap);
@@ -253,27 +231,23 @@ public class EuzenatRDFImpl implements IOAlignment {
 			}
 
 			// Ajouter chaque mapping impossible
-			iterator = alignmentResource.listProperties(nomapProperty);
-			while (iterator.hasNext()) {
-				Statement cellNodeStmt = iterator.nextStatement();
-				Resource cellNode = cellNodeStmt.getResource();
+			Model iterator = model.filter(alignement, NOMAP_PROPERTY, null);
+			for(Statement stat:iterator) {
+				Statement cellNodeStmt = stat;
+				Resource cellNode = (Resource)cellNodeStmt.getObject();
 				// FIXME "cellNode" devrait être un un noeud de Type Cell.
 				// Verification à faire?
-				Statement entity1Stmt = cellNode.getProperty(entity1Property);
-				Statement entity2Stmt = cellNode.getProperty(entity2Property);
+				Resource entity1 = (Resource)getProperty(cellNode, ENTITY1_PROPERTY, model);
+				Resource entity2 = (Resource)getProperty(cellNode, ENTITY2_PROPERTY, model);
 
 				try {
-					if (entity1Stmt != null) {
-						Resource entity1 = entity1Stmt.getResource();
-						ONTORES1 cpt1 = onto1.getConceptFromURI(new URI(entity1
-								.getURI()));
+					if (entity1 != null) {
+						ONTORES1 cpt1 = onto1.getConceptFromURI(new URI(entity1.stringValue()));
 						NoMappingPossible<ONTORES1> nomap = new NoMappingPossible<ONTORES1>(
 								cpt1);
 						alignment.addImpossibleMappingFrom1(nomap);
 					} else {
-						Resource entity2 = entity2Stmt.getResource();
-						ONTORES2 cpt2 = onto2.getConceptFromURI(new URI(entity2
-								.getURI()));
+						ONTORES2 cpt2 = onto2.getConceptFromURI(new URI(entity2.stringValue()));
 						NoMappingPossible<ONTORES2> nomap = new NoMappingPossible<ONTORES2>(
 								cpt2);
 						alignment.addImpossibleMappingFrom2(nomap);
@@ -287,6 +261,20 @@ public class EuzenatRDFImpl implements IOAlignment {
 		}
 		return alignment;
 	}
+	
+	public Value getRequiredProperty(Resource node, IRI property, Model model){				
+		for (Statement statement:model.filter(node, property, null)) {
+			return statement.getObject();
+		} 
+		throw new RuntimeException("Unable to find required property "+property+" on resource "+node);
+	}
+	
+	public Value getProperty(Resource node, IRI property, Model model){				
+		for (Statement statement:model.filter(node, property, null)) {
+			return statement.getObject();
+		} 
+		return null;
+	}
 
 	/* (non-Javadoc)
 	 * @see fr.onagui.alignment.io.IOAlignment#saveAlignment(fr.onagui.alignment.Alignment, java.lang.String, fr.onagui.alignment.Mapping.VALIDITY)
@@ -295,21 +283,24 @@ public class EuzenatRDFImpl implements IOAlignment {
 	public <ONTORES1, ONTORES2> void saveAlignment(
 			Alignment<ONTORES1, ONTORES2> alignment, String pathToSave,
 			VALIDITY validityWanted) throws IOException {
-
-		Model model = ModelFactory.createDefaultModel();
-		model.setNsPrefix("", ALIGN_NS);
-		model.setNsPrefix("dcterms", DCTERMS_NS);
+		
+		Model model =new LinkedHashModel();
+		ValueFactory factory = SimpleValueFactory.getInstance();
+		model.setNamespace("",ALIGN_NS);
+		model.setNamespace("dcterms",DCTERMS_NS);
+		
 
 		// Creation de notre arbre
-		Resource rootAlignment = createAnonymousType(model, alignmentType);
-
+		BNode rootAlignment= createAnonymousType(model,factory,ALIGNMENT_TYPE);
+		model.add(rootAlignment,XML_PROPERTY, factory.createLiteral("yes"));
+		model.add(rootAlignment,LEVEL_PROPERTY, factory.createLiteral("0"));
+		model.add(rootAlignment,TYPE_PROPERTY, factory.createLiteral("**"));
 		final OntoContainer<ONTORES1> onto1 = alignment.getOnto1();
 		final OntoContainer<ONTORES2> onto2 = alignment.getOnto2();
 
 		// Meta-data about ontology
-		buildOntoMetaData(model, rootAlignment, onto1, 1);
-		buildOntoMetaData(model, rootAlignment, onto2, 2);
-
+		buildOntoMetaData(model, rootAlignment,factory,onto1, 1);
+		buildOntoMetaData(model, rootAlignment, factory,onto2, 2);
 		// Build the mapping nodes
 		for (Mapping<ONTORES1, ONTORES2> mapping : alignment.getMapping()) {
 			buildCellNode(onto1, onto2, mapping, model, rootAlignment,
@@ -319,125 +310,129 @@ public class EuzenatRDFImpl implements IOAlignment {
 		// Build the no mapping nodes
 		for (NoMappingPossible<ONTORES1> noMap : alignment
 				.getImpossibleMapping1().values()) {
-			buildNoMapNode(onto1, noMap, 1, model, rootAlignment);
+			buildNoMapNode(onto1, noMap, 1, model, factory, rootAlignment);
 		}
 		for (NoMappingPossible<ONTORES2> noMap : alignment
 				.getImpossibleMapping2().values()) {
-			buildNoMapNode(onto2, noMap, 2, model, rootAlignment);
+			buildNoMapNode(onto2, noMap, 2, model,factory, rootAlignment);
 		}
-
-		// En dernier si je les veux en haut...
-		rootAlignment.addLiteral(xmlProperty, model.createLiteral("yes"));
-		rootAlignment.addLiteral(levelProperty, model.createLiteral("0"));
-		rootAlignment.addLiteral(typeProperty, model.createLiteral("**"));
-
-		OutputStream stream = Files.newOutputStream(Paths.get(pathToSave));
-		stream.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".getBytes(ONAGUI_CHARSET));
-		RDFWriter w = model.getWriter("RDF/XML-ABBREV");
-		w.setProperty("showXmlDeclaration", "false");
-		w.write(model, stream, ALIGN_NS);
+		
+		
+		
+		FileOutputStream stream = new FileOutputStream(pathToSave);
+	
+		RDFWriter prettyWriter = new RDFXMLPrettyWriter(stream);
+		Rio.write(model, prettyWriter);
+		
+		
 	}
 
-	private static Resource createNamedType(Model model, Resource type,
-			String uri) {
-		Resource rootAlignment = model.createResource(uri);
-		rootAlignment.addProperty(RDF.type, type);
+	private static BNode createAnonymousType(Model model, ValueFactory factory, IRI type) {
+		BNode rootAlignment= factory.createBNode();
+		model.add(rootAlignment, RDF.TYPE, type);
 		return rootAlignment;
+		
 	}
 
-	private static Resource createAnonymousType(Model model, Resource type) {
-		Resource rootAlignment = model.createResource();
-		rootAlignment.addProperty(RDF.type, type);
-		return rootAlignment;
-	}
-
-	/**
-	 * 
-	 */
-	private <ONTORES> void buildOntoMetaData(Model model, Resource root,
+	
+	private <ONTORES> void buildOntoMetaData(Model model, Resource root, ValueFactory factory,
 			OntoContainer<ONTORES> onto, int number) {
-		Resource ontologyResource = createNamedType(model, ontologyType,
-				ALIGN_NS + onto.getURI());
-		ontologyResource.addLiteral(locationProperty,
-				model.createLiteral(onto.getURI().toString()));
-		// FIXME le noeud "formalism" n'est pas compatible avec le format
-		// Euzenat car je ne sais pas ajouter un
-		// attribut avec Jena pour faire un noeud: <Formalism name="OWL 1.0"
-		// uri="http://www.w3.org/2002/07/owl#"/>
-		// Je pourrai passer par un "typeLiteral", mais c'est moche...
-		ontologyResource.addLiteral(formalismProperty,
-				model.createLiteral(onto.getFormalism()));
-
-		if (number == 1) {
-			root.addProperty(onto1Property, ontologyResource);
+		
+		IRI ontologyResource = factory.createIRI(ALIGN_NS + onto.getURI());
+		
+		if (number == 1) {			
+			model.add(root, ONTO1_PROPERTY, ontologyResource);			
 		} else {
-			root.addProperty(onto2Property, ontologyResource);
+			model.add(root, ONTO2_PROPERTY, ontologyResource);
 		}
+		
+		model.add(ontologyResource, RDF.TYPE, ONTOLOGY_TYPE);
+		model.add(ontologyResource, LOCATION_PROPERTY,factory.createLiteral(onto.getURI().toString()));
+		model.add(ontologyResource, FORMALISM_PROPERTY,factory.createLiteral(onto.getFormalism()));
+		
 	}
 
 	private <ONTORES1, ONTORES2> void buildCellNode(
 			OntoContainer<ONTORES1> onto1, OntoContainer<ONTORES2> onto2,
 			Mapping<ONTORES1, ONTORES2> mapping, Model model,
 			Resource alignmentRoot, VALIDITY validityWanted) {
-
+		ValueFactory factory = SimpleValueFactory.getInstance();
+		
 		VALIDITY currentMappingValidity = mapping.getValidity();
 		if (validityWanted != null
 				&& !currentMappingValidity.equals(validityWanted))
 			return;
 
-		Resource cellNode = createAnonymousType(model, cellType);
-		Resource res1 = model.createResource(onto1.getURI(
+		// ordre d'insertion des proprietes necessaires pour avoir une "belle"
+		// ecriture dans le fichier RDF/XML
+		
+		// on créé le noeud correspondant a la Cell		
+		BNode cellNode = factory.createBNode();
+		// on relie l'objet "Alignement" a ce noeud par la propriete "map"
+		model.add(alignmentRoot, MAP_PROPERTY,cellNode);
+		// on donne le type de l'objet "Cell"
+		model.add(cellNode, RDF.TYPE, CELL_TYPE);
+		
+		IRI res1 = factory.createIRI(onto1.getURI(
 				mapping.getFirstConcept()).toString());
-		Resource res2 = model.createResource(onto2.getURI(
+		IRI res2 = factory.createIRI(onto2.getURI(
 				mapping.getSecondConcept()).toString());
 
-		// Dans Jena, il faut ajouter les propriétés dans l'ordre inverse où
-		// l'on les veut dans le fichier de sortie
+		
 		final String comment = mapping.getComment();
 		if (comment != null && !"".equals(comment)) {
-			cellNode.addLiteral(RDFS.comment, model.createLiteral(comment));
+			model.add(cellNode, RDFS.COMMENT,factory.createLiteral(comment));
 		}
-		cellNode.addLiteral(validProperty, currentMappingValidity.toString());
-		cellNode.addLiteral(relationProperty,
-				model.createLiteral(mapping.getType().toString()));
-		cellNode.addLiteral(measureProperty, (float) mapping.getScore());
-		cellNode.addProperty(entity2Property, res2);
-		cellNode.addProperty(entity1Property, res1);
-		cellNode.addProperty(creationDateProperty,
-				timeFormatter.print(mapping.getCreationDate()),
-				XSDDatatype.XSDdateTime);
-
+		model.add(cellNode, VALID_PROPERTY,factory.createLiteral(currentMappingValidity.toString()));
+		model.add(cellNode, RELATION_PROPERTY,factory.createLiteral(mapping.getType().toString()));
+		model.add(cellNode, MEASURE_PROPERTY,factory.createLiteral((float) mapping.getScore()));
+		model.add(cellNode, ENTITY2_PROPERTY,res2);
+		model.add(cellNode, ENTITY1_PROPERTY,res1);
+		
+		// we force the date format to be exactly what we want
+		// see http://stackoverflow.com/questions/10614771/java-simpledateformat-pattern-for-w3c-xml-dates-with-timezone
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+		model.add(cellNode, CREATION_DATE_PROPERTY,factory.createLiteral(sdf.format(mapping.getCreationDate().toDate()), XMLSchema.DATETIME));
+		
+		
 		final String method = mapping.getMethod();
 		final Map<String, String> metamap = mapping.getMeta();
 		if (!method.equals(Mapping.UNKNOW_METHOD)) {
-			cellNode.addLiteral(methodProperty, model.createLiteral(method));
+			model.add(cellNode, METHOD_PROPERTY,factory.createLiteral(method));
 		}
 		if (!metamap.isEmpty()) {
-			Resource metaRoot = model.createResource();
+			Resource metaRoot = factory.createBNode();
+			model.add(cellNode, METAMETHOD_PROPERTY,metaRoot);
 			for (Map.Entry<String, String> entry : metamap.entrySet()) {
-				Property localProp = model.createProperty(ALIGN_NS
+				IRI localProp = factory.createIRI(ALIGN_NS
 						+ entry.getKey());
-				metaRoot.addLiteral(localProp, entry.getValue());
-			}
-			cellNode.addProperty(metamethodProperty, metaRoot);
-		}
-
-		alignmentRoot.addProperty(mapProperty, cellNode);
+				model.add(metaRoot, localProp,factory.createLiteral(entry.getValue()));
+			}			
+		}	
+		
 	}
 
 	private <ONTORES> void buildNoMapNode(OntoContainer<ONTORES> onto,
-			NoMappingPossible<ONTORES> noMap, int number, Model model,
+			NoMappingPossible<ONTORES> noMap, int number, Model model, ValueFactory factory,
 			Resource alignmentRoot) {
-
-		Resource cellNode = createAnonymousType(model, cellType);
-		Resource res1 = model.createResource(onto.getURI(noMap.getConcept())
+		
+		// ordre d'insertion des proprietes necessaires pour avoir une "belle"
+		// ecriture dans le fichier RDF/XML
+		
+		// on créé le noeud correspondant a la Cell		
+		BNode cellNode = factory.createBNode();
+		// on relie l'objet "Alignement" a ce noeud par la propriete "nomap"
+		model.add(alignmentRoot,NOMAP_PROPERTY,cellNode);
+		// on donne le type de l'objet "Cell"
+		model.add(cellNode, RDF.TYPE, CELL_TYPE);		
+		
+		IRI res1 = factory.createIRI(onto.getURI(noMap.getConcept())
 				.toString());
-
 		if (number == 1)
-			cellNode.addProperty(entity1Property, res1);
+			model.add(cellNode,ENTITY1_PROPERTY,res1);
 		else
-			cellNode.addProperty(entity2Property, res1);
-		alignmentRoot.addProperty(nomapProperty, cellNode);
+			model.add(cellNode,ENTITY2_PROPERTY,res1);
+		
 	}
 }
 

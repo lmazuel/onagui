@@ -37,6 +37,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.TupleQueryResultHandler;
 import org.eclipse.rdf4j.query.TupleQueryResultHandlerBase;
 import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
+import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
@@ -83,7 +84,6 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		triplestore = new SailRepository(new MemoryStore());
 		triplestore.initialize();
 		factory = triplestore.getValueFactory();
-
 		RepositoryConnection connect = triplestore.getConnection();
 		// Try RDF/XML, fallback to N3 and fail if it's not enough
 		try {
@@ -91,10 +91,25 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		} catch (RDFParseException e) {
 			connect.add(physicalPath, null, RDFFormat.N3);
 		}
+		
+		//changing skosxl prefLabel to skos prefLabel when we load the file
+		String queryString1 = "PREFIX skos:<http://www.w3.org/2004/02/skos/core#>"
+				+"PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>"
+				+ "INSERT {	?x skos:prefLabel ?y} "
+					+ "WHERE {?x skosxl:prefLabel/skosxl:literalForm ?y}";
+		Update u1 = connect.prepareUpdate(QueryLanguage.SPARQL, queryString1);
+		u1.execute();
+		
+		String queryString2 = "PREFIX skos:<http://www.w3.org/2004/02/skos/core#>"
+				+"PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>"
+				+ "INSERT {	?x skos:altLabel ?y} "
+					+ "WHERE {?x skosxl:altLabel/skosxl:literalForm ?y}";
+		Update u2 = connect.prepareUpdate(QueryLanguage.SPARQL, queryString2);
+		u2.execute();		
+		
 		connect.close();
 
 		onto_uri = physicalPath.toURI();
-		
 		// Preload
 		getAllLanguageInLabels();
 		topConceptOfCache = new HashMap<Resource, Resource>();
@@ -402,6 +417,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 				Literal literal = (Literal) s.getObject();
 				result.add(literal.getLabel());
 			}
+					
 			connect.close();
 		} catch (RepositoryException e) {
 			e.printStackTrace();
