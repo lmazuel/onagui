@@ -29,16 +29,21 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
+import org.eclipse.rdf4j.query.AbstractTupleQueryResultHandler;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.TupleQueryResultHandler;
+import org.eclipse.rdf4j.query.TupleQueryResultHandlerBase;
+import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.repository.util.Repositories;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
@@ -288,6 +293,33 @@ public class SKOSContainer implements OntoContainer<Resource> {
 			for (Statement s : Iterations.asList(stmts)) {
 				result.add(s.getSubject());
 			}
+			//no top concept 
+			if(result.isEmpty()){
+			String queryString = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
+					+ " SELECT ?racine WHERE {  "
+							+ " ?racine skos:inScheme <"+scheme+">."	
+							+ " FILTER NOT EXISTS {?racine skos:broader ?x1.}"
+							+ " FILTER NOT EXISTS {?x2 skos:narrower ?racine.} "										
+					+ "} ";
+
+			TupleQuery tupleQuery = connect.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
+			try (TupleQueryResult res = tupleQuery.evaluate()) {
+			  while (res.hasNext()) {  // iterate over the result			  
+				   BindingSet bindingSet = res.next();
+				   Resource racine= (Resource)bindingSet.getValue("racine");
+				   result.add(racine);
+			  }
+			}
+			
+			// en plus stylé : 
+//			Repositories.tupleQuery(triplestore, queryString, new AbstractTupleQueryResultHandler() {
+//				@Override
+//				public void handleSolution(BindingSet bindingSet) throws TupleQueryResultHandlerException {
+//					Resource racine= (Resource)bindingSet.getValue("racine");
+//					result.add(racine);
+//				}			
+//			});
+		}
 			connect.close();
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
