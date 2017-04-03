@@ -1789,7 +1789,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 					System.out.println("great");
 					//map.setValidity(validity_to_use);
 				}else if(type_to_use!=null){
-					tableModel.setValueAt(validity_to_use, index, centerTable.getSelectedColumn());
+					tableModel.setValueAt(type_to_use, index, centerTable.getSelectedColumn());
 					System.out.println("yeah");
 					//map.setType(type_to_use);
 				}
