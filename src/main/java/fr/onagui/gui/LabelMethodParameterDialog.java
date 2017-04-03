@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -313,7 +314,7 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 	 * @return
 	 * @throws ParseException
 	 */
-	public Date getDate1AsDate() throws ParseException {	
+	public Optional<Date> getDate1AsDate() throws Exception {	
 		return asDate(getDate1());
 	}
 	
@@ -322,13 +323,14 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 	 * @return
 	 * @throws ParseException
 	 */
-	public Date getDate2AsDate() throws ParseException {
+	public Optional<Date> getDate2AsDate() throws Exception {
 		return asDate(getDate2());
 	}
 	
-	private Date asDate(String s) {
+	private Optional<Date> asDate(String s) {
 		try {
-			return dateFormatter.parse(s);
+			Optional<Date> date=Optional.of(dateFormatter.parse(s));
+			return date;
 		} catch (Exception e) {
 			System.err.print("Cannot parse date value : "+e.getMessage());
 			return null;

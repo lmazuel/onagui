@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -65,8 +66,8 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 
 	public OWLAPIContainer(URI filename) throws OWLOntologyCreationException {
 		try {
-			
-			
+
+
 			this.filename = filename;
 			manager = OWLManager.createOWLOntologyManager();
 			df = manager.getOWLDataFactory();
@@ -95,23 +96,23 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 				e.printStackTrace();
 			}
 			connect.close();*/
-			
-//			try {
-//				System.out.println("Let's try Sesame");
-//				OwlTripleStore ts = Utilities.getOwlTripleStore(ontology, true);
-//				Repository sesame_repo = ts.getRepository();
-//				RepositoryConnection sesame_connect = sesame_repo.getConnection();
-//				System.out.println("I have: "+sesame_connect.size()+" statements");
-//			} catch (RepositoryException e) {
-//				System.err.println("Sesame Error!!!!");
-//				e.printStackTrace();
+
+			//			try {
+			//				System.out.println("Let's try Sesame");
+			//				OwlTripleStore ts = Utilities.getOwlTripleStore(ontology, true);
+			//				Repository sesame_repo = ts.getRepository();
+			//				RepositoryConnection sesame_connect = sesame_repo.getConnection();
+			//				System.out.println("I have: "+sesame_connect.size()+" statements");
+			//			} catch (RepositoryException e) {
+			//				System.err.println("Sesame Error!!!!");
+			//				e.printStackTrace();
 		}
 		catch(RuntimeException e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
-	
+
 	private class MyOwlVisitor extends OWLOntologyWalkerVisitor<OWLEntity> {
 		private OntoVisitor<OWLEntity> visitor;
 		public MyOwlVisitor(OWLOntologyWalker walker, OntoVisitor<OWLEntity> myvisitor) {
@@ -132,14 +133,14 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 			return super.visit(individual);
 		}
 	}
-	
+
 	@Override
 	public void accept(OntoVisitor<OWLEntity> visitor) {
 		OWLOntologyWalker ontoWalker = new OWLOntologyWalker(Collections.singleton(ontology));
 		OWLOntologyWalkerVisitor<OWLEntity> ontolvisitor = new MyOwlVisitor(ontoWalker, visitor);			
 		ontoWalker.walkStructure(ontolvisitor);		
 	}
-	
+
 	@Override
 	public String getFormalism() {
 		return "owl";
@@ -153,7 +154,7 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 		result.addAll(ontology.getIndividualsInSignature());
 		return result;
 	}
-	
+
 	@Override
 	public boolean isIndividual(OWLEntity cpt) {
 		return cpt.isOWLNamedIndividual();
@@ -172,7 +173,7 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 		// FIXME Support for OWL?
 		return new HashSet<String>();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see agui.alignment.OntoContainer#getPrefLabels(java.lang.Object)
 	 */
@@ -243,11 +244,11 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 			return res;
 		return null;
 	}
-	
+
 	@Override
 	public Set<OWLEntity> getChildren(OWLEntity cpt) {
 		if(!cpt.isOWLClass()) return new HashSet<OWLEntity>();
-		
+
 		Set<OWLEntity> entities = new HashSet<OWLEntity>();
 		Set<OWLEntity> result = new HashSet<OWLEntity>();
 		OWLClass localRootClass = cpt.asOWLClass();
@@ -268,11 +269,11 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public Set<OWLEntity> getParents(OWLEntity cpt) {
 		if(!cpt.isOWLClass()) return new HashSet<OWLEntity>();
-		
+
 		Set<OWLEntity> entities = new HashSet<OWLEntity>();
 		Set<OWLEntity> result = new HashSet<OWLEntity>();
 		OWLClass localRootClass = cpt.asOWLClass();
@@ -341,7 +342,7 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 	}
 
 	@Override
-	public Date getModifiedDate(OWLEntity cpt) {
+	public Optional<Date> getModifiedDate(OWLEntity cpt) {
 		// TODO Auto-generated method 
 		return null;
 	}

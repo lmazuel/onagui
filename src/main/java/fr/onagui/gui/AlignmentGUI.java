@@ -1616,7 +1616,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 									selected2 = (DefaultMutableTreeNode)treeFrom2.getModel().getRoot();
 								}
 								try {
-									System.out.println(labelParameterDialog.getDate1AsDate()+"and "+labelParameterDialog.getDate2AsDate());
+									System.out.println(labelParameterDialog.getDate1AsDate().get()+"and "+labelParameterDialog.getDate2AsDate().get());
 									alignmentControler.computeAndAddMapping(method, listener, selected1, selected2,labelParameterDialog.getDate1AsDate(),labelParameterDialog.getDate2AsDate());
 								} catch (Exception e) {
 									// TODO Auto-generated catch block

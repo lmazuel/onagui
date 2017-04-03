@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Predicate;
@@ -31,7 +32,7 @@ import fr.onagui.alignment.io.CSVImpl;
 import fr.onagui.alignment.io.EuzenatRDFImpl;
 import fr.onagui.alignment.io.IOAlignment;
 import fr.onagui.alignment.io.SkosImpl;
-import fr.onagui.alignment.method.NewAlignment;
+import fr.onagui.alignment.method.DatedISub;
 import fr.onagui.alignment.method.ExactAlignmentMethod;
 import fr.onagui.alignment.method.ISubAlignmentMethod;
 import fr.onagui.alignment.method.LevenshteinAlignmentMethod;
@@ -98,7 +99,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		classes.add(LevenshteinAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(ISubAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(ExactAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
-		classes.add(NewAlignment.class.asSubclass(AbstractAlignmentMethod.class));
+		classes.add(DatedISub.class.asSubclass(AbstractAlignmentMethod.class));
 		methods = buildInstancesFromClass(classes);
 	}
 
@@ -301,7 +302,10 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 			AbstractAlignmentMethod<ONTORES1, ONTORES2> method,
 			PropertyChangeListener listener,
 			DefaultMutableTreeNode rootFrom1,
-			DefaultMutableTreeNode rootFrom2, Date date1, Date date2) {
+			DefaultMutableTreeNode rootFrom2, 
+			Optional<Date> date1 , 
+			Optional<Date> date2
+			) {
 		// D'abord, calculer l'ensemble des concepts en Jeu
 
 		// Pour le container 1
@@ -311,30 +315,30 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		// Pour le container 2
 		TreeNodeOntologyObject<ONTORES2> userObject2 = (TreeNodeOntologyObject<ONTORES2>) rootFrom2.getUserObject();
 		Set<ONTORES2> concepts2 = OntoTools.getAllDescendants(container2, userObject2.getConcept());
-		
-		if(  date1 != null ) {
+
+		if(  date1.isPresent()) {
 			System.out.println("date1 différente de null");
 			//on parcours les concepts 
 			//on retire ceux qui ont une date lue antérieure 
 			//à la date saisie pour les 2 concepts
 			concepts1.removeIf(t -> { 
-				Date datelue1=container1.getModifiedDate(t);
-				if(datelue1==null){
-					return false;
+				Optional<Date> datelue1=container1.getModifiedDate(t);
+				if(datelue1!=null){
+					return datelue1.get().before(date1.get());		
 				}else{
-					return datelue1.before(date1);
+					return false;
 				}
-				
+
 			});
 		}
-		if(  date2 != null ) {
+		if(  date2.isPresent() ) {
 			System.out.println("date2 différente de null");
 			concepts2.removeIf(h -> { 
-				Date datelue2=container2.getModifiedDate(h);
-				if(datelue2==null){
-					return false;
+				Optional<Date> datelue2=container2.getModifiedDate(h);
+				if(datelue2!=null){
+					return datelue2.get().before(date2.get());		
 				}else{
-					return datelue2.before(date2);
+					return false;
 				}
 			});
 		}
