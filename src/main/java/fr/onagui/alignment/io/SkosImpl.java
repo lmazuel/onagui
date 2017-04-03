@@ -203,17 +203,16 @@ public class SkosImpl implements IOAlignment {
 			Alignment<ONTORES1, ONTORES2> alignment, String pathToSave,
 			VALIDITY validityWanted) throws IOException {
 
+
 		ValueFactory factory = SimpleValueFactory.getInstance();
 		Model model = new LinkedHashModel();
 		model.setNamespace("skos", "http://www.w3.org/2004/02/skos/core#");
 		model.setNamespace("", "http://www.w3.org/2004/02/skos/core#");
 
-
 		final OntoContainer<ONTORES1> onto1 = alignment.getOnto1();
 		final OntoContainer<ONTORES2> onto2 = alignment.getOnto2();
 
 		Statement typeStatement =null;
-
 
 		for (Mapping<ONTORES1, ONTORES2> mapping : alignment.getMapping()) {
 			if(validityWanted != null && !mapping.getValidity().equals(validityWanted))
@@ -221,21 +220,20 @@ public class SkosImpl implements IOAlignment {
 
 			IRI propertyToUsed = null;
 
-
 			if(mapping.getType() == MAPPING_TYPE.EQUIV)
 				propertyToUsed = SKOS.EXACT_MATCH;
 
 			else if(mapping.getType() == MAPPING_TYPE.SUBSUMES)
 				propertyToUsed = SKOS.BROAD_MATCH;
-
 			else if(mapping.getType() == MAPPING_TYPE.SUBSUMEDBY)
-				propertyToUsed = SKOS.NARROW_MATCH;
-
+				propertyToUsed = SKOS.NARROW_MATCH;		
 			else if(mapping.getType() == MAPPING_TYPE.OVERLAP)
-				propertyToUsed = SKOS.CLOSE_MATCH;
-
+				propertyToUsed = SKOS.CLOSE_MATCH;			   
+			else if(mapping.getType() == MAPPING_TYPE.RELATED)
+				propertyToUsed = SKOS.RELATED;
 			else
 				continue;
+
 			IRI res1= factory.createIRI(onto1.getURI(mapping.getFirstConcept()).toString());
 			IRI res2= factory.createIRI(onto2.getURI(mapping.getSecondConcept()).toString());
 			typeStatement=factory.createStatement(res1, propertyToUsed, res2);
