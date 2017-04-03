@@ -4,19 +4,16 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import fr.onagui.alignment.Alignment;
-
 public class Messages {
 	private static final String BUNDLE_NAME = "messages"; //$NON-NLS-1$
 
-	// private static ResourceBundle RESOURCE_BUNDLE = null;
 	private static ResourceBundle RESOURCE_BUNDLE = null;
 	
 	static 
 	{
 		String force_language = System.getenv("ONAGUI_FORCE_LANGUAGE");
 		if(force_language != null)	{
-			Locale.setDefault(new Locale("en"));
+			Locale.setDefault(new Locale(force_language));
 		}
 		RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 		
