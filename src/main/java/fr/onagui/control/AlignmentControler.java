@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Optional;
-
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -28,7 +27,6 @@ import fr.onagui.alignment.io.CSVImpl;
 import fr.onagui.alignment.io.EuzenatRDFImpl;
 import fr.onagui.alignment.io.IOAlignment;
 import fr.onagui.alignment.io.SkosImpl;
-import fr.onagui.alignment.method.DatedISub;
 import fr.onagui.alignment.method.ExactAlignmentMethod;
 import fr.onagui.alignment.method.ISubAlignmentMethod;
 import fr.onagui.alignment.method.LevenshteinAlignmentMethod;
@@ -95,9 +93,6 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		classes.add(LevenshteinAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(ISubAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(ExactAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
-		classes.add(DatedISub.class.asSubclass(AbstractAlignmentMethod.class));
-
-		// classes.add(NewAlignment.class.asSubclass(AbstractAlignmentMethod.class));
 
 		methods = buildInstancesFromClass(classes);
 	}
@@ -319,27 +314,20 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 			System.out.println("date1 différente de null");
 			//on parcours les concepts 
 			//on retire ceux qui ont une date lue antérieure 
-			//à la date saisie pour les 2 concepts
-			concepts1.removeIf(t -> { 
-				Optional<Date> datelue1=container1.getModifiedDate(t);
-				if(datelue1!=null){
-					return datelue1.get().before(date1.get());		
-				}else{
-					return false;
-				}
-
-			});
+			//à la date saisie pour les 2 concepts		
+			concepts1.removeIf(
+					t -> container1.getModifiedDate(t).map(
+							date -> date.before(date1.get())
+					).orElse(false)
+			);
 		}
 		if(  date2.isPresent() ) {
 			System.out.println("date2 différente de null");
-			concepts2.removeIf(h -> { 
-				Optional<Date> datelue2=container2.getModifiedDate(h);
-				if(datelue2!=null){
-					return datelue2.get().before(date2.get());		
-				}else{
-					return false;
-				}
-			});
+			concepts2.removeIf(
+					t -> container2.getModifiedDate(t).map(
+							date -> date.before(date2.get())
+					).orElse(false)
+			);
 		}
 
 		//lancement de l'alignement
