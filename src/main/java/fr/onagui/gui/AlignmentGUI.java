@@ -848,14 +848,14 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		applicationMenu.add(guiLanguageMenu);
 		
 		// French language
-		JMenuItem francaisMenu = new JMenuItem(Messages.getString("Francais")); //$NON-NLS-1$
+		JMenuItem francaisMenu = new JMenuItem(Messages.getString("French")); //$NON-NLS-1$
 		if(Locale.getDefault().getLanguage().equals("fr")) {
 			francaisMenu.setEnabled(false);
 		}
 		guiLanguageMenu.add(francaisMenu);
 		
 		// English language
-		JMenuItem anglaisMenu = new JMenuItem(Messages.getString("Anglais")); //$NON-NLS-1$
+		JMenuItem anglaisMenu = new JMenuItem(Messages.getString("English")); //$NON-NLS-1$
 		if(Locale.getDefault().getLanguage().equals("en")) {
 			anglaisMenu.setEnabled(false);
 		}		

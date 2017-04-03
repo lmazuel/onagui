@@ -36,7 +36,7 @@ public class Messages {
 	}
 	
 	public static void changeLanguage(String langue){
-		System.out.println(langue);
+		System.out.println("Changing language: "+langue);
 		ResourceBundle.clearCache();
 		Locale loc=new Locale(langue);
 		Locale.setDefault(loc);
