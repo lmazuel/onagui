@@ -349,7 +349,7 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 
 	@Override
 	public int compareTo(Mapping<?, ?> o) {
-		// Consistance avec l'égalité
+	// Consistance avec l'égalité
 		if (this.equals(o))
 			return 0;
 
@@ -368,6 +368,8 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 		// Choix non significatif basé sur les chaines de caractères (prend en
 		// compte label et méthode).
 		return this.toString().compareTo(o.toString());
+		
+		
 	}
 
 	public void setComment(String comment) {

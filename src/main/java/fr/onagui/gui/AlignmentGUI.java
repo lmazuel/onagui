@@ -1781,12 +1781,17 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			}
 
 			for(int index : centerTable.getSelectedRows()) {
-				Mapping<?, ?> map = tableModel.getMappingAt(centerTable.convertRowIndexToModel(index));
+				//Mapping<?, ?> map = tableModel.getMappingAt(centerTable.convertRowIndexToModel(index));
 				
 				if(validity_to_use!=null){
-					map.setValidity(validity_to_use);
+					
+					tableModel.setValueAt(validity_to_use, index, centerTable.getSelectedColumn());
+					System.out.println("great");
+					//map.setValidity(validity_to_use);
 				}else if(type_to_use!=null){
-					map.setType(type_to_use);
+					tableModel.setValueAt(validity_to_use, index, centerTable.getSelectedColumn());
+					System.out.println("yeah");
+					//map.setType(type_to_use);
 				}
 			}
 			// Refresh GUI
