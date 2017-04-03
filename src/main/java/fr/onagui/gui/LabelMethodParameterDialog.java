@@ -145,13 +145,23 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		//set calendar for the two concepts
 		
 		JPanel dateFieldPanel1 = new JPanel(new BorderLayout());
-		JLabel label1=new JLabel(Messages.getString("LabelDate1ParameterDialog"));
-		JLabel label2=new JLabel(Messages.getString("LabelDate2ParameterDialog"));
+		dateFieldPanel1.add(new JLabel(Messages.getString("LabelDate1ParameterDialog")), BorderLayout.NORTH);
+	    //	calendar onto 1
+		DatePickerSettings dateSettings1 = new DatePickerSettings();
+	    dateSettings1.setFormatForDatesCommonEra("yyyy-MM-dd");
+	    dateSettings1.setFirstDayOfWeek(DayOfWeek.MONDAY);
+	    this.dateField1 = new DatePicker(dateSettings1);
+	    dateFieldPanel1.add(this.dateField1,BorderLayout.CENTER);
 		
 		JPanel dateFieldPanel2 = new JPanel(new BorderLayout());
-		calendar(dateFieldPanel1, dateFieldPanel2);
+		dateFieldPanel2.add(new JLabel(Messages.getString("LabelDate2ParameterDialog")), BorderLayout.NORTH);
+		DatePickerSettings dateSettings2 = new DatePickerSettings();
+	    dateSettings2.setFormatForDatesCommonEra("yyyy-MM-dd");
+	    dateSettings2.setFirstDayOfWeek(DayOfWeek.MONDAY);
+	    this.dateField2 = new DatePicker(dateSettings2);
+	    dateFieldPanel2.add(this.dateField2, BorderLayout.CENTER);
 
-		c.gridx = 0;
+	    c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 2;
 		c.weightx = 0.0;
@@ -195,16 +205,16 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		gridbag.setConstraints(langPanel2, c);
 		this.getContentPane().add(langPanel2);
 		
-		c.gridx = 0;
-		c.gridy = 3;
-		c.gridwidth = 2;
-		c.weightx = 0.0;
-		c.weighty = 0.0;
-		c.insets = new Insets(10, 10, 10, 10);
-		c.anchor = GridBagConstraints.CENTER;
-		c.fill = GridBagConstraints.NONE;
-		gridbag.setConstraints(label1, c);
-		this.getContentPane().add(label1);
+//		c.gridx = 0;
+//		c.gridy = 3;
+//		c.gridwidth = 2;
+//		c.weightx = 0.0;
+//		c.weighty = 0.0;
+//		c.insets = new Insets(10, 10, 10, 10);
+//		c.anchor = GridBagConstraints.WEST;
+//		c.fill = GridBagConstraints.NONE;
+//		gridbag.setConstraints(label1, c);
+//		this.getContentPane().add(label1);
 		
 		c.gridx = 0;
 		c.gridy = 4;
@@ -212,22 +222,22 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		c.weightx = 0.0;
 		c.weighty = 0.0;
 		c.insets = new Insets(10, 10, 10, 10);
-		c.anchor = GridBagConstraints.CENTER;
+		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.VERTICAL;
 		gridbag.setConstraints(dateFieldPanel1, c);
 		this.getContentPane().add(dateFieldPanel1);
 		
 		
-		c.gridx = 0;
-		c.gridy = 5;
-		c.gridwidth = 2;
-		c.weightx = 0.0;
-		c.weighty = 0.0;
-		c.insets = new Insets(10, 10, 10, 10);
-		c.anchor = GridBagConstraints.CENTER;
-		c.fill = GridBagConstraints.NONE;
-		gridbag.setConstraints(label2, c);
-		this.getContentPane().add(label2);
+//		c.gridx = 0;
+//		c.gridy = 5;
+//		c.gridwidth = 2;
+//		c.weightx = 0.0;
+//		c.weighty = 0.0;
+//		c.insets = new Insets(10, 10, 10, 10);
+//		c.anchor = GridBagConstraints.WEST;
+//		c.fill = GridBagConstraints.NONE;
+//		gridbag.setConstraints(label2, c);
+//		this.getContentPane().add(label2);
 		
 		c.gridx = 0;
 		c.gridy = 6;
@@ -235,7 +245,7 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		c.weightx = 0.0;
 		c.weighty = 0.0;
 		c.insets = new Insets(10, 10, 10, 10);
-		c.anchor = GridBagConstraints.CENTER;
+		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.VERTICAL;
 		gridbag.setConstraints(dateFieldPanel2, c);
 		this.getContentPane().add(dateFieldPanel2);
@@ -380,27 +390,6 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 			System.err.println("ERROR: inatendu! Event: "+e); //$NON-NLS-1$
 		}
 	}
-	
-	private void calendar(JPanel dateFieldPanel1,JPanel dateFieldPanel2) {
-		//calendar onto 1
-		
-	    DatePickerSettings dateSettings1 = new DatePickerSettings();
-	    dateSettings1.setFormatForDatesCommonEra("yyyy-MM-dd");
-	    dateSettings1.setFirstDayOfWeek(DayOfWeek.MONDAY);
-	    dateField1 = new DatePicker(dateSettings1);
-	    
-	    dateFieldPanel1.add(dateField1,BorderLayout.CENTER);
-	    
-	    //calendar onto 2
-	    DatePickerSettings dateSettings2 = new DatePickerSettings();
-	    dateSettings2.setFormatForDatesCommonEra("yyyy-MM-dd");
-	    dateSettings2.setFirstDayOfWeek(DayOfWeek.MONDAY);
-	    dateFieldPanel2.add(new JLabel("Onto2 date d'align:"), BorderLayout.CENTER); //$NON-NLS-1$ 
-	    dateField2= new DatePicker(dateSettings2);
-	    dateFieldPanel2.add(dateField2,BorderLayout.CENTER);
-        
-	} 
-	
 	
 
 	public static void main(String[] args) {

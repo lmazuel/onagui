@@ -7,17 +7,13 @@ import java.net.URI;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Optional;
+
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.function.Predicate;
 
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
-
-import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Statement;
 
 import fr.onagui.alignment.AbstractAlignmentMethod;
 import fr.onagui.alignment.Alignment;
@@ -100,6 +96,9 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		classes.add(ISubAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(ExactAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(DatedISub.class.asSubclass(AbstractAlignmentMethod.class));
+
+		// classes.add(NewAlignment.class.asSubclass(AbstractAlignmentMethod.class));
+
 		methods = buildInstancesFromClass(classes);
 	}
 
