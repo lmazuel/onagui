@@ -83,7 +83,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		ioEventManager = new IOEventManagerJDialog();
 		ioEuzenatManager = new EuzenatRDFImpl(ioEventManager);
 		ioCsvManager = new CSVImpl();
-		ioSkosManager = new SkosImpl();
+		ioSkosManager = new SkosImpl(ioEventManager);
 		methods = new HashSet<AbstractAlignmentMethod<ONTORES1, ONTORES2>>();
 		Set<Class<? extends AbstractAlignmentMethod>> classes = new HashSet<Class<? extends AbstractAlignmentMethod>>();
 
@@ -417,6 +417,25 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		try {
 			ioEventManager.reset();
 			Alignment<ONTORES1, ONTORES2> alignment = ioEuzenatManager.loadAlignment(container1, container2, file);
+			this.alignment.addAll(alignment);
+			ioEventManager.showDialog();
+			return true;
+		}
+		catch (Exception e) {
+			System.err.println(Messages.getString("AlignmentControler.2")); //$NON-NLS-1$
+			System.err.println(e.getMessage());
+			JOptionPane.showMessageDialog(null, Messages.getString("AlignmentControler.5")+ //$NON-NLS-1$
+					Messages.getString("AlignmentControler.6"), //$NON-NLS-1$
+					Messages.getString("AlignmentControler.7"), //$NON-NLS-1$
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+	}
+	
+	public boolean openSkosAlign(File file) {
+		try {
+			ioEventManager.reset();
+			Alignment<ONTORES1, ONTORES2> alignment = ioSkosManager.loadAlignment(container1, container2, file);
 			this.alignment.addAll(alignment);
 			ioEventManager.showDialog();
 			return true;
