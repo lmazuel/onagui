@@ -57,7 +57,6 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	private Repository triplestore = null;
 	private ValueFactory factory = null;
 	private URI onto_uri = null;
-	private Optional<Date>date;
 	private static Map<IRI, boolean[]> propertyForConcepts = null;
 	static {
 		/* First value is "subject is concept", second "object is concept" */
@@ -512,7 +511,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	@Override
 	public Optional<Date> getModifiedDate(Resource cpt) {
 
-
+		Optional<Date>date=null;
 		RepositoryConnection connect = null;
 		try {
 			connect = triplestore.getConnection();
