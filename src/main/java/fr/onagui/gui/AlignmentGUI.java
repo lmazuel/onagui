@@ -728,6 +728,10 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		loadLocalOntologyMenu.add(loadLocalOwlMenu);
 		JMenuItem loadLocalSkosMenu = new JMenuItem(Messages.getString("LoadSkosMenu")); //$NON-NLS-1$
 		loadLocalOntologyMenu.add(loadLocalSkosMenu);
+		
+		JMenuItem loadLocalRdfMenu = new JMenuItem(Messages.getString("LoadRdfMenu")); //$NON-NLS-1$
+		loadLocalOntologyMenu.add(loadLocalRdfMenu);
+		
 		// Deuxième menu, ontologie de reference
 		JMenu loadReferenceOntologyMenu = new JMenu(Messages.getString("LoadOnto2Menu")); //$NON-NLS-1$
 		fichierMenu.add(loadReferenceOntologyMenu);
@@ -735,6 +739,9 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		loadReferenceOntologyMenu.add(loadReferenceOwlMenu);
 		JMenuItem loadReferenceSkosMenu = new JMenuItem(Messages.getString("LoadSkosMenu")); //$NON-NLS-1$
 		loadReferenceOntologyMenu.add(loadReferenceSkosMenu);
+		JMenuItem loadReferenceRdfMenu = new JMenuItem(Messages.getString("LoadRdfMenu")); //$NON-NLS-1$
+		loadReferenceOntologyMenu.add(loadReferenceRdfMenu);
+		
 		fichierMenu.add(new JSeparator());
 		// Rechargement
 		reload1 = new JMenuItem(Messages.getString("ReloadOnto1")); //$NON-NLS-1$
@@ -855,6 +862,13 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				loadOntologyWithFileChooser(OntologyType.FIRST_ONTO_SKOS);
 			};
 		});
+		
+		loadLocalRdfMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadOntologyWithFileChooser(OntologyType.FIRST_ONTO_RDF);
+			};
+		});
 
 		loadReferenceOwlMenu.addActionListener(new ActionListener() {
 			@Override
@@ -867,6 +881,13 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				loadOntologyWithFileChooser(OntologyType.SECOND_ONTO_SKOS);
+			}
+		});
+		
+		loadReferenceRdfMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadOntologyWithFileChooser(OntologyType.SECOND_ONTO_RDF);
 			}
 		});
 
@@ -1166,11 +1187,18 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 						public OntoContainer call() throws Exception {
 							OntoContainer container = null;
 							try {
-								if(ontoType.getOntoFormat() == OntologyFormat.OWL) {
+								switch(ontoType.getOntoFormat()) {
+								case OWL:
 									container = GUIUtils.loadDOEOntologyWithGUI(AlignmentGUI.this, filename);
-								}
-								else {
+									break;
+								case RDF:
+									container = GUIUtils.loadRDFOntologyWithGUI(AlignmentGUI.this, filename);
+									break;
+								case SKOS:
 									container = GUIUtils.loadSKOSOntologyWithGUI(AlignmentGUI.this, filename);
+									break;
+								default:
+									break;								
 								}
 								System.out.println("Loading OK"); //$NON-NLS-1$
 								if(!ontoType.isFirstOntology()) { // Reference ontology
@@ -1234,12 +1262,21 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 						OntoContainer container = null;
 						try {
 							if(!ontoType.isFirstOntology()) { // Reference ontology
-								if(ontoType.getOntoFormat() == OntologyFormat.OWL) {
+								
+								switch(ontoType.getOntoFormat()) {
+								case OWL:
 									container = GUIUtils.loadDOEOntologyWithGUI(AlignmentGUI.this, ontology2File);
-								}
-								else {
+									break;
+								case RDF:
+									container = GUIUtils.loadRDFOntologyWithGUI(AlignmentGUI.this, ontology2File);
+									break;
+								case SKOS:
 									container = GUIUtils.loadSKOSOntologyWithGUI(AlignmentGUI.this, ontology2File);
+									break;
+								default:
+									break;								
 								}
+								
 								refText2.setText(REF_PREFIX_2+container.getURI());
 								alignmentControler.setReloadContainer2(container); // Compute the model
 								treeFrom2.setModel(alignmentControler.getTreeModel2());
@@ -1247,12 +1284,21 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 								treeFrom2.repaint();
 							}
 							else {
-								if(ontoType.getOntoFormat() == OntologyFormat.OWL) {
+								
+								switch(ontoType.getOntoFormat()) {
+								case OWL:
 									container = GUIUtils.loadDOEOntologyWithGUI(AlignmentGUI.this, ontology1File);
-								}
-								else {
+									break;
+								case RDF:
+									container = GUIUtils.loadRDFOntologyWithGUI(AlignmentGUI.this, ontology1File);
+									break;
+								case SKOS:
 									container = GUIUtils.loadSKOSOntologyWithGUI(AlignmentGUI.this, ontology1File);
+									break;
+								default:
+									break;								
 								}
+								
 								refText1.setText(REF_PREFIX_1+container.getURI());
 								alignmentControler.setReloadContainer1(container); // Compute the model
 								treeFrom1.setModel(alignmentControler.getTreeModel1());

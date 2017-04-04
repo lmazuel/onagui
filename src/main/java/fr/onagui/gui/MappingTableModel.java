@@ -3,6 +3,7 @@
  */
 package fr.onagui.gui;
 
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -78,7 +79,11 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 		return maps[index];
 	}
 	
-	public void setMapping(Set<Mapping<O1, O2>> mapping) {
+	public void setMappingAt(Mapping<O1, O2> mapping, int index) {
+		maps[index] = mapping;
+	}
+	
+	public void setMapping(List<Mapping<O1, O2>> mapping) {
 		data = new Object[mapping.size()][columnsNames.length];
 		maps = new Mapping[mapping.size()];
 		index.clear();
