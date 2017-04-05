@@ -280,6 +280,10 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 	public void removeMapping(Mapping<ONTORES1, ONTORES2> map) {
 		alignment.removeMap(map);
 	}
+	
+	public void addMapping(Mapping<ONTORES1, ONTORES2> map) {
+		alignment.addMap(map);
+	}
 
 	public void computeAndAddMapping(AbstractAlignmentMethod<ONTORES1, ONTORES2> method, PropertyChangeListener listener) { 
 		AlignmentFactory<ONTORES1, ONTORES2> factory = new AlignmentFactory<ONTORES1, ONTORES2>(method);
