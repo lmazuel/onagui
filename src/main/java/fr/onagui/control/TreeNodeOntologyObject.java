@@ -68,6 +68,7 @@ public class TreeNodeOntologyObject<ONTORES> {
 	@Override
 	public String toString() {
 		final String currentShowingLanguage = treeModel.getCurrentShowingLanguage();
+		String allConcepts="All Concept SChemes";
 		// Si j'ai une langue préférée, la chercher
 		Set<String> prefLabels = getContainer().getPrefLabels(concept, currentShowingLanguage);
 		// Si pas de langue préférée ou si ça donne rien, cas général
@@ -80,9 +81,11 @@ public class TreeNodeOntologyObject<ONTORES> {
 		URI uri = getContainer().getURI(concept);
 		String fragment = uri.getFragment();
 		if(fragment != null) {
-			return prefix + fragment;
+			return allConcepts;
 		}
+		
 		System.out.println("Null fragment for: "+uri.toString());
 		return prefix + uri.toString();
+		
 	}		
 }

@@ -483,7 +483,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	@Override
 	public Resource getRoot() {
 		// Create a fake root with OWL Thing uri. Better than nothing... (joke).
-		return factory.createIRI("http://www.w3.org/2002/07/owl#Thing");
+		return factory.createIRI("http://www.w3.org/2002/07/owl#AllConceptSchemes");
 	}
 
 	public Set<Resource> getConceptSchemes() {
