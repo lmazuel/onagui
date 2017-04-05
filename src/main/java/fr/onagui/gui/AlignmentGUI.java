@@ -1,6 +1,7 @@
 package fr.onagui.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -20,7 +21,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
@@ -846,6 +850,9 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		menuBar.add(applicationMenu);
 		JMenu guiLanguageMenu = new JMenu(Messages.getString("GuiLanguage")); //$NON-NLS-
 		applicationMenu.add(guiLanguageMenu);
+		//Link github repository
+		JMenuItem gitHubLink = new JMenuItem(Messages.getString("GitHubLink")); //$NON-NLS-1$
+		applicationMenu.add(gitHubLink);
 		
 		// French language
 		JMenuItem francaisMenu = new JMenuItem(Messages.getString("French")); //$NON-NLS-1$
@@ -860,7 +867,27 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			anglaisMenu.setEnabled(false);
 		}		
 		guiLanguageMenu.add(anglaisMenu);
-	
+		
+		//Open a link in a web browser when we click
+		gitHubLink.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				try {
+					Desktop.getDesktop().browse(new URL("https://github.com/lmazuel/onagui/issues").toURI());
+				} catch (MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (URISyntaxException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		
 		AlignmentGUI oldGui = this;
 		francaisMenu.addActionListener(new ActionListener() {
