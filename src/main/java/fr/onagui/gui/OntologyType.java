@@ -13,8 +13,8 @@ public enum OntologyType {
 	
 	public enum OntologyFormat {
 		OWL(new FileNameExtensionFilter(Messages.getString("OntologyTypeOwl"), "owl", "rdf")), //$NON-NLS-1$ //$NON-NLS-2$
-		SKOS(new FileNameExtensionFilter(Messages.getString("OntologyTypeSkos"), "skos", "rdf")), //$NON-NLS-1$ //$NON-NLS-2$
-		RDF(new FileNameExtensionFilter(Messages.getString("OntologyTypeRdf"), "rdf", "rdf")); //$NON-NLS-1$ //$NON-NLS-2$
+		SKOS(new FileNameExtensionFilter(Messages.getString("OntologyTypeSkos"), "rdf", "ttl")), //$NON-NLS-1$ //$NON-NLS-2$
+		RDF(new FileNameExtensionFilter(Messages.getString("OntologyTypeRdf"), "rdf", "ttl", "nq", "xml")); //$NON-NLS-1$ //$NON-NLS-2$
 				
 		private FileNameExtensionFilter filter = null;
 		

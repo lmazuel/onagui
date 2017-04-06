@@ -1,14 +1,11 @@
 package fr.onagui.alignment.container;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -16,30 +13,31 @@ import java.util.stream.Collectors;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.DC;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
-import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.eclipse.rdf4j.rio.RDFParseException;
-import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 
 import fr.onagui.alignment.OntoContainer;
 import fr.onagui.alignment.OntoVisitor;
 
-public class RDFModelContainer implements OntoContainer<Resource> {
+/**
+ * A 4-wheels-driving implementation of an OntoContainer capable of reading any RDF files
+ * by breaking the instances into classes, and that reads the pref and alt labels of each entries
+ * from a list of common labelling properties (rdfs:label, schema:name, skos:prefLabel, foaf:name, dcterms:title, dc:title)
+ * 
+ * @author Thomas Francart
+ *
+ */
+public class RDFModelContainer extends AbstractModelContainer implements OntoContainer<Resource> {
 
-	private final String formalism = "RDF";
-	
-	// The Model holding our data
-	private Model model;
-	
-	// File from where the model was loaded
-	private File loadedFile;
+	private static final String FORMALISM = "RDF";
 	
 	// The list of types used in the data, as a cached value
 	private Set<Resource> types;
@@ -47,42 +45,30 @@ public class RDFModelContainer implements OntoContainer<Resource> {
 	// The list of languages in the data
 	private SortedSet<String> allLanguageInLabels = null;
 	
+	// The properties considered as pref labels
+	private Set<IRI> prefLabelsIri = new HashSet<IRI>(Arrays.asList(new IRI[] { 
+			RDFS.LABEL,
+			SKOS.PREF_LABEL,
+			FOAF.NAME,
+			SimpleValueFactory.getInstance().createIRI("http://schema.org/name"),
+			DCTERMS.TITLE,
+			DC.TITLE
+	}));
+	
+	private Set<IRI> altLabelsIri = new HashSet<IRI>(Arrays.asList(new IRI[] { 
+			SKOS.ALT_LABEL,
+			FOAF.NICK,
+			SimpleValueFactory.getInstance().createIRI("http://schema.org/alternateName"),
+			DCTERMS.ALTERNATIVE
+	}));
+	
 	public RDFModelContainer(File loadedFile) throws RDFParseException, UnsupportedRDFormatException, FileNotFoundException, IOException {
-		super();
-		this.loadedFile = loadedFile;
-		
-		// load the RDF data
-		this.model = Rio.parse(
-				new FileInputStream(loadedFile),
-				loadedFile.getName(),
-				Rio.getParserFormatForFileName(loadedFile.getName()).orElse(RDFFormat.RDFXML)
-		);		
-		
+		super(FORMALISM, loadedFile);
 		// load the types
 		this.types = readAllTypes();
 		
-		// load the languages
-		this.allLanguageInLabels = getLanguagesOfProperty(RDFS.LABEL);
-	}
-
-	@Override
-	public String getFormalism() {
-		return formalism;
-	}
-
-	@Override
-	public URI getURI(Resource cpt) {
-		return (cpt instanceof IRI)?URI.create(((IRI)cpt).stringValue()):null;
-	}
-
-	/**
-	 * Calls accept() with a Collector to retrieve all concepts
-	 */
-	@Override
-	public Set<Resource> getAllConcepts() {
-		AllConceptCollector collector = new AllConceptCollector();
-		this.accept(collector);
-		return collector.result;
+		// load the languages of all 		
+		this.allLanguageInLabels = getLanguagesOfProperties(this.prefLabelsIri);
 	}
 
 	/**
@@ -113,27 +99,12 @@ public class RDFModelContainer implements OntoContainer<Resource> {
 		return getPropertyValuesAsString(cpt, SimpleValueFactory.getInstance().createIRI(prop));
 	}
 
-	@Override
-	public Resource getConceptFromURI(URI uri) {
-		return SimpleValueFactory.getInstance().createIRI(uri.toString());
-	}
-
-	@Override
-	public URI getURI() {
-		// return a URI from the loaded file path
-		return this.loadedFile.toURI();
-	}
-
-	@Override
-	public Resource getRoot() {
-		// Create a fake root with OWL Thing uri. Better than nothing... (joke).
-		return SimpleValueFactory.getInstance().createIRI("http://www.w3.org/2002/07/owl#Thing");
-	}
-
+	/**
+	 * We consider nothing like an individual
+	 */
 	@Override
 	public boolean isIndividual(Resource cpt) {
-		// we consider everything like an individual
-		return true;
+		return false;
 	}
 
 	@Override
@@ -201,35 +172,51 @@ public class RDFModelContainer implements OntoContainer<Resource> {
 	}
 
 	/**
-	 * Returns the RDFS.LABEL of the concept in the given lang
+	 * Returns the values of all the properties considered as prefLabels of this concept in the given lang
 	 */
 	@Override
 	public Set<String> getPrefLabels(Resource cpt, String lang) {
-		return getPropertyValuesAsString(cpt, RDFS.LABEL, lang);
+		Set<String> result = new HashSet<>();
+		for (IRI aPrefLabelProperty : this.prefLabelsIri) {
+			result.addAll(getPropertyValuesAsString(cpt, aPrefLabelProperty, lang));
+		}
+		return result;
 	}
 
 	/**
-	 * Returns the RDFS.LABEL of the concept
+	 * Returns the values of all the properties considered as prefLabels of the concept
 	 */
 	@Override
 	public Set<String> getPrefLabels(Resource cpt) {
-		return getPropertyValuesAsString(cpt, RDFS.LABEL);
+		Set<String> result = new HashSet<>();
+		for (IRI aPrefLabelProperty : this.prefLabelsIri) {
+			result.addAll(getPropertyValuesAsString(cpt, aPrefLabelProperty));
+		}
+		return result;
 	}
 
 	/**
-	 * Returns an empty set. Alt labels are not handled in this generic RDF container.
+	 * Returns the values of all the properties considered as altLabels of this concept in the given lang
 	 */
 	@Override
 	public Set<String> getAltLabels(Resource cpt, String lang) {
-		return Collections.emptySet();
+		Set<String> result = new HashSet<>();
+		for (IRI anAltLabelProperty : this.altLabelsIri) {
+			result.addAll(getPropertyValuesAsString(cpt, anAltLabelProperty, lang));
+		}
+		return result;
 	}
 
 	/**
-	 * Returns an empty set. Alt labels are not handled in this generic RDF container.
+	 * Returns the values of all the properties considered as altLabels of this concept
 	 */
 	@Override
 	public Set<String> getAltLabels(Resource cpt) {
-		return Collections.emptySet();
+		Set<String> result = new HashSet<>();
+		for (IRI anAltLabelProperty : this.altLabelsIri) {
+			result.addAll(getPropertyValuesAsString(cpt, anAltLabelProperty));
+		}
+		return result;
 	}
 
 	private Set<String> getPropertyValuesAsString(Resource cpt, IRI prop) {
@@ -259,15 +246,21 @@ public class RDFModelContainer implements OntoContainer<Resource> {
 				.collect(Collectors.toSet());
 	}
 	
-	private SortedSet<String> getLanguagesOfProperty(IRI prop) {
+	private SortedSet<String> getLanguagesOfProperties(Set<IRI> props) {
 		SortedSet<String> result = new TreeSet<String>();
-		model.filter(null, prop, null)
-				.objects().stream()
+		
+		// il y a surement moyen de combiner plusieurs Stream entre elles
+		// ... mais c'est compliqué
+		// ... voir http://stackoverflow.com/questions/22740464/adding-two-java-8-streams-or-an-extra-element-to-a-stream#comment34676045_22741520
+		
+		for (IRI aPrefLabelProperty : this.prefLabelsIri) {
+			model.filter(null, aPrefLabelProperty, null).objects().stream()
 				.filter(v -> v instanceof Literal)
 				.map(v -> ((Literal)v).getLanguage() )
 				.forEach(v -> {
 					if(v.isPresent()) { result.add(v.get()); }
 				});
+		}
 		
 		return result;
 	}
@@ -295,15 +288,6 @@ public class RDFModelContainer implements OntoContainer<Resource> {
 			}
 		});
 		return result;
-	}
-	
-	private class AllConceptCollector implements OntoVisitor<Resource> {
-		private Set<Resource> result = new HashSet<Resource>();
-		
-		@Override
-		public void visit(Resource concept) {
-			result.add(concept);
-		}
 	}
 	
 }
