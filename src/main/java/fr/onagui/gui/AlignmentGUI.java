@@ -71,6 +71,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
+
 import com.google.common.collect.Sets;
 
 import fr.onagui.alignment.AbstractAlignmentMethod;
@@ -1149,6 +1155,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		int returnVal = chooser.showOpenDialog(null);
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			final File selectedFile = chooser.getSelectedFile();
+			
 			// Copy to cache the last directory to use it in future FileChooser
 			lastDirectory = selectedFile.getParentFile();
 			saveDynamicOnaguiInfos(lastDirectory);
