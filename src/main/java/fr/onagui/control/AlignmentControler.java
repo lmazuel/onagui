@@ -311,7 +311,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		Set<ONTORES2> concepts2 = OntoTools.getAllDescendants(container2, userObject2.getConcept());
 
 		if(  date1.isPresent()) {
-			System.out.println("date1 différente de null");
+			System.out.println("Filtering on date 1 : "+date1.get());
 			//on parcours les concepts 
 			//on retire ceux qui ont une date lue antérieure 
 			//à la date saisie pour les 2 concepts		
@@ -322,7 +322,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 			);
 		}
 		if(  date2.isPresent() ) {
-			System.out.println("date2 différente de null");
+			System.out.println("Filtering on date 2: "+date2.get());
 			concepts2.removeIf(
 					t -> container2.getModifiedDate(t).map(
 							date -> date.before(date2.get())

@@ -343,7 +343,6 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 
 	@Override
 	public Optional<Date> getModifiedDate(OWLEntity cpt) {
-		// TODO Auto-generated method 
-		return null;
+		throw new UnsupportedOperationException("Not supported in OWL for now");
 	}
 }
