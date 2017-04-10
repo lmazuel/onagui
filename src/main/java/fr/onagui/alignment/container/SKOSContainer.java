@@ -29,21 +29,16 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
-import org.eclipse.rdf4j.query.AbstractTupleQueryResultHandler;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.query.TupleQueryResultHandler;
-import org.eclipse.rdf4j.query.TupleQueryResultHandlerBase;
-import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.repository.util.Repositories;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
@@ -61,6 +56,8 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	private Repository triplestore = null;
 	private ValueFactory factory = null;
 	private URI onto_uri = null;
+	
+	private static String ALL_CONCEPTS_LABEL = "SKOS Concept Schemes";
 	
 	private static Map<IRI, boolean[]> propertyForConcepts = null;
 	static {
@@ -480,7 +477,11 @@ public class SKOSContainer implements OntoContainer<Resource> {
 
 	@Override
 	public Set<String> getPrefLabels(Resource cpt, String lang) {
-		return getLabels(cpt, lang, SKOS.PREF_LABEL);
+		if(cpt.equals(getRoot())) {
+			return Collections.singleton(ALL_CONCEPTS_LABEL);
+		} else {
+			return getLabels(cpt, lang, SKOS.PREF_LABEL);
+		}
 	}
 
 	@Override

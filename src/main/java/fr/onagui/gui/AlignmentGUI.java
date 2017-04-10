@@ -71,12 +71,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.eclipse.rdf4j.query.QueryLanguage;
-import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
-
 import com.google.common.collect.Sets;
 
 import fr.onagui.alignment.AbstractAlignmentMethod;
@@ -104,6 +98,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	/* Common file filter */
 	private static final FileNameExtensionFilter RDF_ALIGNMENT_FILTER = new FileNameExtensionFilter(Messages.getString("RdfAlignmentFilterName"), "rdf", "xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	private static final FileNameExtensionFilter CSV_ALIGNMENT_FILTER = new FileNameExtensionFilter(Messages.getString("CsvAlignmentFilterName"), "csv"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final FileNameExtensionFilter SKOS_ALIGNMENT_FILTER = new FileNameExtensionFilter(Messages.getString("SkosAlignmentFilterName"), "rdf", "xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 	/* general String */
 	private static final String GUI_TITLE = "OnAGUI - Ontology Alignement GUI"; //$NON-NLS-1$
@@ -135,6 +130,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	private JMenuItem reload1;
 	private JMenuItem reload2;
 	private JMenuItem importRDF;
+	private JMenuItem importSKOS;
 	private JMenuItem importCSV;
 	private JMenuItem exportRDFAll;
 	private JMenuItem exportRDFInvalid;
@@ -776,6 +772,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		fichierMenu.add(importMenu);
 		importRDF = new JMenuItem(Messages.getString("ImportRdfAlignmentMenu")); //$NON-NLS-1$
 		importMenu.add(importRDF);
+		importSKOS = new JMenuItem(Messages.getString("ImportSkosAlignmentMenu")); //$NON-NLS-1$
+		importMenu.add(importSKOS);
 		importCSV = new JMenuItem(Messages.getString("ImportCsvAlignmentMenu")); //$NON-NLS-1$
 		importMenu.add(importCSV);
 
@@ -889,6 +887,32 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 					String filename = selectedFile.getAbsolutePath();
 					System.out.println("You chose to open this file: " + filename); //$NON-NLS-1$
 					boolean ok = alignmentControler.openRdfAlign(selectedFile);
+					if(ok) {
+						System.out.println("Open finished successfully"); //$NON-NLS-1$
+						refreshGUIFromModel();
+					}
+					else {
+						System.out.println("Open error..."); //$NON-NLS-1$
+					}
+				}
+			}
+		});
+		
+		importSKOS.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// FIXME plus utile normalement...
+				//				ERASE_TYPE eraseType = GUIUtils.chooseEraseType(AlignmentGUI.this);
+				//				if(eraseType == null) return; // User cancel the dialog
+
+				JFileChooser chooser = new JFileChooser();
+				chooser.addChoosableFileFilter(SKOS_ALIGNMENT_FILTER);
+				int returnVal = chooser.showOpenDialog(null);
+				if(returnVal == JFileChooser.APPROVE_OPTION) {
+					final File selectedFile = chooser.getSelectedFile();
+					String filename = selectedFile.getAbsolutePath();
+					System.out.println("You chose to open this file: " + filename); //$NON-NLS-1$
+					boolean ok = alignmentControler.openSkosAlign(selectedFile);
 					if(ok) {
 						System.out.println("Open finished successfully"); //$NON-NLS-1$
 						refreshGUIFromModel();
@@ -1315,6 +1339,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			menu.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
 		}
 		importRDF.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
+		importSKOS.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
 		importCSV.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
 		exportRDFAll.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
 		exportRDFInvalid.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
