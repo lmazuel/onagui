@@ -54,10 +54,13 @@ import fr.onagui.alignment.OntoVisitor;
  */
 public class SKOSContainer implements OntoContainer<Resource> {
 
+	private static String ALL_CONCEPTS_LABEL = "SKOS Concept Schemes";
+	
 	private Repository triplestore = null;
 	private ValueFactory factory = null;
 	private URI onto_uri = null;
 	private Optional<Date>date;
+
 	private static Map<IRI, boolean[]> propertyForConcepts = null;
 	static {
 		/* First value is "subject is concept", second "object is concept" */
@@ -478,7 +481,11 @@ public class SKOSContainer implements OntoContainer<Resource> {
 
 	@Override
 	public Set<String> getPrefLabels(Resource cpt, String lang) {
-		return getLabels(cpt, lang, SKOS.PREF_LABEL);
+		if(cpt.equals(getRoot())) {
+			return Collections.singleton(ALL_CONCEPTS_LABEL);
+		} else {
+			return getLabels(cpt, lang, SKOS.PREF_LABEL);
+		}
 	}
 
 	@Override
