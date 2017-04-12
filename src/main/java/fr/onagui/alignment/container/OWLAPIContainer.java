@@ -56,7 +56,6 @@ import fr.onagui.alignment.OntoVisitor;
 public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 
 	protected URI filename = null;
-	private Repository triplestore = null;
 	protected OWLOntology ontology = null;
 	protected OWLOntologyManager manager = null;
 	protected OWLDataFactory df;
@@ -80,22 +79,7 @@ public class OWLAPIContainer implements OntoContainer<OWLEntity> {
 			// Pour eviter un long calcul
 			getAllLanguageInLabels();
 			System.out.println("Found");
-			triplestore = new SailRepository(new MemoryStore());
-			triplestore.initialize();
-			/*RepositoryConnection connect = triplestore.getConnection();
-			File file=new File(filename.getPath());
-			// Try RDF/XML, fallback to N3 and fail if it's not enough
-			try {
-				try {
-					connect.add(file, null, RDFFormat.RDFXML);
-				} catch (RDFParseException e) {
-					connect.add(file, null, RDFFormat.N3);
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			connect.close();*/
+			
 
 			//			try {
 			//				System.out.println("Let's try Sesame");

@@ -54,16 +54,16 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 
 	/** To make Java happy */
 	private static final long serialVersionUID = 3730765536056426003L;
-	
+
 	private static final int NUMBER_OF_LINES_IN_LIST = 6;
-	
+
 	private int DIALOG_WIDTH = 1100;
 	private int DIALOG_HEIGHT = 800;
 
 	private Double selectedValue = null;
 	private String date1=null;
 	private String date2=null; 
-	
+
 	private JSlider slider = null;
 	private JTextField textField = null;
 	private DatePicker dateField1 = null;
@@ -73,8 +73,8 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 	private JList<String> langList2 = null;
 	private JButton okButton = null;
 	private JButton cancelButton = null;
-	
-	
+
+
 	private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
 	public LabelMethodParameterDialog(
@@ -89,7 +89,7 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 		setLayout(gridbag);
-		
+
 		selectedValue = initialValue;
 
 		slider = new JSlider(0, 100, (int)(initialValue*100));
@@ -104,13 +104,13 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		slider.setPaintLabels(true);
 
 		textField = new JTextField(String.valueOf(selectedValue), 5);
-		
+
 		Set<String> localLangsFrom1 = new TreeSet<String>(langsFrom1);
 		localLangsFrom1.add(LabelAlignmentMethod.NO_TAG);
 		localLangsFrom1.add(LabelAlignmentMethod.FRAG_URI);
 		langList1 = new JList<>(localLangsFrom1.toArray(new String[0]));
 		langList1.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-//		langList1.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		//		langList1.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		langList1.setVisibleRowCount(NUMBER_OF_LINES_IN_LIST);
 		langList1.setSelectedValue(LabelAlignmentMethod.FRAG_URI, true);
 		JPanel langPanel1 = new JPanel(new BorderLayout());
@@ -123,14 +123,14 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		localLangsFrom2.add(LabelAlignmentMethod.FRAG_URI);
 		langList2 = new JList<>(localLangsFrom2.toArray(new String[0]));
 		langList2.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-//		langList2.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		//		langList2.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		langList2.setVisibleRowCount(NUMBER_OF_LINES_IN_LIST);
 		langList2.setSelectedValue(LabelAlignmentMethod.FRAG_URI, true);
 		JPanel langPanel2 = new JPanel(new BorderLayout());
 		langPanel2.add(new JLabel(Messages.getString("LabelMethodParameterDialogLang2")), BorderLayout.NORTH); //$NON-NLS-1$
 		JScrollPane scroll2 = new JScrollPane(langList2);
 		langPanel2.add(scroll2, BorderLayout.CENTER);
-		
+
 		okButton = new JButton(Messages.getString("LabelMethodParameterDialogOkButton")); //$NON-NLS-1$
 		okButton.addActionListener(this);
 
@@ -141,27 +141,27 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		JPanel textFieldPanel = new JPanel(new BorderLayout());
 		textFieldPanel.add(new JLabel(Messages.getString("LabelMethodParameterDialogThresholdLabel")), BorderLayout.WEST); //$NON-NLS-1$
 		textFieldPanel.add(textField, BorderLayout.CENTER);
-		
+
 		//set calendar for the two concepts
-		
+
 		JPanel dateFieldPanel1 = new JPanel(new BorderLayout());
 		dateFieldPanel1.add(new JLabel(Messages.getString("LabelDate1ParameterDialog")), BorderLayout.NORTH);
-	    //	calendar onto 1
+		//	calendar onto 1
 		DatePickerSettings dateSettings1 = new DatePickerSettings();
-	    dateSettings1.setFormatForDatesCommonEra("yyyy-MM-dd");
-	    dateSettings1.setFirstDayOfWeek(DayOfWeek.MONDAY);
-	    this.dateField1 = new DatePicker(dateSettings1);
-	    dateFieldPanel1.add(this.dateField1,BorderLayout.CENTER);
-		
+		dateSettings1.setFormatForDatesCommonEra("yyyy-MM-dd");
+		dateSettings1.setFirstDayOfWeek(DayOfWeek.MONDAY);
+		this.dateField1 = new DatePicker(dateSettings1);
+		dateFieldPanel1.add(this.dateField1,BorderLayout.CENTER);
+
 		JPanel dateFieldPanel2 = new JPanel(new BorderLayout());
 		dateFieldPanel2.add(new JLabel(Messages.getString("LabelDate2ParameterDialog")), BorderLayout.NORTH);
 		DatePickerSettings dateSettings2 = new DatePickerSettings();
-	    dateSettings2.setFormatForDatesCommonEra("yyyy-MM-dd");
-	    dateSettings2.setFirstDayOfWeek(DayOfWeek.MONDAY);
-	    this.dateField2 = new DatePicker(dateSettings2);
-	    dateFieldPanel2.add(this.dateField2, BorderLayout.CENTER);
+		dateSettings2.setFormatForDatesCommonEra("yyyy-MM-dd");
+		dateSettings2.setFirstDayOfWeek(DayOfWeek.MONDAY);
+		this.dateField2 = new DatePicker(dateSettings2);
+		dateFieldPanel2.add(this.dateField2, BorderLayout.CENTER);
 
-	    c.gridx = 0;
+		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 2;
 		c.weightx = 0.0;
@@ -182,7 +182,7 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		c.fill = GridBagConstraints.NONE;
 		gridbag.setConstraints(slider, c);
 		this.getContentPane().add(slider);
-		
+
 		c.gridx = 0;
 		c.gridy = 2;
 		c.gridwidth = 2;
@@ -204,18 +204,18 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		c.fill = GridBagConstraints.VERTICAL;
 		gridbag.setConstraints(langPanel2, c);
 		this.getContentPane().add(langPanel2);
-		
-//		c.gridx = 0;
-//		c.gridy = 3;
-//		c.gridwidth = 2;
-//		c.weightx = 0.0;
-//		c.weighty = 0.0;
-//		c.insets = new Insets(10, 10, 10, 10);
-//		c.anchor = GridBagConstraints.WEST;
-//		c.fill = GridBagConstraints.NONE;
-//		gridbag.setConstraints(label1, c);
-//		this.getContentPane().add(label1);
-		
+
+		//		c.gridx = 0;
+		//		c.gridy = 3;
+		//		c.gridwidth = 2;
+		//		c.weightx = 0.0;
+		//		c.weighty = 0.0;
+		//		c.insets = new Insets(10, 10, 10, 10);
+		//		c.anchor = GridBagConstraints.WEST;
+		//		c.fill = GridBagConstraints.NONE;
+		//		gridbag.setConstraints(label1, c);
+		//		this.getContentPane().add(label1);
+
 		c.gridx = 0;
 		c.gridy = 4;
 		c.gridwidth = 2;
@@ -226,19 +226,19 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		c.fill = GridBagConstraints.VERTICAL;
 		gridbag.setConstraints(dateFieldPanel1, c);
 		this.getContentPane().add(dateFieldPanel1);
-		
-		
-//		c.gridx = 0;
-//		c.gridy = 5;
-//		c.gridwidth = 2;
-//		c.weightx = 0.0;
-//		c.weighty = 0.0;
-//		c.insets = new Insets(10, 10, 10, 10);
-//		c.anchor = GridBagConstraints.WEST;
-//		c.fill = GridBagConstraints.NONE;
-//		gridbag.setConstraints(label2, c);
-//		this.getContentPane().add(label2);
-		
+
+
+		//		c.gridx = 0;
+		//		c.gridy = 5;
+		//		c.gridwidth = 2;
+		//		c.weightx = 0.0;
+		//		c.weighty = 0.0;
+		//		c.insets = new Insets(10, 10, 10, 10);
+		//		c.anchor = GridBagConstraints.WEST;
+		//		c.fill = GridBagConstraints.NONE;
+		//		gridbag.setConstraints(label2, c);
+		//		this.getContentPane().add(label2);
+
 		c.gridx = 0;
 		c.gridy = 6;
 		c.gridwidth = 2;
@@ -249,7 +249,7 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		c.fill = GridBagConstraints.VERTICAL;
 		gridbag.setConstraints(dateFieldPanel2, c);
 		this.getContentPane().add(dateFieldPanel2);
-		
+
 		c.gridx = 0;
 		c.gridy = 7;
 		c.gridwidth = 2;
@@ -271,7 +271,7 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 		c.fill = GridBagConstraints.VERTICAL;
 		gridbag.setConstraints(cancelButton, c);
 		this.getContentPane().add(cancelButton);
-		
+
 		pack();
 		setLocationRelativeTo(null);
 	}
@@ -279,7 +279,7 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 	public Double getSelectedValue() {
 		return selectedValue;
 	}
-	
+
 	private SortedSet<String> getSelectedLangsFromJList(JList<String> list) {
 		SortedSet<String> result = new TreeSet<String>();
 		List<String> values = list.getSelectedValuesList();
@@ -318,25 +318,23 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 	public void setDate2(String date) {
 		this.date2 = date;
 	}
-	
+
 	/**
-	 * Renvoie la date saisie sous forme de Date java, ou null si le parsing échoue.
+	 * Renvoie la date 1 saisie sous forme de Date java, ou null si le parsing échoue.
 	 * @return
-	 * @throws ParseException
 	 */
-	public Optional<Date> getDate1AsDate() throws Exception {	
+	public Optional<Date> getDate1AsDate(){	
 		return asDate(getDate1());
 	}
-	
+
 	/**
-	 * Renvoie la date saisie sous forme de Date java, ou null si le parsing échoue.
+	 * Renvoie la date 2 saisie sous forme de Date java, ou null si le parsing échoue.
 	 * @return
-	 * @throws ParseException
 	 */
-	public Optional<Date> getDate2AsDate() throws Exception {
+	public Optional<Date> getDate2AsDate() {
 		return asDate(getDate2());
 	}
-	
+
 	private Optional<Date> asDate(String s) {
 		try {
 			Optional<Date> date=Optional.of(dateFormatter.parse(s));
@@ -390,20 +388,20 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 			System.err.println("ERROR: inatendu! Event: "+e); //$NON-NLS-1$
 		}
 	}
-	
+
 
 	public static void main(String[] args) {
 		double value = 0.9;
 		List<String> list1 = Arrays.asList("fr","de"); //$NON-NLS-1$ //$NON-NLS-2$
 		List<String> list2 = Arrays.asList("fr","de","hg","frt","ddg"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-		
+
 		LabelMethodParameterDialog testDialog = new LabelMethodParameterDialog(
 				null,
 				value,
 				new TreeSet<String>(list1),
 				new TreeSet<String>(list2));
 		testDialog.setVisible(true);
-		
+
 		if(testDialog.getSelectedValue() >= 0) {
 			System.out.println(testDialog.getSelectedLangFor1());
 			System.out.println(testDialog.getSelectedLangFor2());

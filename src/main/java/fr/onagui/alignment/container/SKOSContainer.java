@@ -562,7 +562,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	@Override
 	public Optional<Date> getModifiedDate(Resource cpt) {
 
-
+		Optional<Date>date=null;
 		RepositoryConnection connect = null;
 		try {
 			connect = triplestore.getConnection();
