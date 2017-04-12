@@ -6,23 +6,21 @@ import java.awt.event.ItemListener;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JTable;
 
 import fr.onagui.alignment.Mapping;
 import fr.onagui.alignment.Mapping.MAPPING_TYPE;
-import fr.onagui.alignment.Mapping.VALIDITY;
 
-public class TypeEditor extends DefaultCellEditor implements ItemListener {
+public class TypeEditor<O1, O2> extends DefaultCellEditor implements ItemListener {
 
 	/** To make Java happy... */
 	private static final long serialVersionUID = -5400257707914612600L;
 
-	private MappingTableModel model;
+	private MappingTableModel<O1, O2> model;
 	private MAPPING_TYPE lasttype;
 	private AlignmentGUI gui;
 
-	public TypeEditor(JCheckBox checkBox, MappingTableModel model, AlignmentGUI gui) {
+	public TypeEditor(JCheckBox checkBox, MappingTableModel<O1, O2> model, AlignmentGUI gui) {
 		super(checkBox);
 		this.model = model;
 		this.gui = gui;
@@ -35,7 +33,7 @@ public class TypeEditor extends DefaultCellEditor implements ItemListener {
 			int row,
 			int column
 	) {
-		Mapping map = model.getMappingAt(table.convertRowIndexToModel(row));
+		Mapping<O1, O2> map = model.getMappingAt(table.convertRowIndexToModel(row));
 		MAPPING_TYPE val = (MAPPING_TYPE)value;
 		
 		// Rotate
@@ -52,7 +50,15 @@ public class TypeEditor extends DefaultCellEditor implements ItemListener {
 		else if(val.equals(MAPPING_TYPE.DISJOINT))
 			lasttype = MAPPING_TYPE.EQUIV;
 		
-		map.setType(lasttype);
+		// map.setType(lasttype);
+		
+		// 1. enlever l'ancien mapping
+		gui.getAlignmentControler().removeMapping(map);
+		// 2. créer le nouveau mapping
+		Mapping<O1, O2> newMap = new Mapping<O1, O2>(map, lasttype);		
+		// 3. ajouter le nouveau mapping
+		gui.getAlignmentControler().addMapping(newMap);
+		
 		// Repaint model
 		gui.refreshGUIFromModel();
 		return null;

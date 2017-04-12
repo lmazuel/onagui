@@ -106,8 +106,8 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 				System.err.println("Error: first concept cannot be determine in JTree: "+map);
 				line[0] = "!ERROR!";
 				// A discuter...
-				line[4] = VALIDITY.INVALID;
-				map.setValidity(VALIDITY.INVALID);
+//				line[4] = VALIDITY.INVALID;
+//				map.setValidity(VALIDITY.INVALID);
 			}
 			else {
 				line[0] = node1.getUserObject();
@@ -117,8 +117,8 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 				System.err.println("Error: first concept cannot be determine in JTree: "+map);
 				line[1] = "!ERROR!";
 				// A discuter...
-				line[4] = VALIDITY.INVALID;
-				map.setValidity(VALIDITY.INVALID);
+//				line[4] = VALIDITY.INVALID;
+//				map.setValidity(VALIDITY.INVALID);
 			}
 			else {
 				line[1] = node2.getUserObject();

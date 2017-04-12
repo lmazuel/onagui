@@ -215,6 +215,40 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 	public Mapping(T firstConcept, V secondConcept) {
 		this(firstConcept, secondConcept, 1.0, MAPPING_TYPE.EQUIV);
 	}
+	
+	/**
+	 * Constructs a new Mapping based on another one (copy-constructor), except for the type
+	 * @param otherMapping
+	 */
+	public Mapping(Mapping<T, V> otherMapping, MAPPING_TYPE newType) {
+		this.firstConcept = otherMapping.firstConcept;
+		this.secondConcept = otherMapping.secondConcept;
+		this.score = otherMapping.score;
+		// copy everything except the type
+		this.type = newType;
+		this.method = otherMapping.method;
+		this.validity = otherMapping.validity;
+		this.creationDate = otherMapping.creationDate;
+		this.comment = otherMapping.comment;
+		this.meta = otherMapping.meta;
+	}
+	
+	/**
+	 * Constructs a new Mapping based on another one (copy-constructor), except for the validity
+	 * @param otherMapping
+	 */
+	public Mapping(Mapping<T, V> otherMapping, VALIDITY newValidity) {
+		this.firstConcept = otherMapping.firstConcept;
+		this.secondConcept = otherMapping.secondConcept;
+		this.score = otherMapping.score;
+		this.type = otherMapping.type;
+		this.method = otherMapping.method;
+		// copy everything except the validity
+		this.validity = newValidity;
+		this.creationDate = otherMapping.creationDate;
+		this.comment = otherMapping.comment;
+		this.meta = otherMapping.meta;
+	}
 
 	/**
 	 * @return the firstConcept
@@ -244,9 +278,9 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 		return type;
 	}
 	
-	public void setType(MAPPING_TYPE type) {
-		this.type = type;
-	}
+//	public void setType(MAPPING_TYPE type) {
+//		this.type = type;
+//	}
 
 	public Map<String, String> getMeta() {
 		return meta;
@@ -349,7 +383,7 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 
 	@Override
 	public int compareTo(Mapping<?, ?> o) {
-		// Consistance avec l'égalité
+	// Consistance avec l'égalité
 		if (this.equals(o))
 			return 0;
 
@@ -368,6 +402,8 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 		// Choix non significatif basé sur les chaines de caractères (prend en
 		// compte label et méthode).
 		return this.toString().compareTo(o.toString());
+		
+		
 	}
 
 	public void setComment(String comment) {
@@ -389,9 +425,9 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 	 * @param validity
 	 *            the validity to set
 	 */
-	public void setValidity(VALIDITY validity) {
-		this.validity = validity;
-	}
+//	public void setValidity(VALIDITY validity) {
+//		this.validity = validity;
+//	}
 
 	/**
 	 * @return The creation ddate of this instance.

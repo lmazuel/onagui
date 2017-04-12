@@ -385,6 +385,11 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			}
 		};
 		sorter = new TableRowSorter<MappingTableModel>(tableModel);
+		// tri de la table sur la colonne 'Score' par défaut
+		// on a besoin de garantir l'ordre de la table afin que les lignes restent dans le même ordre
+		// lorsqu'on édite le type ou la validité d'une correspondance, qui sont des actions qui suppriment
+		// et ré-insèrent un nouveau Mapping
+		sorter.toggleSortOrder(3);
 		centerTable.setRowSorter(sorter);
 		//		centerTable.setAutoCreateRowSorter(true);
 		DefaultListSelectionModel listSelectionModel = new DefaultListSelectionModel();
@@ -1815,11 +1820,20 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			for(int index : centerTable.getSelectedRows()) {
 				Mapping<?, ?> map = tableModel.getMappingAt(centerTable.convertRowIndexToModel(index));
 				
-				if(validity_to_use!=null){
-					map.setValidity(validity_to_use);
-				}else if(type_to_use!=null){
-					map.setType(type_to_use);
-				}
+				// 1. enlever l'ancien mapping
+				alignmentControler.removeMapping(map);
+				// 2. créer le nouveau mapping
+				Mapping<?, ?> newMap = null;
+				
+				// 3. ajouter le nouveau mapping
+				alignmentControler.addMapping(newMap);
+				
+//				if(validity_to_use!=null){
+//					map.setValidity(validity_to_use);
+//				}else if(type_to_use!=null){
+//				
+//					map.setType(type_to_use);
+//				}
 			}
 			// Refresh GUI
 			AlignmentGUI.this.refreshGUIFromModel();			
@@ -1849,6 +1863,10 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 						e.getX(), e.getY());
 			}
 		}
+	}
+
+	public AlignmentControler getAlignmentControler() {
+		return alignmentControler;
 	}
 
 	public static void main(String[] args) {	
