@@ -1,4 +1,6 @@
 import java.net.URI;
+import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -111,6 +113,12 @@ public class MyOntoContainerTestAdapter<ONTORES> implements OntoContainer<ONTORE
 
 	@Override
 	public Set<String> getLabels(ONTORES cpt, String prop) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Optional<Date> getModifiedDate(ONTORES cpt) {
 		// TODO Auto-generated method stub
 		return null;
 	}
