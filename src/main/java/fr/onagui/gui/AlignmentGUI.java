@@ -1,6 +1,7 @@
 package fr.onagui.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -19,9 +21,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -59,6 +65,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -722,6 +729,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		 * **************************** */
 
 		JMenuBar menuBar = new JMenuBar();
+		
 		// La barre "fichier"
 		JMenu fichierMenu = new JMenu(Messages.getString("FileMenu")); //$NON-NLS-1$
 		menuBar.add(fichierMenu);
@@ -848,7 +856,96 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		menuBar.add(statMenu);
 		statAlignItem = new JMenuItem(Messages.getString("AlignmentStatMenu")); //$NON-NLS-1$
 		statMenu.add(statAlignItem);
+		
+		//Menu Application
+		
+		JMenu applicationMenu = new JMenu(Messages.getString("Application")); //$NON-NLS-
+		menuBar.add(applicationMenu);
+		JMenu guiLanguageMenu = new JMenu(Messages.getString("GuiLanguage")); //$NON-NLS-
+		applicationMenu.add(guiLanguageMenu);
+		//Link github repository
+		JMenuItem gitHubLink = new JMenuItem(Messages.getString("GitHubLink")); //$NON-NLS-1$
+		applicationMenu.add(gitHubLink);
+		
+		// French language
+		JMenuItem francaisMenu = new JMenuItem(Messages.getString("French")); //$NON-NLS-1$
+		if(Locale.getDefault().getLanguage().equals("fr")) {
+			francaisMenu.setEnabled(false);
+		}
+		guiLanguageMenu.add(francaisMenu);
+		
+		// English language
+		JMenuItem anglaisMenu = new JMenuItem(Messages.getString("English")); //$NON-NLS-1$
+		if(Locale.getDefault().getLanguage().equals("en")) {
+			anglaisMenu.setEnabled(false);
+		}		
+		guiLanguageMenu.add(anglaisMenu);
+		
+		//Open a link in a web browser when we click
+		gitHubLink.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				try {
+					Desktop.getDesktop().browse(new URL("https://github.com/lmazuel/onagui/issues").toURI());
+				} catch (MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (URISyntaxException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		
+		AlignmentGUI oldGui = this;
+		francaisMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Messages.changeLanguage("fr");
+				// close current window and starts a new one
+				// see http://stackoverflow.com/questions/26075081/java-application-restart-or-reset-button
+				dispose();
+				AlignmentGUI newGui = new AlignmentGUI();
+				newGui.ontology1File = oldGui.ontology1File;
+				newGui.ontology2File = oldGui.ontology2File;
+				newGui.ontology1Type = oldGui.ontology1Type;
+				newGui.ontology2Type = oldGui.ontology2Type;
+				
+				if(newGui.ontology1File != null && newGui.ontology1Type != null) {
+					newGui.loadOntologyFromFileReference(newGui.ontology1Type, newGui.ontology1File);
+				}
+				if(newGui.ontology2File != null && newGui.ontology2Type != null) {
+					newGui.loadOntologyFromFileReference(newGui.ontology2Type, newGui.ontology2File);
+				}
+			}
+		});
 
+		anglaisMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Messages.changeLanguage("en");
+				// close current window and starts a new one
+				// see http://stackoverflow.com/questions/26075081/java-application-restart-or-reset-button
+				dispose();
+				AlignmentGUI newGui = new AlignmentGUI();
+				newGui.ontology1File = oldGui.ontology1File;
+				newGui.ontology2File = oldGui.ontology2File;
+				newGui.ontology1Type = oldGui.ontology1Type;
+				newGui.ontology2Type = oldGui.ontology2Type;
+				
+				if(newGui.ontology1File != null && newGui.ontology1Type != null) {
+					newGui.loadOntologyFromFileReference(newGui.ontology1Type, newGui.ontology1File);
+				}
+				if(newGui.ontology2File != null && newGui.ontology2Type != null) {
+					newGui.loadOntologyFromFileReference(newGui.ontology2Type, newGui.ontology2File);
+				}
+			}
+		});
 		loadLocalOwlMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -891,14 +988,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 					final File selectedFile = chooser.getSelectedFile();
 					String filename = selectedFile.getAbsolutePath();
 					System.out.println("You chose to open this file: " + filename); //$NON-NLS-1$
-					boolean ok = alignmentControler.openRdfAlign(selectedFile);
-					if(ok) {
-						System.out.println("Open finished successfully"); //$NON-NLS-1$
-						refreshGUIFromModel();
-					}
-					else {
-						System.out.println("Open error..."); //$NON-NLS-1$
-					}
+					loadAlignementFromFileReference(selectedFile);
 				}
 			}
 		});
@@ -1184,79 +1274,96 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		int returnVal = chooser.showOpenDialog(null);
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			final File selectedFile = chooser.getSelectedFile();
-			
-			// Copy to cache the last directory to use it in future FileChooser
-			lastDirectory = selectedFile.getParentFile();
-			saveDynamicOnaguiInfos(lastDirectory);
-			configuration.setOntologyLastOpenDirectory(lastDirectory);
-			final URI filename = selectedFile.toURI();
-			System.out.println("Path to ontology: " + filename); //$NON-NLS-1$
-
-			// the task in a new thread
-			FutureTask<OntoContainer> task = new FutureTask<OntoContainer>(
-					new Callable<OntoContainer>() {
-						@Override
-						public OntoContainer call() throws Exception {
-							OntoContainer container = null;
-							try {
-								if(ontoType.getOntoFormat() == OntologyFormat.OWL) {
-									container = GUIUtils.loadDOEOntologyWithGUI(AlignmentGUI.this, filename);
-								}
-								else {
-									container = GUIUtils.loadSKOSOntologyWithGUI(AlignmentGUI.this, filename);
-								}
-								System.out.println("Loading OK"); //$NON-NLS-1$
-								if(!ontoType.isFirstOntology()) { // Reference ontology
-									ontology2Type = ontoType;
-									ontology2File = filename;
-									refText2.setText(REF_PREFIX_2+container.getURI());
-									alignmentControler.setContainer2(container); // Compute the model
-									treeFrom2.setModel(alignmentControler.getTreeModel2());
-									collapseRoot(treeFrom2);
-									treeFrom2.repaint();
-								}
-								else {
-									ontology1Type = ontoType;
-									ontology1File = filename;
-									refText1.setText(REF_PREFIX_1+container.getURI());
-									alignmentControler.setContainer1(container); // Compute the model
-									treeFrom1.setModel(alignmentControler.getTreeModel1());
-									collapseRoot(treeFrom1);
-									treeFrom1.repaint();
-								}
-							} catch (OutOfMemoryError e2) {
-								String message = Messages.getString("MemoryError"); //$NON-NLS-1$
-								System.err.println(message);
-								JOptionPane.showMessageDialog(AlignmentGUI.this, message, Messages.getString("MemoryErrorShort"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-							}
-							finally {
-								progressBar.setVisible(false); // Unlock application
-							}
-							return container;
-						}
-					});
-			ExecutorService executors = Executors.newCachedThreadPool();
-			executors.execute(task);
-			if(!task.isDone()) {// Be careful of very quick task!
-				progressBar.setVisible(true);
-			}
-			try {
-				// FIXME plus besoin du retour dans cette version
-				OntoContainer container = task.get();
-
-			} catch (InterruptedException e1) {
-				// Impossible!
-				e1.printStackTrace();
-			} catch (ExecutionException e2) {
-				// Impossible!
-				e2.printStackTrace();
-			}
-
-			refreshMenuActivation();
-			System.out.println("Loading of ontology finished..."); //$NON-NLS-1$
+			loadOntologyFromFileReference(ontoType, selectedFile.toURI());
 		}
 	}
 
+	public void loadOntologyFromFileReference(final OntologyType ontoType, final URI fileReference) {
+		final File selectedFile = new File(fileReference);
+		
+		// Copy to cache the last directory to use it in future FileChooser
+		lastDirectory = selectedFile.getParentFile();
+		saveDynamicOnaguiInfos(lastDirectory);
+		configuration.setOntologyLastOpenDirectory(lastDirectory);
+		final URI filename = selectedFile.toURI();
+		System.out.println("Path to ontology: " + filename); //$NON-NLS-1$
+
+		// the task in a new thread
+		FutureTask<OntoContainer> task = new FutureTask<OntoContainer>(
+				new Callable<OntoContainer>() {
+					@Override
+					public OntoContainer call() throws Exception {
+						OntoContainer container = null;
+						try {
+							if(ontoType.getOntoFormat() == OntologyFormat.OWL) {
+								container = GUIUtils.loadDOEOntologyWithGUI(AlignmentGUI.this, filename);
+							}
+							else {
+								container = GUIUtils.loadSKOSOntologyWithGUI(AlignmentGUI.this, filename);
+							}
+							System.out.println("Loading OK"); //$NON-NLS-1$
+							if(!ontoType.isFirstOntology()) { // Reference ontology
+								ontology2Type = ontoType;
+								ontology2File = filename;
+								refText2.setText(REF_PREFIX_2+container.getURI());
+								alignmentControler.setContainer2(container); // Compute the model
+								treeFrom2.setModel(alignmentControler.getTreeModel2());
+								collapseRoot(treeFrom2);
+								treeFrom2.repaint();
+							}
+							else {
+								ontology1Type = ontoType;
+								ontology1File = filename;
+								refText1.setText(REF_PREFIX_1+container.getURI());
+								alignmentControler.setContainer1(container); // Compute the model
+								treeFrom1.setModel(alignmentControler.getTreeModel1());
+								collapseRoot(treeFrom1);
+								treeFrom1.repaint();
+							}
+						} catch (OutOfMemoryError e2) {
+							String message = Messages.getString("MemoryError"); //$NON-NLS-1$
+							System.err.println(message);
+							JOptionPane.showMessageDialog(AlignmentGUI.this, message, Messages.getString("MemoryErrorShort"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+						}
+						finally {
+							progressBar.setVisible(false); // Unlock application
+						}
+						return container;
+					}
+				});
+		ExecutorService executors = Executors.newCachedThreadPool();
+		executors.execute(task);
+		if(!task.isDone()) {// Be careful of very quick task!
+			progressBar.setVisible(true);
+		}
+		try {
+			// FIXME plus besoin du retour dans cette version
+			OntoContainer container = task.get();
+
+		} catch (InterruptedException e1) {
+			// Impossible!
+			e1.printStackTrace();
+		} catch (ExecutionException e2) {
+			// Impossible!
+			e2.printStackTrace();
+		}
+
+		refreshMenuActivation();
+		System.out.println("Loading of ontology finished..."); //$NON-NLS-1$
+	}
+	
+	public void loadAlignementFromFileReference(File rdfAlignmentFile) {
+		boolean ok = alignmentControler.openRdfAlign(rdfAlignmentFile);
+		if(ok) {
+			System.out.println("Load alignment finished successfully"); //$NON-NLS-1$
+			refreshGUIFromModel();
+		}
+		else {
+			System.out.println("Load alignment error..."); //$NON-NLS-1$
+		}
+	}
+	
+	
 	private void reloadOntology(final OntologyType ontoType) {
 
 		// the task in a new thread
