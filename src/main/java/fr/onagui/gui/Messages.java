@@ -16,16 +16,28 @@ public class Messages {
 			Locale.setDefault(new Locale(force_language));
 		}
 		RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
-	}
+		
+	} 
 	
 	private Messages() {
+		
 	}
 
 	public static String getString(String key) {
 		try {
+			ResourceBundle.clearCache();
 			return RESOURCE_BUNDLE.getString(key);
 		} catch (MissingResourceException e) {
 			return '!' + key + '!';
 		}
+	}
+	
+	public static void changeLanguage(String langue){
+		System.out.println("Changing language: "+langue);
+		ResourceBundle.clearCache();
+		Locale loc=new Locale(langue);
+		Locale.setDefault(loc);
+		RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+		
 	}
 }
