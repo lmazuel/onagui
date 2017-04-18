@@ -40,8 +40,6 @@ AbstractAlignmentMethod<ONTORES1, ONTORES2> {
 	 * @see #getLabelsForAlignement(OntoContainer, Object, Set)
 	 */
 	public static final String FRAG_URI = "FRAG_URI";
-
-
 	/** Le seuil actuel */
 	private double current_threshlod = 1.0;
 
@@ -73,7 +71,7 @@ AbstractAlignmentMethod<ONTORES1, ONTORES2> {
 	public void setLangsFrom2(SortedSet<String> langsFrom2) {
 		this.langsFrom2 = langsFrom2;
 	}
-	
+
 	public class CacheKey implements Comparable<CacheKey> {
 
 		private URI cpt;
