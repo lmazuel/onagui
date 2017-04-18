@@ -119,8 +119,7 @@ public class MyOntoContainerTestAdapter<ONTORES> implements OntoContainer<ONTORE
 
 	@Override
 	public Optional<Date> getModifiedDate(ONTORES cpt) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Not supported for now");
 	}
 
 }

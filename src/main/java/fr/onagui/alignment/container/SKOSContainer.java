@@ -561,29 +561,26 @@ public class SKOSContainer implements OntoContainer<Resource> {
 
 	@Override
 	public Optional<Date> getModifiedDate(Resource cpt) {
-
-		Optional<Date>date=null;
-		RepositoryConnection connect = null;
-		try {
-			connect = triplestore.getConnection();
-			String queryString = "PREFIX dcterms: <http://purl.org/dc/terms/>"
-					+"PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
-
-									+"select ?date where {<"+cpt+"> dcterms:modified ?date} ";
+		Optional<Date> date = Optional.empty();
+		try (RepositoryConnection connect = triplestore.getConnection()) {
+			// read a dcterms:modified property on the concept
+			String queryString = 
+					"PREFIX dcterms: <http://purl.org/dc/terms/> " +
+					"PREFIX skos: <http://www.w3.org/2004/02/skos/core#> " +
+					"select ?date where {<"+cpt+"> dcterms:modified ?date} ";
 			TupleQuery tupleQuery = connect.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
 			try (TupleQueryResult res = tupleQuery.evaluate()) {
 				while (res.hasNext()) {  // iterate over the result				  
 					BindingSet bindingSet = res.next();
-					if(bindingSet.getValue("date")!=null)
+					if(bindingSet.getValue("date")!=null) {
 						date = Optional.of(((Literal)bindingSet.getValue("date")).calendarValue().toGregorianCalendar().getTime());
-
+					}
 				}
 			}
-			System.out.println(date);
-			connect.close();
 		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			// return empty date
+			return date;
 		}
 		return date;
 	}
