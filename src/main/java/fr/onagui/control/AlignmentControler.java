@@ -265,7 +265,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		}
 	}
 
-	public List<Mapping<ONTORES1, ONTORES2>> getAllMapping() {
+	public Set<Mapping<ONTORES1, ONTORES2>> getAllMapping() {
 		return alignment.getMapping();
 	}
 

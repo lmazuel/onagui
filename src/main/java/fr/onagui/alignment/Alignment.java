@@ -1,9 +1,9 @@
 package fr.onagui.alignment;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -22,7 +22,7 @@ public class Alignment<ONTORES1, ONTORES2> {
 	private OntoContainer<ONTORES2> onto2 = null;
 
 	// La liste ordonnée de tous les mappings
-	private List<Mapping<ONTORES1, ONTORES2>> mapping = null;
+	private SortedSet<Mapping<ONTORES1, ONTORES2>> mapping = null;
 
 	// Les index vers les sous-ensembles
 	private SortedMap<URI, SortedSet<Mapping<ONTORES1, ONTORES2>>> index1 = null;
@@ -39,8 +39,7 @@ public class Alignment<ONTORES1, ONTORES2> {
 	public Alignment(OntoContainer<ONTORES1> onto1, OntoContainer<ONTORES2> onto2) {
 		this.onto1 = onto1;
 		this.onto2 = onto2;
-		// mapping = new TreeSet<Mapping<ONTORES1,ONTORES2>>();
-		mapping = new ArrayList<Mapping<ONTORES1,ONTORES2>>();
+		mapping = new TreeSet<Mapping<ONTORES1,ONTORES2>>();
 		// Building the indexes
 		// For onto1
 		index1 = new TreeMap<URI, SortedSet<Mapping<ONTORES1,ONTORES2>>>();
@@ -77,8 +76,8 @@ public class Alignment<ONTORES1, ONTORES2> {
 	/** Return an unmodifiable view of all mapping.
 	 * @return
 	 */
-	public List<Mapping<ONTORES1, ONTORES2>> getMapping() {
-		return Collections.unmodifiableList(mapping);
+	public SortedSet<Mapping<ONTORES1, ONTORES2>> getMapping() {
+		return Collections.unmodifiableSortedSet(mapping);
 	}
 
 	/** Return an unmodifiable view of not possible mapping from ontology 1.

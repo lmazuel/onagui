@@ -5,7 +5,7 @@ package fr.onagui.gui;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.table.AbstractTableModel;
@@ -91,7 +91,7 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 		maps[index] = mapping;
 	}
 	
-	public void setMapping(List<Mapping<O1, O2>> mapping) {
+	public void setMapping(Set<Mapping<O1, O2>> mapping) {
 		data = new Object[mapping.size()][columnsNames.length];
 		maps = new Mapping[mapping.size()];
 		index.clear();
