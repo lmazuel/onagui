@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.DC;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
@@ -121,24 +124,6 @@ public class RDFModelContainer extends AbstractModelContainer implements OntoCon
 			return Collections.emptySet();
 		}
 	}
-
-	/**
-	 * Returns the first value of a DCTERMS.MODIFIED on the given Concept
-	 */
-//	@Override
-//	public Optional<Date> getModifiedDate(Resource cpt) {
-//		Set<Value> dctermsValues = model.filter(cpt, DCTERMS.MODIFIED, null).objects();
-//		for (Value aValue : dctermsValues) {
-//			if(aValue instanceof Literal) {
-//				try {
-//					return Optional.of(((Literal)aValue).calendarValue().toGregorianCalendar().getTime());
-//				} catch (Exception e) {
-//					System.err.println("Cannot get value as date : "+aValue.stringValue());
-//				}
-//			}
-//		}
-//		return Optional.empty();
-//	}
 
 	@Override
 	public Set<Resource> getParents(Resource cpt) {
@@ -289,5 +274,7 @@ public class RDFModelContainer extends AbstractModelContainer implements OntoCon
 		});
 		return result;
 	}
+	
+	
 	
 }

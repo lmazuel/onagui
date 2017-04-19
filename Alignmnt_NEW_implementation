@@ -1,0 +1,83 @@
+
+******************************Implémentation d'une nouvelle méthode d'alignement**************************************
+
+-Prendre en compte un nouveau paramètre d'alignement: date de modification
+NB: Cette nouvelle méthode doit être intégrer dans le package fr.onagui.alignment.method
+
+1-Dans cette méthode il faudra implémenter la méthode toString() qui retournera le nom à donner à l'alignement
+
+2-L'appel à ce nouvel alignement se fait dans la classe AlignmentControler dans le constructeur par :
+
+	methods = new HashSet<AbstractAlignmentMethod<ONTORES1, ONTORES2>>();
+	Set<Class<? extends AbstractAlignmentMethod>> classes = new HashSet<Class<? extends AbstractAlignmentMethod>>();
+	classes.add(NewAlignment.class.asSubclass(AbstractAlignmentMethod.class));
+	methods = buildInstancesFromClass(classes);
+
+3-Dans la methode computeAndAddMapping nous allons ajouté en paramètre les nouveaux critères de tri par exemple :
+
+	-Nous pouvons ajouter deux variables date1 et date2 représentant respectivement une date de référence.
+	A partir ces dates nous allons lire la date de modification de chaque concept dans les deux classifications et supprimer les concepts ayant une date de modification antérieure à date1 pour la classification 1 et date2 pour la classification 2 avant l'alignement.
+
+	On a :
+	  /*******lecture et stockage de tous les concepts présents dans les deux classifications*****/
+
+		TreeNodeOntologyObject<ONTORES1> userObject1 = (TreeNodeOntologyObject<ONTORES1>) rootFrom1.getUserObject();
+		Set<ONTORES1> concepts1 = OntoTools.getAllDescendants(container1, userObject1.getConcept());
+		TreeNodeOntologyObject<ONTORES2> userObject2 = (TreeNodeOntologyObject<ONTORES2>) rootFrom2.getUserObject();
+		Set<ONTORES2> concepts2 = OntoTools.getAllDescendants(container2, userObject2.getConcept());
+
+	 /****************Suppression des concepts ayant une date antérieure*****************/
+
+		   concepts1.removeIf(t -> { 
+				Date datelue1=container1.getModifiedDate(t);
+				if(datelue1==null){
+					return false;
+				}else{
+					return datelue1.before(date1);
+				}
+				
+			});
+
+4-	Nous obtenons la date de modification d'un concept grâce à la méthode getModifiedDate(ONTORES cpt).Cette méthode 		renvoi la date de modification du concept passé en paramètre. 
+    Il est défini dans le package fr.onagui.alignment dans l'interface OntoContainer.
+    Nous allons implémenter cette méthode dans la classe SkosContainer.
+    Cette méthode éffectuera une requête SPARQL pour avoir la date de modification du concept :
+
+    /***********************************Requête SPARQL******************************** */
+
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+	PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+					
+		select ?date where {
+							<cpt> dcterms:modified ?date
+
+							}
+
+5- Dana la classe fr.onagui.gui.LabelParameterDialog il faudra ajouter les paramètres date 1 et 2 à définir dans le   	 dialogue avant l'alignement. 
+Nous avons ajouter deux calendriers de type DatePicker de la librairie com.github.lgooddatepicker.
+Une fois les dates définies par l'opérateur, à l'appui sur le bouton ok, nous les stockons grâce aux méthodes :
+
+	-setDate1(String date) et setDate2(String date)
+
+Puis deux autres méthodes appelées getDate1AsDate() et getDate2AsDate() nous renvoient les dates(String) stockées en format Date.
+
+6-Dans fr.onagui.gui.AlignementGUI nous allons instancier un objet LabelParameterDialog sur toute action sur le menu alignement. Le constructeur a besoin de certains paramètres(voir LabelParameterDialog).Nous pourrons ainsi récupérer les dates définies et les passées à la computeAndAddMapping :
+
+					            
+					    labelParameterDialog = new LabelMethodParameterDialog(
+												AlignmentGUI.this,
+												labelMethod.getThreshold(),
+												alignmentControler.getLanguagesUsedInOnto(1),
+												alignmentControler.getLanguagesUsedInOnto(2)
+											);
+						labelParameterDialog.setVisible(true); // Blocking call
+
+						/*Fin dialogue->début alignement*/
+						
+alignmentControler.computeAndAddMapping(
+										method, listener, selected1, selected2,
+										labelParameterDialog.getDate1AsDate(),
+										labelParameterDialog.getDate2AsDate()
+										);
+
+

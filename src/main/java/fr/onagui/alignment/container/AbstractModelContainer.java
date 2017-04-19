@@ -5,14 +5,19 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
@@ -120,6 +125,24 @@ public abstract class AbstractModelContainer implements OntoContainer<Resource> 
 		// Create a fake root with rdfs:resource URI
 		return SimpleValueFactory.getInstance().createIRI("http://www.w3.org/2000/01/rdf-schema#Resource");
 	}	
+	
+	/**
+	 * Returns the first value of a DCTERMS.MODIFIED on the given Resource
+	 */
+	@Override
+	public Optional<Date> getModifiedDate(Resource cpt) {
+		Set<Value> dctermsValues = model.filter(cpt, DCTERMS.MODIFIED, null).objects();
+		for (Value aValue : dctermsValues) {
+			if(aValue instanceof Literal) {
+				try {
+					return Optional.of(((Literal)aValue).calendarValue().toGregorianCalendar().getTime());
+				} catch (Exception e) {
+					System.err.println("Cannot get value as date : "+aValue.stringValue());
+				}
+			}
+		}
+		return Optional.empty();
+	}
 	
 	private class AllConceptCollector implements OntoVisitor<Resource> {
 		private Set<Resource> result = new HashSet<Resource>();

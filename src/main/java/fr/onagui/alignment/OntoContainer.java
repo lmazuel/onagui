@@ -4,6 +4,8 @@
 package fr.onagui.alignment;
 
 import java.net.URI;
+import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -79,6 +81,14 @@ public interface OntoContainer<ONTORES> {
 	 * @return Les fils de ce concept.
 	 */
 	public Set<ONTORES> getChildren(ONTORES cpt);
+	
+	/**
+	 * Renvoi la date de modification du concept passé en paramètre
+	 * @param cpt
+	 * @return
+	 */
+	
+	public Optional<Date> getModifiedDate(ONTORES cpt);
 	
 	/** Les parents de ce concept
 	 * @param cpt Un concept

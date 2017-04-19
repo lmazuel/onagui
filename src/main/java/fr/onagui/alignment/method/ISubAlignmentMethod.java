@@ -4,15 +4,30 @@
 package fr.onagui.alignment.method;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.SortedSet;
 
+import fr.onagui.alignment.AbstractAlignmentMethod;
 import fr.onagui.alignment.Mapping;
 import fr.onagui.alignment.OntoContainer;
 import fr.onagui.alignment.Mapping.MAPPING_TYPE;
+import fr.onagui.gui.OntologyType;
 
 
 /**
  * @author Laurent Mazuel
+ * 
+ * Prise en compte d'un nouveau paramètre dans l'algorithme de l'alignement ISubAlignment
+ * 
+ *  NB: chaque de méthode d'alignement  est utilisée dans ALignmentControler dans le constructeur de la manière suivante :
+ *  
+ *  public void AlignmentControler(){
+ *  	Set<Class<? extends AbstractAlignmentMethod>> classes = new HashSet<Class<? extends AbstractAlignmentMethod>>();
+ *  	classes.add(LevenshteinAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
+ *  	classes.add(ISubAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
+ *  	classes.add(ExactAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
+ *  }
  */
 public class ISubAlignmentMethod<ONTORES1, ONTORES2> extends LabelAlignmentMethod<ONTORES1, ONTORES2> {
 	
@@ -53,6 +68,7 @@ public class ISubAlignmentMethod<ONTORES1, ONTORES2> extends LabelAlignmentMetho
 		if(cpt2Labels.isEmpty()) return null;
 		LabelAlignmentMethod.applyNLPFilterToLabels(cpt1Labels);
 		LabelAlignmentMethod.applyNLPFilterToLabels(cpt2Labels);
+		
 
 		// Bon, maintenant au boulot!
 		Mapping<ONTORES1, ONTORES2> currentBestMapping = null;

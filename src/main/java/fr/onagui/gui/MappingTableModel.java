@@ -3,8 +3,9 @@
  */
 package fr.onagui.gui;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.table.AbstractTableModel;
@@ -28,7 +29,14 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 	private Mapping<O1, O2>[] maps = null;
 	private TreeMap<Mapping<O1, O2>, Integer> index = null;
 	
-	private static final DateTimeFormatter timeFormatter = ISODateTimeFormat.basicDateTimeNoMillis();
+	private static final DateTimeFormatter TIME_FORMATTER = ISODateTimeFormat.dateHourMinuteSecond();
+	private static final DecimalFormat SCORE_FORMAT;
+	static {
+		// garantee that the separator is a dot to be able to reparse the string as a Double
+		DecimalFormatSymbols myFormatSymbols = new DecimalFormatSymbols();
+		myFormatSymbols.setDecimalSeparator('.');
+		SCORE_FORMAT = new DecimalFormat("0.0000", myFormatSymbols);
+	}
 	
 	/**
 	 * @param controler
@@ -117,10 +125,12 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 				line[1] = node2.getUserObject();
 			}
 			line[2] = map.getType().getLabel();
-			line[3] = map.getScore();
+			// we need a Double because of the associated Formatter to the column
+			// this is why we format the double as String and then reparse it as Double
+			line[3] = Double.parseDouble(SCORE_FORMAT.format(map.getScore()));
 			// Le nom de la methode
 			line[5] = map.getMethod();
-			line[6] = timeFormatter.print(map.getCreationDate());
+			line[6] = TIME_FORMATTER.print(map.getCreationDate()).toString().replaceAll("T", " ");
 			maps[i] = map;
 			
 			// Store and index data

@@ -1,6 +1,7 @@
 package fr.onagui.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -71,12 +73,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.eclipse.rdf4j.query.QueryLanguage;
-import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
-
 import com.google.common.collect.Sets;
 
 import fr.onagui.alignment.AbstractAlignmentMethod;
@@ -104,6 +100,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	/* Common file filter */
 	private static final FileNameExtensionFilter RDF_ALIGNMENT_FILTER = new FileNameExtensionFilter(Messages.getString("RdfAlignmentFilterName"), "rdf", "xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	private static final FileNameExtensionFilter CSV_ALIGNMENT_FILTER = new FileNameExtensionFilter(Messages.getString("CsvAlignmentFilterName"), "csv"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final FileNameExtensionFilter SKOS_ALIGNMENT_FILTER = new FileNameExtensionFilter(Messages.getString("SkosAlignmentFilterName"), "rdf", "xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 	/* general String */
 	private static final String GUI_TITLE = "OnAGUI - Ontology Alignement GUI"; //$NON-NLS-1$
@@ -135,6 +132,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	private JMenuItem reload1;
 	private JMenuItem reload2;
 	private JMenuItem importRDF;
+	private JMenuItem importSKOS;
 	private JMenuItem importCSV;
 	private JMenuItem exportRDFAll;
 	private JMenuItem exportRDFInvalid;
@@ -173,7 +171,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	/** the label of reference bar */
 	private JLabel refText1 = new JLabel(REF_PREFIX_1);
 	private JLabel refText2 = new JLabel(REF_PREFIX_2);
-
+	
+	
 	/** Lexicalisation panel */
 	LexicalisationPanel lexic1 = null;
 	LexicalisationPanel lexic2 = null;
@@ -183,6 +182,11 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	AnnotationPanel annot1 = null;
 	AnnotationPanel annot2 = null;
 
+	/***
+	 * label
+	 */
+	LabelMethodParameterDialog labelParameterDialog = null;
+	
 	/** Memoire du dernier dossier ou j'ai ouvert un truc */
 	private File lastDirectory = null;
 
@@ -717,6 +721,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		 * **************************** */
 
 		JMenuBar menuBar = new JMenuBar();
+		
 		// La barre "fichier"
 		JMenu fichierMenu = new JMenu(Messages.getString("FileMenu")); //$NON-NLS-1$
 		menuBar.add(fichierMenu);
@@ -779,6 +784,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		fichierMenu.add(importMenu);
 		importRDF = new JMenuItem(Messages.getString("ImportRdfAlignmentMenu")); //$NON-NLS-1$
 		importMenu.add(importRDF);
+		importSKOS = new JMenuItem(Messages.getString("ImportSkosAlignmentMenu")); //$NON-NLS-1$
+		importMenu.add(importSKOS);
 		importCSV = new JMenuItem(Messages.getString("ImportCsvAlignmentMenu")); //$NON-NLS-1$
 		importMenu.add(importCSV);
 
@@ -848,7 +855,90 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		menuBar.add(statMenu);
 		statAlignItem = new JMenuItem(Messages.getString("AlignmentStatMenu")); //$NON-NLS-1$
 		statMenu.add(statAlignItem);
+		
+		//Menu Application
+		
+		JMenu applicationMenu = new JMenu(Messages.getString("Application")); //$NON-NLS-
+		menuBar.add(applicationMenu);
+		JMenu guiLanguageMenu = new JMenu(Messages.getString("GuiLanguage")); //$NON-NLS-
+		applicationMenu.add(guiLanguageMenu);
+		//Link github repository
+		JMenuItem gitHubLink = new JMenuItem(Messages.getString("GitHubLink")); //$NON-NLS-1$
+		applicationMenu.add(gitHubLink);
+		
+		// French language
+		JMenuItem francaisMenu = new JMenuItem(Messages.getString("French")); //$NON-NLS-1$
+		if(Locale.getDefault().getLanguage().equals("fr")) {
+			francaisMenu.setEnabled(false);
+		}
+		guiLanguageMenu.add(francaisMenu);
+		
+		// English language
+		JMenuItem anglaisMenu = new JMenuItem(Messages.getString("English")); //$NON-NLS-1$
+		if(Locale.getDefault().getLanguage().equals("en")) {
+			anglaisMenu.setEnabled(false);
+		}		
+		guiLanguageMenu.add(anglaisMenu);
+		
+		//Open a link in a web browser when we click
+		gitHubLink.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				try {
+					Desktop.getDesktop().browse(URI.create("https://github.com/lmazuel/onagui/issues"));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		
+		AlignmentGUI oldGui = this;
+		francaisMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Messages.changeLanguage("fr");
+				// close current window and starts a new one
+				// see http://stackoverflow.com/questions/26075081/java-application-restart-or-reset-button
+				dispose();
+				AlignmentGUI newGui = new AlignmentGUI();
+				newGui.ontology1File = oldGui.ontology1File;
+				newGui.ontology2File = oldGui.ontology2File;
+				newGui.ontology1Type = oldGui.ontology1Type;
+				newGui.ontology2Type = oldGui.ontology2Type;
+				
+				if(newGui.ontology1File != null && newGui.ontology1Type != null) {
+					newGui.loadOntologyFromFileReference(newGui.ontology1Type, newGui.ontology1File);
+				}
+				if(newGui.ontology2File != null && newGui.ontology2Type != null) {
+					newGui.loadOntologyFromFileReference(newGui.ontology2Type, newGui.ontology2File);
+				}
+			}
+		});
 
+		anglaisMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Messages.changeLanguage("en");
+				// close current window and starts a new one
+				// see http://stackoverflow.com/questions/26075081/java-application-restart-or-reset-button
+				dispose();
+				AlignmentGUI newGui = new AlignmentGUI();
+				newGui.ontology1File = oldGui.ontology1File;
+				newGui.ontology2File = oldGui.ontology2File;
+				newGui.ontology1Type = oldGui.ontology1Type;
+				newGui.ontology2Type = oldGui.ontology2Type;
+				
+				if(newGui.ontology1File != null && newGui.ontology1Type != null) {
+					newGui.loadOntologyFromFileReference(newGui.ontology1Type, newGui.ontology1File);
+				}
+				if(newGui.ontology2File != null && newGui.ontology2Type != null) {
+					newGui.loadOntologyFromFileReference(newGui.ontology2Type, newGui.ontology2File);
+				}
+			}
+		});
 		loadLocalOwlMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -905,7 +995,26 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 					final File selectedFile = chooser.getSelectedFile();
 					String filename = selectedFile.getAbsolutePath();
 					System.out.println("You chose to open this file: " + filename); //$NON-NLS-1$
-					boolean ok = alignmentControler.openRdfAlign(selectedFile);
+					loadAlignementFromFileReference(selectedFile);
+				}
+			}
+		});
+		
+		importSKOS.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// FIXME plus utile normalement...
+				//				ERASE_TYPE eraseType = GUIUtils.chooseEraseType(AlignmentGUI.this);
+				//				if(eraseType == null) return; // User cancel the dialog
+
+				JFileChooser chooser = new JFileChooser();
+				chooser.addChoosableFileFilter(SKOS_ALIGNMENT_FILTER);
+				int returnVal = chooser.showOpenDialog(null);
+				if(returnVal == JFileChooser.APPROVE_OPTION) {
+					final File selectedFile = chooser.getSelectedFile();
+					String filename = selectedFile.getAbsolutePath();
+					System.out.println("You chose to open this file: " + filename); //$NON-NLS-1$
+					boolean ok = alignmentControler.openSkosAlign(selectedFile);
 					if(ok) {
 						System.out.println("Open finished successfully"); //$NON-NLS-1$
 						refreshGUIFromModel();
@@ -1172,86 +1281,103 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		int returnVal = chooser.showOpenDialog(null);
 		if(returnVal == JFileChooser.APPROVE_OPTION) {
 			final File selectedFile = chooser.getSelectedFile();
-			
-			// Copy to cache the last directory to use it in future FileChooser
-			lastDirectory = selectedFile.getParentFile();
-			saveDynamicOnaguiInfos(lastDirectory);
-			configuration.setOntologyLastOpenDirectory(lastDirectory);
-			final URI filename = selectedFile.toURI();
-			System.out.println("Path to ontology: " + filename); //$NON-NLS-1$
-
-			// the task in a new thread
-			FutureTask<OntoContainer> task = new FutureTask<OntoContainer>(
-					new Callable<OntoContainer>() {
-						@Override
-						public OntoContainer call() throws Exception {
-							OntoContainer container = null;
-							try {
-								switch(ontoType.getOntoFormat()) {
-								case OWL:
-									container = GUIUtils.loadDOEOntologyWithGUI(AlignmentGUI.this, filename);
-									break;
-								case RDF:
-									container = GUIUtils.loadRDFOntologyWithGUI(AlignmentGUI.this, filename);
-									break;
-								case SKOS:
-									container = GUIUtils.loadSKOSOntologyWithGUI(AlignmentGUI.this, filename);
-									break;
-								default:
-									break;								
-								}
-								System.out.println("Loading OK"); //$NON-NLS-1$
-								if(!ontoType.isFirstOntology()) { // Reference ontology
-									ontology2Type = ontoType;
-									ontology2File = filename;
-									refText2.setText(REF_PREFIX_2+container.getURI());
-									alignmentControler.setContainer2(container); // Compute the model
-									treeFrom2.setModel(alignmentControler.getTreeModel2());
-									collapseRoot(treeFrom2);
-									treeFrom2.repaint();
-								}
-								else {
-									ontology1Type = ontoType;
-									ontology1File = filename;
-									refText1.setText(REF_PREFIX_1+container.getURI());
-									alignmentControler.setContainer1(container); // Compute the model
-									treeFrom1.setModel(alignmentControler.getTreeModel1());
-									collapseRoot(treeFrom1);
-									treeFrom1.repaint();
-								}
-							} catch (OutOfMemoryError e2) {
-								String message = Messages.getString("MemoryError"); //$NON-NLS-1$
-								System.err.println(message);
-								JOptionPane.showMessageDialog(AlignmentGUI.this, message, Messages.getString("MemoryErrorShort"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-							}
-							finally {
-								progressBar.setVisible(false); // Unlock application
-							}
-							return container;
-						}
-					});
-			ExecutorService executors = Executors.newCachedThreadPool();
-			executors.execute(task);
-			if(!task.isDone()) {// Be careful of very quick task!
-				progressBar.setVisible(true);
-			}
-			try {
-				// FIXME plus besoin du retour dans cette version
-				OntoContainer container = task.get();
-
-			} catch (InterruptedException e1) {
-				// Impossible!
-				e1.printStackTrace();
-			} catch (ExecutionException e2) {
-				// Impossible!
-				e2.printStackTrace();
-			}
-
-			refreshMenuActivation();
-			System.out.println("Loading of ontology finished..."); //$NON-NLS-1$
+			loadOntologyFromFileReference(ontoType, selectedFile.toURI());
 		}
 	}
 
+	public void loadOntologyFromFileReference(final OntologyType ontoType, final URI fileReference) {
+		final File selectedFile = new File(fileReference);
+		
+		// Copy to cache the last directory to use it in future FileChooser
+		lastDirectory = selectedFile.getParentFile();
+		saveDynamicOnaguiInfos(lastDirectory);
+		configuration.setOntologyLastOpenDirectory(lastDirectory);
+		final URI filename = selectedFile.toURI();
+		System.out.println("Path to ontology: " + filename); //$NON-NLS-1$
+
+		// the task in a new thread
+		FutureTask<OntoContainer> task = new FutureTask<OntoContainer>(
+				new Callable<OntoContainer>() {
+					@Override
+					public OntoContainer call() throws Exception {
+						OntoContainer container = null;
+						try {
+							switch(ontoType.getOntoFormat()) {
+							case OWL:
+								container = GUIUtils.loadDOEOntologyWithGUI(AlignmentGUI.this, filename);
+								break;
+							case RDF:
+								container = GUIUtils.loadRDFOntologyWithGUI(AlignmentGUI.this, filename);
+								break;
+							case SKOS:
+								container = GUIUtils.loadSKOSOntologyWithGUI(AlignmentGUI.this, filename);
+								break;
+							default:
+								break;								
+							}
+							System.out.println("Loading OK"); //$NON-NLS-1$
+							if(!ontoType.isFirstOntology()) { // Reference ontology
+								ontology2Type = ontoType;
+								ontology2File = filename;
+								refText2.setText(REF_PREFIX_2+container.getURI());
+								alignmentControler.setContainer2(container); // Compute the model
+								treeFrom2.setModel(alignmentControler.getTreeModel2());
+								collapseRoot(treeFrom2);
+								treeFrom2.repaint();
+							}
+							else {
+								ontology1Type = ontoType;
+								ontology1File = filename;
+								refText1.setText(REF_PREFIX_1+container.getURI());
+								alignmentControler.setContainer1(container); // Compute the model
+								treeFrom1.setModel(alignmentControler.getTreeModel1());
+								collapseRoot(treeFrom1);
+								treeFrom1.repaint();
+							}
+						} catch (OutOfMemoryError e2) {
+							String message = Messages.getString("MemoryError"); //$NON-NLS-1$
+							System.err.println(message);
+							JOptionPane.showMessageDialog(AlignmentGUI.this, message, Messages.getString("MemoryErrorShort"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+						}
+						finally {
+							progressBar.setVisible(false); // Unlock application
+						}
+						return container;
+					}
+				});
+		ExecutorService executors = Executors.newCachedThreadPool();
+		executors.execute(task);
+		if(!task.isDone()) {// Be careful of very quick task!
+			progressBar.setVisible(true);
+		}
+		try {
+			// FIXME plus besoin du retour dans cette version
+			OntoContainer container = task.get();
+
+		} catch (InterruptedException e1) {
+			// Impossible!
+			e1.printStackTrace();
+		} catch (ExecutionException e2) {
+			// Impossible!
+			e2.printStackTrace();
+		}
+
+		refreshMenuActivation();
+		System.out.println("Loading of ontology finished..."); //$NON-NLS-1$
+	}
+	
+	public void loadAlignementFromFileReference(File rdfAlignmentFile) {
+		boolean ok = alignmentControler.openRdfAlign(rdfAlignmentFile);
+		if(ok) {
+			System.out.println("Load alignment finished successfully"); //$NON-NLS-1$
+			refreshGUIFromModel();
+		}
+		else {
+			System.out.println("Load alignment error..."); //$NON-NLS-1$
+		}
+	}
+	
+	
 	private void reloadOntology(final OntologyType ontoType) {
 
 		// the task in a new thread
@@ -1357,6 +1483,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			menu.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
 		}
 		importRDF.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
+		importSKOS.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
 		importCSV.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
 		exportRDFAll.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
 		exportRDFInvalid.setEnabled(isOntologyLoaded(1) && isOntologyLoaded(2));
@@ -1611,12 +1738,11 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			// Assume que c'est JOptionPane.OK_OPTION
 			final boolean useRoot1 = rootChooserDialog.isUseRootFor1();
 			final boolean useRoot2 = rootChooserDialog.isUseRootFor2();
-
 			// Si je suis une methode label, j'ai des parametres générique à donner
 			if(method instanceof LabelAlignmentMethod) {
 				LabelAlignmentMethod labelMethod = (LabelAlignmentMethod)method;
 
-				LabelMethodParameterDialog labelParameterDialog = new LabelMethodParameterDialog(
+				 labelParameterDialog = new LabelMethodParameterDialog(
 						AlignmentGUI.this,
 						labelMethod.getThreshold(),
 						alignmentControler.getLanguagesUsedInOnto(1),
@@ -1629,8 +1755,9 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				labelMethod.setThreshold(newThreshold);
 				labelMethod.setLangsFrom1(labelParameterDialog.getSelectedLangFor1());
 				labelMethod.setLangsFrom2(labelParameterDialog.getSelectedLangFor2());
+	
 			}
-
+			
 			// Map<OWLEntity, Set<Mapping<OWLEntity, SKOSConcept>>> return type
 			FutureTask<Alignment<ONTORES1, ONTORES2>> task = new FutureTask<Alignment<ONTORES1, ONTORES2>>(
 					new Callable<Alignment<ONTORES1, ONTORES2>>() {
@@ -1658,8 +1785,13 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 									System.err.println("Pas de noeud sélectionné dans l'arbre 2, j'envoie la racine pour l'alignement"); //$NON-NLS-1$
 									selected2 = (DefaultMutableTreeNode)treeFrom2.getModel().getRoot();
 								}
-
-								alignmentControler.computeAndAddMapping(method, listener, selected1, selected2);
+								try {
+									System.out.println("Dates : "+labelParameterDialog.getDate1AsDate()+" and "+labelParameterDialog.getDate2AsDate());
+									alignmentControler.computeAndAddMapping(method, listener, selected1, selected2,labelParameterDialog.getDate1AsDate(),labelParameterDialog.getDate2AsDate());
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 							}
 
 							progressBar.setVisible(false);
