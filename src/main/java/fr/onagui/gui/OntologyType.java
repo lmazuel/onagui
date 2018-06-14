@@ -12,9 +12,9 @@ public enum OntologyType {
 	SECOND_ONTO_RDF(false, OntologyFormat.RDF);
 	
 	public enum OntologyFormat {
-		OWL(new FileNameExtensionFilter(Messages.getString("OntologyTypeOwl"), "owl", "rdf")), //$NON-NLS-1$ //$NON-NLS-2$
-		SKOS(new FileNameExtensionFilter(Messages.getString("OntologyTypeSkos"), "rdf", "ttl")), //$NON-NLS-1$ //$NON-NLS-2$
-		RDF(new FileNameExtensionFilter(Messages.getString("OntologyTypeRdf"), "rdf", "ttl", "nq", "xml")); //$NON-NLS-1$ //$NON-NLS-2$
+		OWL(new FileNameExtensionFilter(Messages.getString("OntologyTypeOwl"), "owl", "rdf", "ttl", "nq", "n3", "xml", "trig", "trix", "json")), //$NON-NLS-1$ //$NON-NLS-2$
+		SKOS(new FileNameExtensionFilter(Messages.getString("OntologyTypeSkos"), "rdf", "ttl", "nq", "n3", "xml", "trig", "trix", "json")); //$NON-NLS-1$ //$NON-NLS-2$
+    RDF(new FileNameExtensionFilter(Messages.getString("OntologyTypeRdf"), "rdf", "ttl", "nq", "n3", "xml", "trig", "trix", "json")); //$NON-NLS-1$ //$NON-NLS-2$
 				
 		private FileNameExtensionFilter filter = null;
 		
