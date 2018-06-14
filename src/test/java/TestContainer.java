@@ -15,6 +15,7 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import com.google.common.collect.Sets;
 
 import fr.onagui.alignment.container.DOEOWLContainer;
+import fr.onagui.alignment.container.RDFModelContainer;
 import fr.onagui.alignment.container.SKOSContainer;
 
 public class TestContainer {
@@ -56,5 +57,25 @@ public class TestContainer {
 		assertEquals(Sets.newHashSet("my first concept no lang tag"), container.getPrefLabels(cpt, ""));
 		assertEquals(Sets.newHashSet("my first concept no lang tag", "mon premier concept", "my first concept"),
 					 container.getPrefLabels(cpt));
+	}
+	
+	@Test
+	public void testRDFAllVocabularies() throws URISyntaxException, RepositoryException, RDFParseException, IOException {
+		URI filename = TestContainer.class.getResource("RDFModelContainerTest.ttl").toURI();
+		RDFModelContainer container = new RDFModelContainer(Paths.get(filename).toFile());
+		Set<Resource> allConcepts = container.getAllConcepts();
+		assertEquals(4, allConcepts.size());
+		assertEquals(container.getAllLanguageInLabels(), Sets.newHashSet("en","fr"));
+
+		for (Resource resource : allConcepts) {
+			// label equal to URI
+			assertEquals(Sets.newHashSet(resource.stringValue()), container.getPrefLabels(resource));
+			// no children
+			assertEquals(0, container.getChildren(resource).size());
+			// one parent
+			assertEquals(1, container.getParents(resource).size());
+		}
+		
+		
 	}
 }

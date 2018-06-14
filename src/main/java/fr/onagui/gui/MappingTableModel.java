@@ -87,6 +87,10 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 		return maps[index];
 	}
 	
+	public void setMappingAt(Mapping<O1, O2> mapping, int index) {
+		maps[index] = mapping;
+	}
+	
 	public void setMapping(Set<Mapping<O1, O2>> mapping) {
 		data = new Object[mapping.size()][columnsNames.length];
 		maps = new Mapping[mapping.size()];

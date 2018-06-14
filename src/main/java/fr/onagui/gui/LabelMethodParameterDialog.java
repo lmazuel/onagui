@@ -340,8 +340,8 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 			Optional<Date> date=Optional.of(dateFormatter.parse(s));
 			return date;
 		} catch (Exception e) {
-			System.err.print("Cannot parse date value : "+e.getMessage());
-			return null;
+			System.err.print("Cannot parse date value - '"+e.getMessage()+"'");
+			return Optional.empty();
 		}
 	}
 

@@ -7,6 +7,9 @@ import java.net.URI;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
+
+import java.util.List;
+
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -262,7 +265,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		}
 	}
 
-	public SortedSet<Mapping<ONTORES1, ONTORES2>> getAllMapping() {
+	public Set<Mapping<ONTORES1, ONTORES2>> getAllMapping() {
 		return alignment.getMapping();
 	}
 
