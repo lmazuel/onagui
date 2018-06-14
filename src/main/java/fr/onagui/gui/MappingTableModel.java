@@ -8,6 +8,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.swing.JComboBox;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -15,6 +16,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 import fr.onagui.alignment.Mapping;
+import fr.onagui.alignment.Mapping.MAPPING_TYPE;
 import fr.onagui.alignment.Mapping.VALIDITY;
 import fr.onagui.control.AlignmentControler;
 
@@ -37,6 +39,7 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 		myFormatSymbols.setDecimalSeparator('.');
 		SCORE_FORMAT = new DecimalFormat("0.0000", myFormatSymbols);
 	}
+	
 	
 	/**
 	 * @param controler
@@ -80,7 +83,8 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		// Only validity is editable
-		return columnIndex == 4;
+		// Or mapping type
+		return (columnIndex == 2 || columnIndex == 4);
 	}
 
 	public Mapping<O1, O2> getMappingAt(int index) {
@@ -103,8 +107,8 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 				System.err.println("Error: first concept cannot be determine in JTree: "+map);
 				line[0] = "!ERROR!";
 				// A discuter...
-				line[4] = VALIDITY.INVALID;
-				map.setValidity(VALIDITY.INVALID);
+//				line[4] = VALIDITY.INVALID;
+//				map.setValidity(VALIDITY.INVALID);
 			}
 			else {
 				line[0] = node1.getUserObject();
@@ -114,16 +118,18 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 				System.err.println("Error: first concept cannot be determine in JTree: "+map);
 				line[1] = "!ERROR!";
 				// A discuter...
-				line[4] = VALIDITY.INVALID;
-				map.setValidity(VALIDITY.INVALID);
+//				line[4] = VALIDITY.INVALID;
+//				map.setValidity(VALIDITY.INVALID);
 			}
 			else {
 				line[1] = node2.getUserObject();
 			}
+
 			line[2] = map.getType().getLabel();
 			// we need a Double because of the associated Formatter to the column
 			// this is why we format the double as String and then reparse it as Double
 			line[3] = Double.parseDouble(SCORE_FORMAT.format(map.getScore()));
+
 			// Le nom de la methode
 			line[5] = map.getMethod();
 			line[6] = TIME_FORMATTER.print(map.getCreationDate()).toString().replaceAll("T", " ");

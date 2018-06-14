@@ -392,6 +392,11 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			}
 		};
 		sorter = new TableRowSorter<MappingTableModel>(tableModel);
+		// tri de la table sur la colonne 'Score' par défaut
+		// on a besoin de garantir l'ordre de la table afin que les lignes restent dans le même ordre
+		// lorsqu'on édite le type ou la validité d'une correspondance, qui sont des actions qui suppriment
+		// et ré-insèrent un nouveau Mapping
+		sorter.toggleSortOrder(3);
 		centerTable.setRowSorter(sorter);
 		//		centerTable.setAutoCreateRowSorter(true);
 		DefaultListSelectionModel listSelectionModel = new DefaultListSelectionModel();
@@ -406,9 +411,11 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		// Color renderer
 		ScoreColorConfiguration scm  = configuration.getScoreColorConfiguration();
 		centerTable.setDefaultRenderer(Double.class, new ScoreColorRenderer(scm));
+		centerTable.setDefaultRenderer(MAPPING_TYPE.class, new TypeRenderer());
 		centerTable.setDefaultRenderer(VALIDITY.class, new ValidityRenderer());
 		centerTable.setDefaultEditor(VALIDITY.class, new ValidityEditor(new JCheckBox(), tableModel, this));
-
+		centerTable.setDefaultEditor(MAPPING_TYPE.class, new TypeEditor(new JCheckBox(), tableModel, this));
+		
 		// The comment pane (with JLabel included)		
 		JPanel commentPane = new JPanel(new BorderLayout());
 		commentPane.add(new JLabel(Messages.getString("CommentTitleLabel")), BorderLayout.NORTH); //$NON-NLS-1$
@@ -421,9 +428,11 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				// Je recupère le mapping associée à cette ligne
 				if(centerTable.getSelectedRowCount() == 1) {
 					int index = centerTable.getSelectedRow();
+					
 					Mapping map = tableModel.getMappingAt(centerTable.convertRowIndexToModel(index));
 					map.setComment(snoComment.getText());
 				}
+			
 			}
 		});
 		commentPane.add(majBut, BorderLayout.SOUTH);
@@ -1786,18 +1795,51 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 	public void createCenterPopupMenu() {
 		//Create the popup menu.
 		JPopupMenu popup = new JPopupMenu();
-		JMenu menu = new JMenu(Messages.getString("PopupMenuLabel")); //$NON-NLS-1$
-		popup.add(menu);
+		JMenu menuvalidity = new JMenu(Messages.getString("PopupMenuLabel1")); //$NON-NLS-1$
+		popup.add(menuvalidity);
 		JMenuItem valid = new JMenuItem(Messages.getString("ValidChoice")); //$NON-NLS-1$
-		menu.add(valid);
+		menuvalidity.add(valid);
 		JMenuItem to_confirm = new JMenuItem(Messages.getString("ToConfirmChoice")); //$NON-NLS-1$
-		menu.add(to_confirm);
+		menuvalidity.add(to_confirm);
 		JMenuItem invalid = new JMenuItem(Messages.getString("InvalidChoice")); //$NON-NLS-1$
-		menu.add(invalid);
-		CenterPopupActionListener cpal = new CenterPopupActionListener(valid, to_confirm, invalid);
+		menuvalidity.add(invalid);
+		
+		JMenu menutype = new JMenu(Messages.getString("PopupMenuLabel2")); //$NON-NLS-1$
+		popup.add(menutype);
+		JMenuItem exactmatch = new JMenuItem(Messages.getString("ExactMatch")); //$NON-NLS-1$
+		menutype.add(exactmatch);
+		JMenuItem closematch = new JMenuItem(Messages.getString("CloseMatch")); //$NON-NLS-1$
+		menutype.add(closematch);
+		JMenuItem relatedMatch = new JMenuItem(Messages.getString("RelatedMatch")); //$NON-NLS-1$
+		menutype.add(relatedMatch);
+		JMenuItem broaderMatch = new JMenuItem(Messages.getString("BroaderMatch")); //$NON-NLS-1$
+		menutype.add(broaderMatch);
+		JMenuItem narrowMatch = new JMenuItem(Messages.getString("NarrowMatch")); //$NON-NLS-1$
+		menutype.add(narrowMatch);
+		JMenuItem disjoint = new JMenuItem(Messages.getString("Disjoint")); //$NON-NLS-1$
+		menutype.add(disjoint);
+		
+		CenterPopupActionListener cpal = new CenterPopupActionListener(
+																	   valid,
+																	   to_confirm, 
+																	   invalid,
+																	   exactmatch,
+																	   closematch,
+																	   disjoint,
+																	   relatedMatch,
+																	   narrowMatch,
+																	   broaderMatch
+																	);
 		valid.addActionListener(cpal);
 		to_confirm.addActionListener(cpal);
 		invalid.addActionListener(cpal);
+		
+		exactmatch.addActionListener(cpal);
+		closematch.addActionListener(cpal);
+		relatedMatch.addActionListener(cpal);
+		disjoint.addActionListener(cpal);
+		narrowMatch.addActionListener(cpal);
+		broaderMatch.addActionListener(cpal);
 
 		//Add listener to the text area so the popup menu can come up.
 		MouseListener popupListener = new PopupListener(popup);
@@ -1808,31 +1850,74 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		private JMenuItem valid_menu = null;
 		private JMenuItem to_confirm_menu = null;
 		private JMenuItem invalid_menu = null;
+		private JMenuItem exactmatch_menu = null;
+		private JMenuItem closematch_menu = null;
+		private JMenuItem disjoint_menu = null;
+		private JMenuItem relatedMatch_menu = null;
+		private JMenuItem narrowMatch_menu = null;
+		private JMenuItem broaderMatch_menu = null;
+
 
 		/**
 		 * @param validMenu
 		 * @param toConfirmMenu
 		 * @param invalidMenu
+		 * @param exactmatch_menu
+		 * @param closematch_menu
 		 */
-		public CenterPopupActionListener(JMenuItem validMenu,
-				JMenuItem toConfirmMenu, JMenuItem invalidMenu) {
+		public CenterPopupActionListener(
+				JMenuItem validMenu,
+				JMenuItem toConfirmMenu,
+				JMenuItem invalidMenu,
+				JMenuItem exactMatchMenu,
+				JMenuItem closeMatchMenu,
+				JMenuItem disjoint,
+				JMenuItem relatedMatch,
+				JMenuItem narrowMatch,
+				JMenuItem broaderMatch
+		) {
 			valid_menu = validMenu;
 			to_confirm_menu = toConfirmMenu;
 			invalid_menu = invalidMenu;
+			exactmatch_menu=exactMatchMenu;
+			closematch_menu=closeMatchMenu;
+			disjoint_menu=disjoint;
+			relatedMatch_menu=relatedMatch;
+			narrowMatch_menu=narrowMatch;
+			broaderMatch_menu=broaderMatch;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JMenuItem source = (JMenuItem)(e.getSource());
-			VALIDITY to_use;
+			VALIDITY validity_to_use=null;
+			MAPPING_TYPE type_to_use=null;
 			if(source.equals(valid_menu)) {
-				to_use = VALIDITY.VALID;
+				validity_to_use = VALIDITY.VALID;
 			}
 			else if(source.equals(to_confirm_menu)) {
-				to_use = VALIDITY.TO_CONFIRM;
+				validity_to_use = VALIDITY.TO_CONFIRM;
 			}
 			else if(source.equals(invalid_menu)){
-				to_use = VALIDITY.INVALID;
+				validity_to_use = VALIDITY.INVALID;
+			}
+			else if(source.equals(exactmatch_menu)) {
+				type_to_use = MAPPING_TYPE.EQUIV;
+			}
+			else if(source.equals(closematch_menu)){
+				type_to_use = MAPPING_TYPE.OVERLAP;
+			}
+			else if(source.equals(disjoint_menu)) {
+				type_to_use = MAPPING_TYPE.DISJOINT;
+			}
+			else if(source.equals(relatedMatch_menu)){
+				type_to_use = MAPPING_TYPE.RELATED;
+			}
+			else if(source.equals(narrowMatch_menu)) {
+				type_to_use = MAPPING_TYPE.SUBSUMES;
+			}
+			else if(source.equals(broaderMatch_menu)){
+				type_to_use = MAPPING_TYPE.SUBSUMEDBY;
 			}
 			else {
 				System.err.println("Don't know the menu which ask me something!"); //$NON-NLS-1$
@@ -1841,7 +1926,21 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 
 			for(int index : centerTable.getSelectedRows()) {
 				Mapping<?, ?> map = tableModel.getMappingAt(centerTable.convertRowIndexToModel(index));
-				map.setValidity(to_use);
+				
+				// 1. enlever l'ancien mapping
+				alignmentControler.removeMapping(map);
+				// 2. créer le nouveau mapping
+				Mapping<?, ?> newMap = null;
+				
+				// 3. ajouter le nouveau mapping
+				alignmentControler.addMapping(newMap);
+				
+//				if(validity_to_use!=null){
+//					map.setValidity(validity_to_use);
+//				}else if(type_to_use!=null){
+//				
+//					map.setType(type_to_use);
+//				}
 			}
 			// Refresh GUI
 			AlignmentGUI.this.refreshGUIFromModel();			
@@ -1871,6 +1970,10 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 						e.getX(), e.getY());
 			}
 		}
+	}
+
+	public AlignmentControler getAlignmentControler() {
+		return alignmentControler;
 	}
 
 	public static void main(String[] args) {	
