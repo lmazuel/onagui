@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import fr.onagui.alignment.Alignment;
 import fr.onagui.alignment.Mapping;
 import fr.onagui.alignment.OntoContainer;
+import fr.onagui.alignment.method.LabelAlignmentMethod;
 import fr.onagui.alignment.method.LevenshteinAlignmentMethod;
 import fr.onagui.alignment.method.LevenshteinDistance;
 
@@ -83,8 +84,8 @@ public class TestAlignment {
 	@Test
 	public void testLevenshteinWrapper() {
 		LevenshteinAlignmentMethod<String, String> method = new LevenshteinAlignmentMethod<>();
-		method.setLangsFrom1(Sets.newTreeSet(Sets.newHashSet(method.NO_TAG)));
-		method.setLangsFrom2(Sets.newTreeSet(Sets.newHashSet(method.NO_TAG)));
+		method.setLangsFrom1(Sets.newTreeSet(Sets.newHashSet(LabelAlignmentMethod.NO_TAG)));
+		method.setLangsFrom2(Sets.newTreeSet(Sets.newHashSet(LabelAlignmentMethod.NO_TAG)));
 		method.init();
 		Mapping<String, String> computeMapping = method.computeMapping(mockContainer, "urn:cpt1", mockContainer, "urn:cpt2");
 		System.out.println(computeMapping.getScore());
