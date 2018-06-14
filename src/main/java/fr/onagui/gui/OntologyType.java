@@ -10,8 +10,8 @@ public enum OntologyType {
 	SECOND_ONTO_SKOS(false, OntologyFormat.SKOS);
 	
 	public enum OntologyFormat {
-		OWL(new FileNameExtensionFilter(Messages.getString("OntologyTypeOwl"), "owl", "rdf")), //$NON-NLS-1$ //$NON-NLS-2$
-		SKOS(new FileNameExtensionFilter(Messages.getString("OntologyTypeSkos"), "skos", "rdf")); //$NON-NLS-1$ //$NON-NLS-2$
+		OWL(new FileNameExtensionFilter(Messages.getString("OntologyTypeOwl"), "owl", "rdf", "ttl", "n3", "trig", "trix", "json")), //$NON-NLS-1$ //$NON-NLS-2$
+		SKOS(new FileNameExtensionFilter(Messages.getString("OntologyTypeSkos"), "rdf", "ttl", "n3", "trig", "trix", "json")); //$NON-NLS-1$ //$NON-NLS-2$
 				
 		private FileNameExtensionFilter filter = null;
 		
