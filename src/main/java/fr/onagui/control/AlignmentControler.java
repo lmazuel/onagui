@@ -4,8 +4,13 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
+
+import java.util.List;
+
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -45,7 +50,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 	private class IOEventManagerJDialog implements IOAlignment.IOEventManager {
 
 		private int nbWarning = 0;
-		
+
 		@Override
 		public void inputEvent(String msg) {
 			System.err.println(msg);
@@ -57,11 +62,11 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 			System.err.println(msg);
 			++nbWarning;
 		}
-		
+
 		public void reset() {
 			nbWarning = 0;
 		}
-		
+
 		public void showDialog() {
 			if(nbWarning > 0) {
 				JOptionPane.showMessageDialog(null,
@@ -71,13 +76,13 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 			}
 		}
 	}
-	
+
 	private IOAlignment ioEuzenatManager = null;
 	private IOAlignment ioCsvManager = null;
 	private IOAlignment ioSkosManager = null;
 	private IOEventManagerJDialog ioEventManager = null;
-	
-	
+
+
 	public AlignmentControler() {
 		alignment = new Alignment<ONTORES1, ONTORES2>(null, null);
 		ioEventManager = new IOEventManagerJDialog();
@@ -91,6 +96,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		classes.add(LevenshteinAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(ISubAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
 		classes.add(ExactAlignmentMethod.class.asSubclass(AbstractAlignmentMethod.class));
+
 		methods = buildInstancesFromClass(classes);
 	}
 
@@ -259,7 +265,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		}
 	}
 
-	public SortedSet<Mapping<ONTORES1, ONTORES2>> getAllMapping() {
+	public Set<Mapping<ONTORES1, ONTORES2>> getAllMapping() {
 		return alignment.getMapping();
 	}
 
@@ -292,22 +298,46 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		alignment.addAll(newAlignment);
 	}
 
+
 	public void computeAndAddMapping(
 			AbstractAlignmentMethod<ONTORES1, ONTORES2> method,
 			PropertyChangeListener listener,
 			DefaultMutableTreeNode rootFrom1,
-			DefaultMutableTreeNode rootFrom2) {
+			DefaultMutableTreeNode rootFrom2, 
+			Optional<Date> date1 , 
+			Optional<Date> date2
+			) {
 		// D'abord, calculer l'ensemble des concepts en Jeu
 
 		// Pour le container 1
 		TreeNodeOntologyObject<ONTORES1> userObject1 = (TreeNodeOntologyObject<ONTORES1>) rootFrom1.getUserObject();
 		Set<ONTORES1> concepts1 = OntoTools.getAllDescendants(container1, userObject1.getConcept());
-		
+
 		// Pour le container 2
 		TreeNodeOntologyObject<ONTORES2> userObject2 = (TreeNodeOntologyObject<ONTORES2>) rootFrom2.getUserObject();
 		Set<ONTORES2> concepts2 = OntoTools.getAllDescendants(container2, userObject2.getConcept());
 
-		// Maintenant on peux faire l'alignement
+		if(  date1.isPresent()) {
+			System.out.println("Filtering on date 1 : "+date1.get());
+			//on parcours les concepts 
+			//on retire ceux qui ont une date lue antérieure 
+			//à la date saisie pour les 2 concepts		
+			concepts1.removeIf(
+					t -> container1.getModifiedDate(t).map(
+							date -> date.before(date1.get())
+					).orElse(false)
+			);
+		}
+		if(  date2.isPresent() ) {
+			System.out.println("Filtering on date 2: "+date2.get());
+			concepts2.removeIf(
+					t -> container2.getModifiedDate(t).map(
+							date -> date.before(date2.get())
+					).orElse(false)
+			);
+		}
+
+		//lancement de l'alignement
 		AlignmentFactory<ONTORES1, ONTORES2> factory = new AlignmentFactory<ONTORES1, ONTORES2>(method);
 		factory.addPropertyChangeListener(listener);
 		Alignment<ONTORES1, ONTORES2> newAlignment = factory.computeMapping(
@@ -416,7 +446,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 			return container2.getLabels(cpt, predicateUri);
 		}		
 	}		
-	
+
 	public boolean openRdfAlign(File file) {
 		try {
 			ioEventManager.reset();
@@ -491,7 +521,7 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		ioSkosManager.saveAlignment(alignment, path, null); // SKOS export all
 		ioEventManager.showDialog();
 	}
-	
+
 	/** Calcule quelque stat sur sysout
 	 * La complexité est atroce, mais c'est pas grave pour notre situation.
 	 * @param root La racine a considérer

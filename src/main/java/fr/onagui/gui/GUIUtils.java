@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 
 import fr.onagui.alignment.container.DOEOWLContainer;
+import fr.onagui.alignment.container.RDFModelContainer;
 import fr.onagui.alignment.container.SKOSContainer;
 import fr.onagui.control.ERASE_TYPE;
 
@@ -25,6 +26,19 @@ public class GUIUtils {
 		} catch (Exception e) {
 			String message = Messages.getString("GUIUtilsSkosLoadingErrorPreFilename")+filename; //$NON-NLS-1$
 			JOptionPane.showMessageDialog(frame, message+Messages.getString("GUIUtilsSkosLoadingErrorPostFilename"), Messages.getString("GUIUtilsSkosLoadingErrorTitle"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
+			System.err.println(message);
+			e.printStackTrace();
+		}
+		return container;
+	}
+	
+	public static RDFModelContainer loadRDFOntologyWithGUI(JFrame frame, URI filename) throws OutOfMemoryError {
+		RDFModelContainer container = null;
+		try {
+			container = new RDFModelContainer(new File(filename));
+		} catch (Exception e) {
+			String message = Messages.getString("GUIUtilsRdfLoadingErrorPreFilename")+filename; //$NON-NLS-1$
+			JOptionPane.showMessageDialog(frame, message+Messages.getString("GUIUtilsRdfLoadingErrorPostFilename"), Messages.getString("GUIUtilsRdfLoadingErrorTitle"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 			System.err.println(message);
 			e.printStackTrace();
 		}

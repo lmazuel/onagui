@@ -2,6 +2,8 @@ package fr.onagui.alignment;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
