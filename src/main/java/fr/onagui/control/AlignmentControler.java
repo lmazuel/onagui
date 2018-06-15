@@ -286,6 +286,10 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 	public void removeMapping(Mapping<ONTORES1, ONTORES2> map) {
 		alignment.removeMap(map);
 	}
+	
+	public void addMapping(Mapping<ONTORES1, ONTORES2> map) {
+		alignment.addMap(map);
+	}
 
 	public void computeAndAddMapping(AbstractAlignmentMethod<ONTORES1, ONTORES2> method, PropertyChangeListener listener) { 
 		AlignmentFactory<ONTORES1, ONTORES2> factory = new AlignmentFactory<ONTORES1, ONTORES2>(method);
@@ -342,6 +346,30 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 				container2,
 				concepts2);
 		alignment.addAll(newAlignment);
+	}
+	
+	public Mapping<ONTORES1, ONTORES2> updateMappingType(Mapping<ONTORES1, ONTORES2> oldMapping, Mapping.MAPPING_TYPE newType) {
+		// 1. enlever l'ancien mapping
+		this.removeMapping(oldMapping);
+		
+		// 2. créer le nouveau mapping
+		Mapping<ONTORES1, ONTORES2> newMap = new Mapping<ONTORES1, ONTORES2>(oldMapping, newType);
+		
+		// 3. ajouter le nouveau mapping
+		this.addMapping(newMap);
+		return newMap;
+	}
+	
+	public Mapping<ONTORES1, ONTORES2> updateMappingValidity(Mapping<ONTORES1, ONTORES2> oldMapping, Mapping.VALIDITY newValidity) {
+		// 1. enlever l'ancien mapping
+		this.removeMapping(oldMapping);
+		
+		// 2. créer le nouveau mapping
+		Mapping<ONTORES1, ONTORES2> newMap = new Mapping<ONTORES1, ONTORES2>(oldMapping, newValidity);
+		
+		// 3. ajouter le nouveau mapping
+		this.addMapping(newMap);
+		return newMap;
 	}
 
 	public StatCounter computeStatFor(DefaultMutableTreeNode treeNode, int number) {
