@@ -1938,34 +1938,28 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			JMenuItem source = (JMenuItem)(e.getSource());
 			VALIDITY validity_to_use=null;
 			MAPPING_TYPE type_to_use=null;
+			
+			
+			
 			if(source.equals(valid_menu)) {
 				validity_to_use = VALIDITY.VALID;
-			}
-			else if(source.equals(to_confirm_menu)) {
+			} else if(source.equals(to_confirm_menu)) {
 				validity_to_use = VALIDITY.TO_CONFIRM;
-			}
-			else if(source.equals(invalid_menu)){
+			} else if(source.equals(invalid_menu)){
 				validity_to_use = VALIDITY.INVALID;
-			}
-			else if(source.equals(exactmatch_menu)) {
+			} else if(source.equals(exactmatch_menu)) {
 				type_to_use = MAPPING_TYPE.EQUIV;
-			}
-			else if(source.equals(closematch_menu)){
+			} else if(source.equals(closematch_menu)){
 				type_to_use = MAPPING_TYPE.OVERLAP;
-			}
-			else if(source.equals(disjoint_menu)) {
+			} else if(source.equals(disjoint_menu)) {
 				type_to_use = MAPPING_TYPE.DISJOINT;
-			}
-			else if(source.equals(relatedMatch_menu)){
+			} else if(source.equals(relatedMatch_menu)){
 				type_to_use = MAPPING_TYPE.RELATED;
-			}
-			else if(source.equals(narrowMatch_menu)) {
+			} else if(source.equals(narrowMatch_menu)) {
 				type_to_use = MAPPING_TYPE.SUBSUMES;
-			}
-			else if(source.equals(broaderMatch_menu)){
+			} else if(source.equals(broaderMatch_menu)){
 				type_to_use = MAPPING_TYPE.SUBSUMEDBY;
-			}
-			else {
+			} else {
 				System.err.println("Don't know the menu which ask me something!"); //$NON-NLS-1$
 				return;
 			}
@@ -1973,21 +1967,14 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			for(int index : centerTable.getSelectedRows()) {
 				Mapping<?, ?> map = tableModel.getMappingAt(centerTable.convertRowIndexToModel(index));
 				
-				// 1. enlever l'ancien mapping
-				alignmentControler.removeMapping(map);
-				// 2. créer le nouveau mapping
-				Mapping<?, ?> newMap = null;
-				
-				// 3. ajouter le nouveau mapping
-				alignmentControler.addMapping(newMap);
-				
-//				if(validity_to_use!=null){
-//					map.setValidity(validity_to_use);
-//				}else if(type_to_use!=null){
-//				
-//					map.setType(type_to_use);
-//				}
+				if(type_to_use != null) {
+					alignmentControler.updateMappingType(map, type_to_use);
+				}
+				if(validity_to_use != null) {
+					alignmentControler.updateMappingValidity(map, validity_to_use);
+				}
 			}
+			
 			// Refresh GUI
 			AlignmentGUI.this.refreshGUIFromModel();			
 		}

@@ -128,7 +128,7 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 				line[1] = node2.getUserObject();
 			}
 
-			line[2] = map.getType().getLabel();
+			line[2] = map.getType();
 			// we need a Double because of the associated Formatter to the column
 			// this is why we format the double as String and then reparse it as Double
 			line[3] = Double.parseDouble(SCORE_FORMAT.format(map.getScore()));
