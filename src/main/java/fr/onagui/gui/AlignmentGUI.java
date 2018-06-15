@@ -394,10 +394,13 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		};
 		sorter = new TableRowSorter<MappingTableModel>(tableModel);
 		// tri de la table sur la colonne 'Score' par défaut
-		// on a besoin de garantir l'ordre de la table afin que les lignes restent dans le même ordre
-		// lorsqu'on édite le type ou la validité d'une correspondance, qui sont des actions qui suppriment
-		// et ré-insèrent un nouveau Mapping
+		// we call it twice to have descending sort order
 		sorter.toggleSortOrder(3);
+		sorter.toggleSortOrder(3);
+		// to avoid interactions when editing mapping types in table,
+		// we set only 2 sort keys. This means that only the last 2 clicked columns are used for sorting
+		// see https://docs.oracle.com/javase/7/docs/api/javax/swing/DefaultRowSorter.html#setMaxSortKeys(int)
+		sorter.setMaxSortKeys(2);
 		centerTable.setRowSorter(sorter);
 		//		centerTable.setAutoCreateRowSorter(true);
 		DefaultListSelectionModel listSelectionModel = new DefaultListSelectionModel();
