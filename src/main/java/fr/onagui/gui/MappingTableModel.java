@@ -31,7 +31,7 @@ public class MappingTableModel<O1, O2> extends AbstractTableModel {
 	private Mapping<O1, O2>[] maps = null;
 	private TreeMap<Mapping<O1, O2>, Integer> index = null;
 	
-	private static final DateTimeFormatter TIME_FORMATTER = ISODateTimeFormat.basicDateTimeNoMillis();
+	private static final DateTimeFormatter TIME_FORMATTER = ISODateTimeFormat.dateHourMinuteSecond();
 	private static final DecimalFormat SCORE_FORMAT;
 	static {
 		// garantee that the separator is a dot to be able to reparse the string as a Double
