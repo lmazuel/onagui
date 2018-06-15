@@ -738,21 +738,20 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		// Premier menu, ontologie local
 		JMenu loadLocalOntologyMenu = new JMenu(Messages.getString("LoadOnto1Menu")); //$NON-NLS-1$
 		fichierMenu.add(loadLocalOntologyMenu);
-		JMenuItem loadLocalOwlMenu = new JMenuItem(Messages.getString("LoadOwlMenu")); //$NON-NLS-1$
-		loadLocalOntologyMenu.add(loadLocalOwlMenu);
 		JMenuItem loadLocalSkosMenu = new JMenuItem(Messages.getString("LoadSkosMenu")); //$NON-NLS-1$
 		loadLocalOntologyMenu.add(loadLocalSkosMenu);
-		
+		JMenuItem loadLocalOwlMenu = new JMenuItem(Messages.getString("LoadOwlMenu")); //$NON-NLS-1$
+		loadLocalOntologyMenu.add(loadLocalOwlMenu);				
 		JMenuItem loadLocalRdfMenu = new JMenuItem(Messages.getString("LoadRdfMenu")); //$NON-NLS-1$
 		loadLocalOntologyMenu.add(loadLocalRdfMenu);
 		
 		// Deuxième menu, ontologie de reference
 		JMenu loadReferenceOntologyMenu = new JMenu(Messages.getString("LoadOnto2Menu")); //$NON-NLS-1$
 		fichierMenu.add(loadReferenceOntologyMenu);
-		JMenuItem loadReferenceOwlMenu = new JMenuItem(Messages.getString("LoadOwlMenu")); //$NON-NLS-1$
-		loadReferenceOntologyMenu.add(loadReferenceOwlMenu);
 		JMenuItem loadReferenceSkosMenu = new JMenuItem(Messages.getString("LoadSkosMenu")); //$NON-NLS-1$
 		loadReferenceOntologyMenu.add(loadReferenceSkosMenu);
+		JMenuItem loadReferenceOwlMenu = new JMenuItem(Messages.getString("LoadOwlMenu")); //$NON-NLS-1$
+		loadReferenceOntologyMenu.add(loadReferenceOwlMenu);
 		JMenuItem loadReferenceRdfMenu = new JMenuItem(Messages.getString("LoadRdfMenu")); //$NON-NLS-1$
 		loadReferenceOntologyMenu.add(loadReferenceRdfMenu);
 		

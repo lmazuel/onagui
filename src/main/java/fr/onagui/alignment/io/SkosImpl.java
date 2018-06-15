@@ -121,10 +121,10 @@ public class SkosImpl implements IOAlignment {
 					type = MAPPING_TYPE.OVERLAP;
 				}
 				else if(unTriplet.getPredicate().equals(SKOS.BROAD_MATCH)) {
-					type = MAPPING_TYPE.SUBSUMES;
+					type = MAPPING_TYPE.SUBSUMEDBY;
 				}
 				else if(unTriplet.getPredicate().equals(SKOS.NARROW_MATCH)) {
-					type = MAPPING_TYPE.SUBSUMEDBY;
+					type = MAPPING_TYPE.SUBSUMES;
 				}
 				else if(unTriplet.getPredicate().equals(SKOS.RELATED_MATCH)) {
 					type = MAPPING_TYPE.RELATED;
@@ -224,9 +224,9 @@ public class SkosImpl implements IOAlignment {
 				propertyToUsed = SKOS.EXACT_MATCH;
 
 			else if(mapping.getType() == MAPPING_TYPE.SUBSUMES)
-				propertyToUsed = SKOS.BROAD_MATCH;
+				propertyToUsed = SKOS.NARROW_MATCH;
 			else if(mapping.getType() == MAPPING_TYPE.SUBSUMEDBY)
-				propertyToUsed = SKOS.NARROW_MATCH;		
+				propertyToUsed = SKOS.BROAD_MATCH;		
 			else if(mapping.getType() == MAPPING_TYPE.OVERLAP)
 				propertyToUsed = SKOS.CLOSE_MATCH;			   
 			else if(mapping.getType() == MAPPING_TYPE.RELATED)
