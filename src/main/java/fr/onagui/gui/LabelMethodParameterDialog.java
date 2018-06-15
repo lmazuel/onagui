@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Dictionary;
@@ -105,27 +106,27 @@ public class LabelMethodParameterDialog extends JDialog implements ChangeListene
 
 		textField = new JTextField(String.valueOf(selectedValue), 5);
 
-		Set<String> localLangsFrom1 = new TreeSet<String>(langsFrom1);
+		List<String> localLangsFrom1 = new ArrayList<String>(langsFrom1);
 		localLangsFrom1.add(LabelAlignmentMethod.NO_TAG);
 		localLangsFrom1.add(LabelAlignmentMethod.FRAG_URI);
 		langList1 = new JList<>(localLangsFrom1.toArray(new String[0]));
 		langList1.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		//		langList1.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		langList1.setVisibleRowCount(NUMBER_OF_LINES_IN_LIST);
-		langList1.setSelectedValue(LabelAlignmentMethod.FRAG_URI, true);
+		langList1.setSelectedValue(localLangsFrom1.get(0), true);
 		JPanel langPanel1 = new JPanel(new BorderLayout());
 		langPanel1.add(new JLabel(Messages.getString("LabelMethodParameterDialogLang1")), BorderLayout.NORTH); //$NON-NLS-1$
 		JScrollPane scroll1 = new JScrollPane(langList1);
 		langPanel1.add(scroll1, BorderLayout.CENTER);
 
-		Set<String> localLangsFrom2 = new TreeSet<String>(langsFrom2);
+		List<String> localLangsFrom2 = new ArrayList<String>(langsFrom2);
 		localLangsFrom2.add(LabelAlignmentMethod.NO_TAG);
 		localLangsFrom2.add(LabelAlignmentMethod.FRAG_URI);
 		langList2 = new JList<>(localLangsFrom2.toArray(new String[0]));
 		langList2.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		//		langList2.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		langList2.setVisibleRowCount(NUMBER_OF_LINES_IN_LIST);
-		langList2.setSelectedValue(LabelAlignmentMethod.FRAG_URI, true);
+		langList2.setSelectedValue(localLangsFrom2.get(0), true);
 		JPanel langPanel2 = new JPanel(new BorderLayout());
 		langPanel2.add(new JLabel(Messages.getString("LabelMethodParameterDialogLang2")), BorderLayout.NORTH); //$NON-NLS-1$
 		JScrollPane scroll2 = new JScrollPane(langList2);
