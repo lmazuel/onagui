@@ -550,6 +550,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 				this.conceptSchemes = getAllFromType(SKOS.CONCEPT_SCHEME);
 				this.conceptSchemes.addAll(getSubjectsWhereProp(connect, SKOS.HAS_TOP_CONCEPT));
 				this.conceptSchemes.addAll(getResourceObjectWhereProp(connect, SKOS.TOP_CONCEPT_OF));
+				this.conceptSchemes.addAll(getResourceObjectWhereProp(connect, SKOS.IN_SCHEME));
 				connect.close();
 			} catch (RepositoryException e) {
 				// TODO Auto-generated catch block
