@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileAttribute;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
@@ -79,8 +79,9 @@ public class TestIO {
 	}
 	
 	@Test
-	public void testCSVNoTitles() {
-		makeLoadAssertions(new CSVImpl(), TestIO.class.getResource("csvnotitles.csv").getPath());
+	public void testCSVNoTitles() throws URISyntaxException {
+		// note : this does not work if path contains special characters
+		makeLoadAssertions(new CSVImpl(), new File(TestIO.class.getResource("csvnotitles.csv").toURI()));
 	}
 
 	@Test
@@ -94,12 +95,11 @@ public class TestIO {
 	}
 
 	@Test
-	public void testRDFLoadISOLatin1() {
+	public void testRDFLoadISOLatin1() throws URISyntaxException {
 		IOAlignment ioplugin = new EuzenatRDFImpl();
-		String filename = TestIO.class.getResource("isolatin.rdf").getPath();
 		Alignment<String, String> newAlignment = null;
 		try {
-			newAlignment = ioplugin.loadAlignment(mockContainer, mockContainer, new File(filename));
+			newAlignment = ioplugin.loadAlignment(mockContainer, mockContainer, new File(TestIO.class.getResource("isolatin.rdf").toURI()));
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail("Something wrong while reading test");
@@ -126,10 +126,9 @@ public class TestIO {
 	
 	private void makeFullAssertions(IOAlignment ioplugin) throws IOException {
 		Path tmpPath = Files.createTempFile(null, null); 
-		String filename = tmpPath.toString();
 				
-		makeSaveAssertions(ioplugin, filename);
-		makeLoadAssertions(ioplugin, filename);		
+		makeSaveAssertions(ioplugin, tmpPath.toString());
+		makeLoadAssertions(ioplugin, tmpPath.toFile());		
 	}
 
 	private void makeSaveAssertions(IOAlignment ioplugin, String filename) {
@@ -141,10 +140,10 @@ public class TestIO {
 		}
 	}
 	
-	private void makeLoadAssertions(IOAlignment ioplugin, String filename) {
+	private void makeLoadAssertions(IOAlignment ioplugin, File file) {
 		Alignment<String, String> newAlignment = null;
 		try {
-			newAlignment = ioplugin.loadAlignment(mockContainer, mockContainer, new File(filename));
+			newAlignment = ioplugin.loadAlignment(mockContainer, mockContainer, file);
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail("Something wrong while reading test");
