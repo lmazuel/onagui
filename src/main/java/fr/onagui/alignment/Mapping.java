@@ -20,6 +20,8 @@ package fr.onagui.alignment;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 
@@ -58,23 +60,29 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 	/**
 	 * Mapping type. The last is the most important, to allow to compare two
 	 * types using their indexes.
+	 * Note that the values in the enum are returned _in the order they are declared_ so any changes in the
+	 * order declaration of values will have a direct impcat on GUI.
 	 * 
 	 * @author Laurent Mazuel
 	 */
 	public enum MAPPING_TYPE {
-		DISJOINT("disjoint"), // Disjoint
-		OVERLAP("closeMatch"), // Overlap
-		SUBSUMEDBY("broadMatch", "<"), // Subsomption by
-		SUBSUMES("narrowMatch", ">"), // subsumes
-		EQUIV("exactMatch","equivalence", "=", "eq"), // Equivalence
-		RELATED("relatedMatch");
+		EQUIV("exactMatch", SKOS.EXACT_MATCH, "equivalence", "=", "eq"), // Equivalence
+		OVERLAP("closeMatch", SKOS.CLOSE_MATCH), // Overlap
+		RELATED("relatedMatch", SKOS.RELATED_MATCH),
+		SUBSUMEDBY("broadMatch", SKOS.BROAD_MATCH, "<"), // Subsomption by
+		SUBSUMES("narrowMatch", SKOS.NARROW_MATCH, ">"), // subsumes
+		// this is the generic SKOS mapping relation
+		UNDEFINED("undefined", SKOS.MAPPING_RELATION),
+		DISJOINT("disjoint", null); // Disjoint
 
 		private String label = null;
 		private String[] equivalentForms = null;
+		private IRI skosPropertyIri;
 
-		private MAPPING_TYPE(String label, String... equivalentForms) {
+		private MAPPING_TYPE(String label, IRI skosPropertyIri, String... equivalentForms) {
 			this.label = label;
 			this.equivalentForms = equivalentForms;
+			this.skosPropertyIri = skosPropertyIri;
 		}
 
 		/** Return the label, for UI usage.
@@ -83,7 +91,15 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 		public String getLabel() {
 			return label;
 		}
-		
+
+		/**
+		 * Returns the corresponding SKOS property
+		 * @return
+		 */
+		public IRI getSkosPropertyIri() {
+			return skosPropertyIri;
+		}
+
 		/**
 		 * Test if the string in parameter can be considered as equivalent of
 		 * this type. Some relation type have different forms, as "equivalence",
@@ -122,6 +138,17 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 			}
 			return null;
 		}
+
+		public static MAPPING_TYPE getTypeFromSkosPredicate(IRI skosPredicate) {
+			for (MAPPING_TYPE type : MAPPING_TYPE.values()) {
+				if (type.getSkosPropertyIri() != null && type.getSkosPropertyIri().stringValue().equals(skosPredicate.stringValue())) {
+					return type;
+				}
+			}
+			return null;
+		}
+		
+		
 	}
 
 	/**
