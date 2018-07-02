@@ -154,9 +154,9 @@ public class EuzenatRDFImpl implements IOAlignment {
 				MAPPING_TYPE type = MAPPING_TYPE
 						.getTypeFromString(relationStringFromRDF);
 				// FIXME Si je trouves une "Cell" mais que je ne reconnais pas
-				// le type, j'affiche en erreur et je met equiv. Bonne idée?
+				// le type, j'affiche en erreur et je met le type de mapping par défaut
 				if (type == null) {
-					type = MAPPING_TYPE.EQUIV;
+					type = MAPPING_TYPE.UNDEFINED;
 					System.err.println("Relation type was not recognized: "
 							+ relationStringFromRDF);
 				}

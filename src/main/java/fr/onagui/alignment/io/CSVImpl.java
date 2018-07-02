@@ -82,7 +82,8 @@ public class CSVImpl implements IOAlignment {
 			}
 
 			// La case 3, type d'alignement
-			MAPPING_TYPE readedType = (scan.length>=3)?extractAlignmentType(scan[2]):MAPPING_TYPE.EQUIV;
+			// by default, the undefined type
+			MAPPING_TYPE readedType = (scan.length>=3)?extractAlignmentType(scan[2]):MAPPING_TYPE.UNDEFINED;
 			// Skip labels (4 cases)
 			String method = (scan.length>=8)?scan[7]:Mapping.UNKNOW_METHOD;
 			double score = (scan.length>=9)?Double.valueOf(scan[8]):1.0;

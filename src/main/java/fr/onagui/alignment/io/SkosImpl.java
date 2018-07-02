@@ -30,10 +30,7 @@ import fr.onagui.alignment.OntoContainer;
 
 public class SkosImpl implements IOAlignment {
 
-	// Liste des namespaces
-	public static final String ALIGN_NS = "http://knowledgeweb.semanticweb.org/heterogeneity/alignment#";
-	public static final String DCTERMS_NS = "http://purl.org/dc/terms/";
-	public static final String METHOD = "manual";
+	public static final String UNKNOWN_METHOD = "unknown";
 
 	// Type et propriétés perso
 	private IOEventManager ioEventManager = null;
@@ -103,37 +100,26 @@ public class SkosImpl implements IOAlignment {
 					unTriplet.getPredicate().equals(SKOS.NARROW_MATCH)
 					||
 					unTriplet.getPredicate().equals(SKOS.RELATED_MATCH)
+					||
+					unTriplet.getPredicate().equals(SKOS.MAPPING_RELATION)
 					) {
 
 				// Manage method
-				String method = METHOD;
+				String method = UNKNOWN_METHOD;
 				// Manage validity
 				VALIDITY valid = VALIDITY.VALID;
 				// Manage creation date				
 				//DateTime date = new DateTime();
 				double score =1.0;
 
-				MAPPING_TYPE type = null;
-				if(unTriplet.getPredicate().equals(SKOS.EXACT_MATCH)) {
-					type = MAPPING_TYPE.EQUIV;
-				}
-				else if(unTriplet.getPredicate().equals(SKOS.CLOSE_MATCH)) {
-					type = MAPPING_TYPE.OVERLAP;
-				}
-				else if(unTriplet.getPredicate().equals(SKOS.BROAD_MATCH)) {
-					type = MAPPING_TYPE.SUBSUMEDBY;
-				}
-				else if(unTriplet.getPredicate().equals(SKOS.NARROW_MATCH)) {
-					type = MAPPING_TYPE.SUBSUMES;
-				}
-				else if(unTriplet.getPredicate().equals(SKOS.RELATED_MATCH)) {
-					type = MAPPING_TYPE.RELATED;
-				} else {
+				// find the mapping type
+				MAPPING_TYPE type = MAPPING_TYPE.getTypeFromSkosPredicate(unTriplet.getPredicate());
+				
+				if(type == null) {
 					String errMsg = "Oops, should not happen, found an unexpected predicate "+unTriplet.getPredicate();
 					ioEventManager.inputEvent(errMsg);
 					continue;
 				}
-
 
 				Mapping<ONTORES1, ONTORES2> map;
 				try {
@@ -165,7 +151,7 @@ public class SkosImpl implements IOAlignment {
 
 
 			} else {
-				System.out.println("Cannot understand predicate "+unTriplet.getPredicate());
+				System.out.println("Cannot understand SKOS mapping predicate "+unTriplet.getPredicate());
 			}
 
 
@@ -218,25 +204,14 @@ public class SkosImpl implements IOAlignment {
 			if(validityWanted != null && !mapping.getValidity().equals(validityWanted))
 				continue;
 
-			IRI propertyToUsed = null;
-
-			if(mapping.getType() == MAPPING_TYPE.EQUIV)
-				propertyToUsed = SKOS.EXACT_MATCH;
-
-			else if(mapping.getType() == MAPPING_TYPE.SUBSUMES)
-				propertyToUsed = SKOS.NARROW_MATCH;
-			else if(mapping.getType() == MAPPING_TYPE.SUBSUMEDBY)
-				propertyToUsed = SKOS.BROAD_MATCH;		
-			else if(mapping.getType() == MAPPING_TYPE.OVERLAP)
-				propertyToUsed = SKOS.CLOSE_MATCH;			   
-			else if(mapping.getType() == MAPPING_TYPE.RELATED)
-				propertyToUsed = SKOS.RELATED;
-			else
+			IRI mappingPredicate = mapping.getType().getSkosPropertyIri();
+			if(mappingPredicate == null) {
 				continue;
+			}
 
 			IRI res1= factory.createIRI(onto1.getURI(mapping.getFirstConcept()).toString());
 			IRI res2= factory.createIRI(onto2.getURI(mapping.getSecondConcept()).toString());
-			typeStatement=factory.createStatement(res1, propertyToUsed, res2);
+			typeStatement=factory.createStatement(res1, mappingPredicate, res2);
 			model.add(typeStatement);
 		}
 
