@@ -46,9 +46,12 @@ public class TypeEditor<O1, O2> extends DefaultCellEditor implements ItemListene
 		else if(val.equals(MAPPING_TYPE.SUBSUMEDBY))
 			lasttype = MAPPING_TYPE.SUBSUMES;
 		else if(val.equals(MAPPING_TYPE.SUBSUMES))
+			lasttype = MAPPING_TYPE.UNDEFINED;
+		else if(val.equals(MAPPING_TYPE.UNDEFINED))
 			lasttype = MAPPING_TYPE.DISJOINT;
 		else if(val.equals(MAPPING_TYPE.DISJOINT))
 			lasttype = MAPPING_TYPE.EQUIV;
+		
 		
 		// map.setType(lasttype);
 		
