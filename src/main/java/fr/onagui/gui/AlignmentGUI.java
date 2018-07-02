@@ -1904,6 +1904,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		private JMenuItem relatedMatch_menu = null;
 		private JMenuItem narrowMatch_menu = null;
 		private JMenuItem broaderMatch_menu = null;
+		private JMenuItem undefined_menu = null;
 
 
 		/**
