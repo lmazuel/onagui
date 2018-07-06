@@ -30,7 +30,7 @@ public class TestContainer {
 
 	@Test
 	public void testOWLTurtle() throws URISyntaxException, OWLOntologyCreationException {
-		URI filename = TestContainer.class.getResource("TestOneConceptTurtle.owl").toURI();
+		URI filename = TestContainer.class.getResource("TestOneConceptTurtle.ttl").toURI();
 		DOEOWLContainer container = new DOEOWLContainer(filename);
 		assertEquals(container.getAllConcepts().size(), 1);
 		assertEquals(container.getAllLanguageInLabels(), Sets.newHashSet());
@@ -46,7 +46,7 @@ public class TestContainer {
 
 	@Test
 	public void testSkosNT() throws URISyntaxException, RepositoryException, RDFParseException, IOException {
-		URI filename = TestContainer.class.getResource("SkosTestNT.skos.owl").toURI();
+		URI filename = TestContainer.class.getResource("SkosTestNT.ttl").toURI();
 		SKOSContainer container = new SKOSContainer(Paths.get(filename).toFile());
 		Set<Resource> allConcepts = container.getAllConcepts();
 		assertEquals(allConcepts.size(), 1);
