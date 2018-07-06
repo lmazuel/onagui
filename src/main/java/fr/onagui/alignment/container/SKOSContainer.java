@@ -87,7 +87,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		factory = triplestore.getValueFactory();
 		RepositoryConnection connect = triplestore.getConnection();
 		
-		// Parse based on file extension, with RDFXML as default
+		// Parse based on file extension, with RDF/XML as default
 		connect.add(physicalPath, null, RDFParserRegistry.getInstance().getFileFormatForFileName(physicalPath.getName()).orElse(RDFFormat.RDFXML));
 
 		//changing skosxl prefLabel to skos prefLabel when we load the file
