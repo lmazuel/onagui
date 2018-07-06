@@ -43,6 +43,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParserRegistry;
 import org.eclipse.rdf4j.rio.helpers.AbstractRDFHandler;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
@@ -85,13 +86,10 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		triplestore.initialize();
 		factory = triplestore.getValueFactory();
 		RepositoryConnection connect = triplestore.getConnection();
-		// Try RDF/XML, fallback to N3 and fail if it's not enough
-		try {
-			connect.add(physicalPath, null, RDFFormat.RDFXML);
-		} catch (RDFParseException e) {
-			connect.add(physicalPath, null, RDFFormat.N3);
-		}
 		
+		// Parse based on file extension, with RDFXML as default
+		connect.add(physicalPath, null, RDFParserRegistry.getInstance().getFileFormatForFileName(physicalPath.getName()).orElse(RDFFormat.RDFXML));
+
 		//changing skosxl prefLabel to skos prefLabel when we load the file
 		String queryString1 = "PREFIX skos:<http://www.w3.org/2004/02/skos/core#>"
 				+"PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>"
