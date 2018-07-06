@@ -2,6 +2,8 @@ package fr.onagui.gui;
 
 import java.io.File;
 
+import fr.onagui.alignment.io.AlignmentFormat;
+
 /**
  * Classe de lancement permettant de lancer l'application en chargeant directement les vocabulaires 1 et 2
  * et optionnement un alignement.
@@ -26,7 +28,7 @@ public class AlignmentGUIRunner {
 				AlignmentGUI gui = new AlignmentGUI();
 				gui.loadOntologyFromFileReference(OntologyType.FIRST_ONTO_SKOS, new File(file1Path).toURI());
 				gui.loadOntologyFromFileReference(OntologyType.SECOND_ONTO_SKOS, new File(file2Path).toURI());
-				gui.loadAlignementFromFileReference(new File(alignmentPath));
+				gui.loadAlignmentFromFileReference(new File(alignmentPath), AlignmentFormat.EDOAL);
 			}
 		});
 	}

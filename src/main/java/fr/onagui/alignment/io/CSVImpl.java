@@ -34,6 +34,11 @@ public class CSVImpl implements IOAlignment {
 			"Date";
 	
 	private static final DateTimeFormatter TIME_FORMATTER = ISODateTimeFormat.dateTimeNoMillis();
+	
+	@Override
+	public AlignmentFormat getFormat() {
+		return AlignmentFormat.CSV;
+	}
 
 	@Override
 	public <ONTORES1, ONTORES2> Alignment<ONTORES1, ONTORES2> loadAlignment(

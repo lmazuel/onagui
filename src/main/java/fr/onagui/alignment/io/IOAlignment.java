@@ -39,11 +39,21 @@ public interface IOAlignment {
 	 * @return An alignment instance.
 	 */
 	public <ONTORES1, ONTORES2> Alignment<ONTORES1, ONTORES2> loadAlignment(
-			OntoContainer<ONTORES1> onto1, OntoContainer<ONTORES2> onto2,
-			File file) throws IOException;
+			OntoContainer<ONTORES1> onto1, 
+			OntoContainer<ONTORES2> onto2,
+			File file
+	) throws IOException;
 
 	public <ONTORES1, ONTORES2> void saveAlignment(
-			Alignment<ONTORES1, ONTORES2> alignment, String pathToSave,
-			VALIDITY validityWanted) throws IOException;
+			Alignment<ONTORES1, ONTORES2> alignment,
+			String pathToSave,
+			VALIDITY validityWanted
+	) throws IOException;
+	
+	/**
+	 * Returns the alignment format produced by this implementation
+	 * @return
+	 */
+	public AlignmentFormat getFormat();
 
 }

@@ -4,6 +4,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import fr.onagui.alignment.Mapping.VALIDITY;
 import fr.onagui.alignment.NoMappingPossible;
 import fr.onagui.alignment.OntoContainer;
 import fr.onagui.alignment.OntoTools;
+import fr.onagui.alignment.io.AlignmentFormat;
 import fr.onagui.alignment.io.CSVImpl;
 import fr.onagui.alignment.io.EuzenatRDFImpl;
 import fr.onagui.alignment.io.IOAlignment;
@@ -77,18 +79,18 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		}
 	}
 
-	private IOAlignment ioEuzenatManager = null;
-	private IOAlignment ioCsvManager = null;
-	private IOAlignment ioSkosManager = null;
+	private List<IOAlignment> ioAlignmentRegistry = new ArrayList<IOAlignment>();
 	private IOEventManagerJDialog ioEventManager = null;
 
 
 	public AlignmentControler() {
 		alignment = new Alignment<ONTORES1, ONTORES2>(null, null);
 		ioEventManager = new IOEventManagerJDialog();
-		ioEuzenatManager = new EuzenatRDFImpl(ioEventManager);
-		ioCsvManager = new CSVImpl();
-		ioSkosManager = new SkosImpl(ioEventManager);
+		
+		ioAlignmentRegistry.add(new EuzenatRDFImpl(ioEventManager));
+		ioAlignmentRegistry.add(new CSVImpl());
+		ioAlignmentRegistry.add(new SkosImpl(ioEventManager));
+		
 		methods = new HashSet<AbstractAlignmentMethod<ONTORES1, ONTORES2>>();
 		Set<Class<? extends AbstractAlignmentMethod>> classes = new HashSet<Class<? extends AbstractAlignmentMethod>>();
 
@@ -469,12 +471,21 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 			ONTORES2 cpt = (ONTORES2)treeNode.getConcept();
 			return container2.getLabels(cpt, predicateUri);
 		}		
-	}		
-
-	public boolean openRdfAlign(File file) {
+	}
+	
+	private IOAlignment findIOPlugin(AlignmentFormat format) {
+		for (IOAlignment ioAlignment : ioAlignmentRegistry) {
+			if(ioAlignment.getFormat() == format) {
+				return ioAlignment;
+			}
+		}
+		return null;
+	}
+	
+	public boolean openAlign(File file, AlignmentFormat format) {
 		try {
 			ioEventManager.reset();
-			Alignment<ONTORES1, ONTORES2> alignment = ioEuzenatManager.loadAlignment(container1, container2, file);
+			Alignment<ONTORES1, ONTORES2> alignment = findIOPlugin(format).loadAlignment(container1, container2, file);
 			this.alignment.addAll(alignment);
 			ioEventManager.showDialog();
 			return true;
@@ -490,59 +501,9 @@ public class AlignmentControler<ONTORES1, ONTORES2> {
 		}
 	}
 	
-	public boolean openSkosAlign(File file) {
-		try {
-			ioEventManager.reset();
-			Alignment<ONTORES1, ONTORES2> alignment = ioSkosManager.loadAlignment(container1, container2, file);
-			this.alignment.addAll(alignment);
-			ioEventManager.showDialog();
-			return true;
-		}
-		catch (Exception e) {
-			System.err.println(Messages.getString("AlignmentControler.2")); //$NON-NLS-1$
-			System.err.println(e.getMessage());
-			JOptionPane.showMessageDialog(null, Messages.getString("AlignmentControler.5")+ //$NON-NLS-1$
-					Messages.getString("AlignmentControler.6"), //$NON-NLS-1$
-					Messages.getString("AlignmentControler.7"), //$NON-NLS-1$
-					JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-	}
-
-	public boolean openCsvAlign(File file) {
-		try {
-			ioEventManager.reset();
-			Alignment<ONTORES1, ONTORES2> alignment = ioCsvManager.loadAlignment(container1, container2, file);
-			this.alignment.addAll(alignment);
-			ioEventManager.showDialog();
-			return true;
-		} 
-		catch (Exception e) {
-			System.err.println(Messages.getString("AlignmentControler.2")); //$NON-NLS-1$
-			System.err.println(e.getMessage());
-			JOptionPane.showMessageDialog(null, Messages.getString("AlignmentControler.5")+ //$NON-NLS-1$
-					Messages.getString("AlignmentControler.6"), //$NON-NLS-1$
-					Messages.getString("AlignmentControler.7"), //$NON-NLS-1$
-					JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-	}
-
-	public void saveRdfAlign(String path, VALIDITY validityWanted) throws IOException {
+	public void saveAlign(String path, VALIDITY validityWanted, AlignmentFormat format) throws IOException {
 		ioEventManager.reset();
-		ioEuzenatManager.saveAlignment(alignment, path, validityWanted);
-		ioEventManager.showDialog();
-	}
-
-	public void saveCsvAlign(String path) throws IOException {
-		ioEventManager.reset();
-		ioCsvManager.saveAlignment(alignment, path, null); // CSV export all
-		ioEventManager.showDialog();
-	}
-
-	public void saveSkosAlign(String path) throws IOException {
-		ioEventManager.reset();
-		ioSkosManager.saveAlignment(alignment, path, null); // SKOS export all
+		findIOPlugin(format).saveAlignment(alignment, path, validityWanted);
 		ioEventManager.showDialog();
 	}
 

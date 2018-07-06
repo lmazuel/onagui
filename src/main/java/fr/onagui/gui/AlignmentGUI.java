@@ -81,6 +81,7 @@ import fr.onagui.alignment.Mapping;
 import fr.onagui.alignment.Mapping.MAPPING_TYPE;
 import fr.onagui.alignment.Mapping.VALIDITY;
 import fr.onagui.alignment.OntoContainer;
+import fr.onagui.alignment.io.AlignmentFormat;
 import fr.onagui.alignment.method.LabelAlignmentMethod;
 import fr.onagui.config.OnaguiConfigImpl;
 import fr.onagui.config.OnaguiConfiguration;
@@ -992,202 +993,17 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			}
 		});
 
-		importRDF.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// FIXME plus utile normalement...
-				//				ERASE_TYPE eraseType = GUIUtils.chooseEraseType(AlignmentGUI.this);
-				//				if(eraseType == null) return; // User cancel the dialog
+		importRDF.addActionListener(new ImportAlignmentActionListener(AlignmentFormat.EDOAL, RDF_ALIGNMENT_FILTER));		
+		importSKOS.addActionListener(new ImportAlignmentActionListener(AlignmentFormat.SKOS, SKOS_ALIGNMENT_FILTER));
+		importCSV.addActionListener(new ImportAlignmentActionListener(AlignmentFormat.CSV, CSV_ALIGNMENT_FILTER));
 
-				JFileChooser chooser = new JFileChooser();
-				chooser.addChoosableFileFilter(RDF_ALIGNMENT_FILTER);
-				int returnVal = chooser.showOpenDialog(null);
-				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					final File selectedFile = chooser.getSelectedFile();
-					String filename = selectedFile.getAbsolutePath();
-					System.out.println("You chose to open this file: " + filename); //$NON-NLS-1$
-					loadAlignementFromFileReference(selectedFile);
-				}
-			}
-		});
-		
-		importSKOS.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// FIXME plus utile normalement...
-				//				ERASE_TYPE eraseType = GUIUtils.chooseEraseType(AlignmentGUI.this);
-				//				if(eraseType == null) return; // User cancel the dialog
+		exportRDFAll.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.EDOAL, null, RDF_ALIGNMENT_FILTER));
+		exportRDFInvalid.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.EDOAL, VALIDITY.INVALID, RDF_ALIGNMENT_FILTER));
+		exportRDFToConfirm.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.EDOAL, VALIDITY.TO_CONFIRM, RDF_ALIGNMENT_FILTER));
+		exportRDFValid.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.EDOAL, VALIDITY.VALID, RDF_ALIGNMENT_FILTER));
 
-				JFileChooser chooser = new JFileChooser();
-				chooser.addChoosableFileFilter(SKOS_ALIGNMENT_FILTER);
-				int returnVal = chooser.showOpenDialog(null);
-				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					final File selectedFile = chooser.getSelectedFile();
-					String filename = selectedFile.getAbsolutePath();
-					System.out.println("You chose to open this file: " + filename); //$NON-NLS-1$
-					boolean ok = alignmentControler.openSkosAlign(selectedFile);
-					if(ok) {
-						System.out.println("Open finished successfully"); //$NON-NLS-1$
-						refreshGUIFromModel();
-					}
-					else {
-						System.out.println("Open error..."); //$NON-NLS-1$
-					}
-				}
-			}
-		});
-
-		importCSV.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				//				ERASE_TYPE eraseType = GUIUtils.chooseEraseType(AlignmentGUI.this);
-				//				if(eraseType == null) return; // User cancel the dialog
-
-				JFileChooser chooser = new JFileChooser();
-				chooser.addChoosableFileFilter(CSV_ALIGNMENT_FILTER);
-				int returnVal = chooser.showOpenDialog(null);
-				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					final File selectedFile = chooser.getSelectedFile();
-					String filename = selectedFile.getAbsolutePath();
-					System.out.println("You chose to open this file: " + filename); //$NON-NLS-1$
-					alignmentControler.openCsvAlign(selectedFile);
-					System.out.println("Open finished"); //$NON-NLS-1$
-					refreshGUIFromModel();
-				}
-			}
-		});
-
-		exportRDFAll.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.addChoosableFileFilter(RDF_ALIGNMENT_FILTER);
-				int returnVal = chooser.showSaveDialog(null);
-				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					String filename = chooser.getSelectedFile().getAbsolutePath();
-					// Add RDF extension if not written by user
-					if(!filename.toLowerCase().endsWith("rdf")) //$NON-NLS-1$
-						filename = filename + ".rdf"; //$NON-NLS-1$
-					System.out.println("You chose to save into file: " + filename); //$NON-NLS-1$
-					try {
-						AlignmentGUI.this.alignmentControler.saveRdfAlign(filename, null);
-					} catch (IOException e1) {
-						System.err.println("Ecriture du fichier impossible"); //$NON-NLS-1$
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
-
-		exportRDFInvalid.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.addChoosableFileFilter(RDF_ALIGNMENT_FILTER);
-				int returnVal = chooser.showSaveDialog(null);
-				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					String filename = chooser.getSelectedFile().getAbsolutePath();
-					// Add RDF extension if not written by user
-					if(!filename.toLowerCase().endsWith("rdf")) //$NON-NLS-1$
-						filename = filename + ".rdf"; //$NON-NLS-1$
-					System.out.println("You chose to save into file: " + filename); //$NON-NLS-1$
-					try {
-						AlignmentGUI.this.alignmentControler.saveRdfAlign(filename, VALIDITY.INVALID);
-					} catch (IOException e1) {
-						System.err.println("Ecriture du fichier impossible"); //$NON-NLS-1$
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
-
-		exportRDFToConfirm.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.addChoosableFileFilter(RDF_ALIGNMENT_FILTER);
-				int returnVal = chooser.showSaveDialog(null);
-				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					String filename = chooser.getSelectedFile().getAbsolutePath();
-					// Add RDF extension if not written by user
-					if(!filename.toLowerCase().endsWith("rdf")) //$NON-NLS-1$
-						filename = filename + ".rdf"; //$NON-NLS-1$
-					System.out.println("You chose to save into file: " + filename); //$NON-NLS-1$
-					try {
-						AlignmentGUI.this.alignmentControler.saveRdfAlign(filename, VALIDITY.TO_CONFIRM);
-					} catch (IOException e1) {
-						System.err.println("Ecriture du fichier impossible"); //$NON-NLS-1$
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
-
-		exportRDFValid.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.addChoosableFileFilter(RDF_ALIGNMENT_FILTER);
-				int returnVal = chooser.showSaveDialog(null);
-				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					String filename = chooser.getSelectedFile().getAbsolutePath();
-					// Add RDF extension if not written by user
-					if(!filename.toLowerCase().endsWith("rdf")) //$NON-NLS-1$
-						filename = filename + ".rdf"; //$NON-NLS-1$
-					System.out.println("You chose to save into file: " + filename); //$NON-NLS-1$
-					try {
-						AlignmentGUI.this.alignmentControler.saveRdfAlign(filename, VALIDITY.VALID);
-					} catch (IOException e1) {
-						System.err.println("Ecriture du fichier impossible"); //$NON-NLS-1$
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
-
-		exportCSV.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.addChoosableFileFilter(CSV_ALIGNMENT_FILTER);
-				int returnVal = chooser.showSaveDialog(null);
-				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					String filename = chooser.getSelectedFile().getAbsolutePath();
-					// Add RDF extension if not written by user
-					if(!filename.toLowerCase().endsWith("csv")) //$NON-NLS-1$
-						filename = filename + ".csv"; //$NON-NLS-1$
-					System.out.println("You chose to save into file: " + filename); //$NON-NLS-1$
-					try {
-						AlignmentGUI.this.alignmentControler.saveCsvAlign(filename);
-					} catch (IOException e1) {
-						System.err.println("Ecriture du fichier impossible"); //$NON-NLS-1$
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
-
-		exportSkos.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				chooser.addChoosableFileFilter(RDF_ALIGNMENT_FILTER);
-				int returnVal = chooser.showSaveDialog(null);
-				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					String filename = chooser.getSelectedFile().getAbsolutePath();
-					// Add RDF extension if not written by user
-					if(!filename.toLowerCase().endsWith("rdf")) //$NON-NLS-1$
-						filename = filename + ".rdf"; //$NON-NLS-1$
-					System.out.println("You chose to save into file: " + filename); //$NON-NLS-1$
-					try {
-						AlignmentGUI.this.alignmentControler.saveSkosAlign(filename);
-					} catch (IOException e1) {
-						System.err.println("Ecriture du fichier impossible"); //$NON-NLS-1$
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
+		exportCSV.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.CSV, null, CSV_ALIGNMENT_FILTER));
+		exportSkos.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.SKOS, null, SKOS_ALIGNMENT_FILTER));
 		
 		statAlignItem.addActionListener(new ActionListener() {
 			@Override
@@ -1230,6 +1046,74 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		refreshMenuActivation();
 
 		return menuBar;
+	}
+	
+	class ExportAlignmentActionListener implements ActionListener {
+		// can be null to export all mappings
+		private Mapping.VALIDITY validityToExport;
+		private AlignmentFormat format;
+		private FileNameExtensionFilter filenameFilter;
+
+		public ExportAlignmentActionListener(AlignmentFormat format, VALIDITY validityToExport, FileNameExtensionFilter filenameFilter) {
+			super();
+			this.format = format;
+			this.validityToExport = validityToExport;
+			this.filenameFilter = filenameFilter;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser chooser = new JFileChooser();
+			chooser.addChoosableFileFilter(this.filenameFilter);
+			int returnVal = chooser.showSaveDialog(null);
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				String filename = chooser.getSelectedFile().getAbsolutePath();
+				// Add RDF extension if not written by user
+				if(!filename.toLowerCase().endsWith("rdf")) //$NON-NLS-1$
+					filename = filename + ".rdf"; //$NON-NLS-1$
+				System.out.println("You chose to save into file: " + filename); //$NON-NLS-1$
+				try {
+					AlignmentGUI.this.alignmentControler.saveAlign(filename, validityToExport, format);
+				} catch (IOException e1) {
+					System.err.println("Ecriture du fichier impossible"); //$NON-NLS-1$
+					e1.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	class ImportAlignmentActionListener implements ActionListener {
+		private AlignmentFormat format;
+		private FileNameExtensionFilter filenameFilter;
+
+		public ImportAlignmentActionListener(AlignmentFormat format, FileNameExtensionFilter filenameFilter) {
+			super();
+			this.format = format;
+			this.filenameFilter = filenameFilter;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser chooser = new JFileChooser();
+			chooser.addChoosableFileFilter(this.filenameFilter);
+			int returnVal = chooser.showOpenDialog(null);
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				final File selectedFile = chooser.getSelectedFile();
+				String filename = selectedFile.getAbsolutePath();
+				System.out.println("You chose to open this file: " + filename); //$NON-NLS-1$
+				loadAlignmentFromFileReference(selectedFile, this.format);
+			}
+		}
+	}
+	
+	public void loadAlignmentFromFileReference(File selectedFile, AlignmentFormat format) {
+		boolean ok = alignmentControler.openAlign(selectedFile, format);
+		if(ok) {
+			System.out.println("Load alignment finished successfully"); //$NON-NLS-1$
+			refreshGUIFromModel();
+		} else {
+			System.out.println("Load alignment error..."); //$NON-NLS-1$
+		}
 	}
 
 	private void launchFinderDialog(int treeNumber) {
@@ -1376,18 +1260,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		refreshMenuActivation();
 		System.out.println("Loading of ontology finished..."); //$NON-NLS-1$
 	}
-	
-	public void loadAlignementFromFileReference(File rdfAlignmentFile) {
-		boolean ok = alignmentControler.openRdfAlign(rdfAlignmentFile);
-		if(ok) {
-			System.out.println("Load alignment finished successfully"); //$NON-NLS-1$
-			refreshGUIFromModel();
-		}
-		else {
-			System.out.println("Load alignment error..."); //$NON-NLS-1$
-		}
-	}
-	
+
 	
 	private void reloadOntology(final OntologyType ontoType) {
 
@@ -1869,125 +1742,61 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		JMenuItem undefined = new JMenuItem(Messages.getString("Undefined")); //$NON-NLS-1$
 		menutype.add(undefined);
 		
-		CenterPopupActionListener cpal = new CenterPopupActionListener(
-																	   valid,
-																	   to_confirm, 
-																	   invalid,
-																	   exactmatch,
-																	   closematch,
-																	   disjoint,
-																	   relatedMatch,
-																	   narrowMatch,
-																	   broaderMatch,
-																	   undefined
-																	);
-		valid.addActionListener(cpal);
-		to_confirm.addActionListener(cpal);
-		invalid.addActionListener(cpal);
+		valid.addActionListener(new SwitchValidityActionListener(VALIDITY.VALID));
+		to_confirm.addActionListener(new SwitchValidityActionListener(VALIDITY.TO_CONFIRM));
+		invalid.addActionListener(new SwitchValidityActionListener(VALIDITY.INVALID));
 		
-		exactmatch.addActionListener(cpal);
-		closematch.addActionListener(cpal);
-		relatedMatch.addActionListener(cpal);
-		disjoint.addActionListener(cpal);
-		narrowMatch.addActionListener(cpal);
-		broaderMatch.addActionListener(cpal);
-		undefined.addActionListener(cpal);
+		exactmatch.addActionListener(new SwitchTypeActionListener(MAPPING_TYPE.EQUIV));
+		closematch.addActionListener(new SwitchTypeActionListener(MAPPING_TYPE.OVERLAP));
+		relatedMatch.addActionListener(new SwitchTypeActionListener(MAPPING_TYPE.RELATED));
+		disjoint.addActionListener(new SwitchTypeActionListener(MAPPING_TYPE.DISJOINT));
+		narrowMatch.addActionListener(new SwitchTypeActionListener(MAPPING_TYPE.SUBSUMES));
+		broaderMatch.addActionListener(new SwitchTypeActionListener(MAPPING_TYPE.SUBSUMEDBY));
+		undefined.addActionListener(new SwitchTypeActionListener(MAPPING_TYPE.UNDEFINED));
 
 		//Add listener to the text area so the popup menu can come up.
 		MouseListener popupListener = new PopupListener(popup);
 		centerTable.addMouseListener(popupListener);
 	}
 
-	class CenterPopupActionListener implements ActionListener {
-		private JMenuItem valid_menu = null;
-		private JMenuItem to_confirm_menu = null;
-		private JMenuItem invalid_menu = null;
-		private JMenuItem exactmatch_menu = null;
-		private JMenuItem closematch_menu = null;
-		private JMenuItem disjoint_menu = null;
-		private JMenuItem relatedMatch_menu = null;
-		private JMenuItem narrowMatch_menu = null;
-		private JMenuItem broaderMatch_menu = null;
-		private JMenuItem undefined_menu = null;
+	
+	class SwitchTypeActionListener implements ActionListener {
+		private Mapping.MAPPING_TYPE newType;
 
-
-		/**
-		 * @param validMenu
-		 * @param toConfirmMenu
-		 * @param invalidMenu
-		 * @param exactmatch_menu
-		 * @param closematch_menu
-		 */
-		public CenterPopupActionListener(
-				JMenuItem validMenu,
-				JMenuItem toConfirmMenu,
-				JMenuItem invalidMenu,
-				JMenuItem exactMatchMenu,
-				JMenuItem closeMatchMenu,
-				JMenuItem disjoint,
-				JMenuItem relatedMatch,
-				JMenuItem narrowMatch,
-				JMenuItem broaderMatch,
-				JMenuItem undefined
-		) {
-			valid_menu = validMenu;
-			to_confirm_menu = toConfirmMenu;
-			invalid_menu = invalidMenu;
-			exactmatch_menu=exactMatchMenu;
-			closematch_menu=closeMatchMenu;
-			disjoint_menu=disjoint;
-			relatedMatch_menu=relatedMatch;
-			narrowMatch_menu=narrowMatch;
-			broaderMatch_menu=broaderMatch;
-			undefined_menu=undefined;
+		public SwitchTypeActionListener(MAPPING_TYPE newType) {
+			super();
+			this.newType = newType;
 		}
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JMenuItem source = (JMenuItem)(e.getSource());
-			VALIDITY validity_to_use=null;
-			MAPPING_TYPE type_to_use=null;
-			
-			
-			
-			if(source.equals(valid_menu)) {
-				validity_to_use = VALIDITY.VALID;
-			} else if(source.equals(to_confirm_menu)) {
-				validity_to_use = VALIDITY.TO_CONFIRM;
-			} else if(source.equals(invalid_menu)){
-				validity_to_use = VALIDITY.INVALID;
-			} else if(source.equals(exactmatch_menu)) {
-				type_to_use = MAPPING_TYPE.EQUIV;
-			} else if(source.equals(closematch_menu)){
-				type_to_use = MAPPING_TYPE.OVERLAP;
-			} else if(source.equals(disjoint_menu)) {
-				type_to_use = MAPPING_TYPE.DISJOINT;
-			} else if(source.equals(relatedMatch_menu)){
-				type_to_use = MAPPING_TYPE.RELATED;
-			} else if(source.equals(narrowMatch_menu)) {
-				type_to_use = MAPPING_TYPE.SUBSUMES;
-			} else if(source.equals(broaderMatch_menu)){
-				type_to_use = MAPPING_TYPE.SUBSUMEDBY;
-			} else if(source.equals(undefined_menu)){
-				type_to_use = MAPPING_TYPE.UNDEFINED;
-			} else {
-				System.err.println("Don't know the menu which ask me something!"); //$NON-NLS-1$
-				return;
-			}
-
 			for(int index : centerTable.getSelectedRows()) {
 				Mapping<?, ?> map = tableModel.getMappingAt(centerTable.convertRowIndexToModel(index));
-				
-				if(type_to_use != null) {
-					alignmentControler.updateMappingType(map, type_to_use);
-				}
-				if(validity_to_use != null) {
-					alignmentControler.updateMappingValidity(map, validity_to_use);
-				}
+				alignmentControler.updateMappingType(map, newType);
 			}
 			
 			// Refresh GUI
-			AlignmentGUI.this.refreshGUIFromModel();			
+			AlignmentGUI.this.refreshGUIFromModel();
+		}
+	}
+	
+	class SwitchValidityActionListener implements ActionListener {
+		private Mapping.VALIDITY newValidity;
+
+		public SwitchValidityActionListener(VALIDITY newValidity) {
+			super();
+			this.newValidity = newValidity;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			for(int index : centerTable.getSelectedRows()) {
+				Mapping<?, ?> map = tableModel.getMappingAt(centerTable.convertRowIndexToModel(index));
+				alignmentControler.updateMappingValidity(map, newValidity);
+			}
+			
+			// Refresh GUI
+			AlignmentGUI.this.refreshGUIFromModel();
 		}
 	}
 
