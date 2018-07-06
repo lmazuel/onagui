@@ -1,7 +1,9 @@
 package fr.onagui.control;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +61,14 @@ public class MyTreeModel<ONTORES> extends DefaultTreeModel {
 
 		// By default, choose a language by alphabetical order
 		SortedSet<String> allLanguageInLabels = this.container.getAllLanguageInLabels();
-		this.setCurrentShowingLanguage(allLanguageInLabels.stream().findFirst().orElse(""));
+		// pick up fr or en if they exists
+		if(allLanguageInLabels.contains("fr")) {
+			this.setCurrentShowingLanguage("fr");
+		} else if (allLanguageInLabels.contains("en")) {
+			this.setCurrentShowingLanguage("en");
+		} else {
+			this.setCurrentShowingLanguage(allLanguageInLabels.stream().findFirst().orElse(""));
+		}		
 
 		DefaultMutableTreeNode top = buildTreeModeFromContainer();
 		setRoot(top);
@@ -91,24 +100,27 @@ public class MyTreeModel<ONTORES> extends DefaultTreeModel {
 
 	/** Create hierarchy for node (generics version). Handle children recursively.
 	 * @param top
-	 * @param localRoot
+	 * @param child
 	 * @return The built tree node
 	 * @throws OWLReasonerException
 	 */
-	DefaultMutableTreeNode createTreeNodes(DefaultMutableTreeNode top, ONTORES localRoot) {
+	DefaultMutableTreeNode createTreeNodes(DefaultMutableTreeNode top, ONTORES child) {
 		// Creation de localRoot
 		DefaultMutableTreeNode node = new DefaultMutableTreeNode(
 				new TreeNodeOntologyObject<ONTORES>(
 						this,
 						container,
-						localRoot,
+						child,
 						false
 				)
 		);
-		putToUriToTreeNodeMap(container.getURI(localRoot), node);
-		if(top != null) insertAndSort(top, node);
+		putToUriToTreeNodeMap(container.getURI(child), node);
+		if(top != null) {
+			// insertAndSort(top, node);
+			top.add(node);
+		}
 
-		Set<ONTORES> children = container.getChildren(localRoot);
+		Set<ONTORES> children = container.getChildren(child);
 		if(!children.isEmpty()) {
 			// A fake node, just to have the "+" on the screen
 			node.add(new DefaultMutableTreeNode());
@@ -151,10 +163,12 @@ public class MyTreeModel<ONTORES> extends DefaultTreeModel {
 	}
 
 	public static <ONTORES> void insertAndSort(DefaultMutableTreeNode parent, DefaultMutableTreeNode newChild) {
-		TreeNodeOntologyObject<ONTORES> newContent = (TreeNodeOntologyObject<ONTORES>)newChild.getUserObject();
+		TreeNodeOntologyObject<ONTORES> newContent = (TreeNodeOntologyObject<ONTORES>)newChild.getUserObject();		
+		
 		for(int childIndex=0; childIndex<parent.getChildCount(); childIndex++) {
 			DefaultMutableTreeNode oneChild = (DefaultMutableTreeNode)parent.getChildAt(childIndex);
 			TreeNodeOntologyObject<ONTORES> localContent = (TreeNodeOntologyObject<ONTORES>)oneChild.getUserObject();
+			
 			/* Use the "toString" method to order node.
 			 * If greater than 0, "newChild" must be replace local Child
 			 */
@@ -169,7 +183,29 @@ public class MyTreeModel<ONTORES> extends DefaultTreeModel {
 		} catch (IllegalArgumentException e) {
 			System.err.println("Cycle detected. It will be broken on the Java tree interface.");
 		}
+		
 	}
+	
+	public static void sortChildren(DefaultMutableTreeNode parent) {
+		int n = parent.getChildCount();
+		List<DefaultMutableTreeNode> children = new ArrayList<DefaultMutableTreeNode>(n);
+		for (int i = 0; i < n; i++) {
+			children.add((DefaultMutableTreeNode) parent.getChildAt(i));
+		}
+		Collections.sort(children, new Comparator< DefaultMutableTreeNode>() {
+			@Override
+			public int compare(DefaultMutableTreeNode a, DefaultMutableTreeNode b) {
+				String sa = a.getUserObject().toString();
+				String sb = b.getUserObject().toString();
+				return sa.compareToIgnoreCase(sb);
+			}
+		}); //iterative merge sort
+		parent.removeAllChildren();
+		for (DefaultMutableTreeNode node: children) {
+			parent.add(node);
+		}
+	}
+	
 
 	/** Return at least one DefaultMutableTreeNode by concept in the ontology.
 	 *  If one concept can have several ancestor, only one (arbitrary) is choose.

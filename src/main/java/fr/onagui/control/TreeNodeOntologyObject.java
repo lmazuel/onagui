@@ -58,6 +58,9 @@ public class TreeNodeOntologyObject<ONTORES> {
 		for(ONTORES child : children) {
 			treeModel.createTreeNodes(myself, child);
 		}
+		// sort the node children
+		MyTreeModel.sortChildren(myself);
+		
 		treeModel.reload();
 	}
 	
