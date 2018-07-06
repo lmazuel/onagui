@@ -1866,6 +1866,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		menutype.add(narrowMatch);
 		JMenuItem disjoint = new JMenuItem(Messages.getString("Disjoint")); //$NON-NLS-1$
 		menutype.add(disjoint);
+		JMenuItem undefined = new JMenuItem(Messages.getString("Undefined")); //$NON-NLS-1$
+		menutype.add(undefined);
 		
 		CenterPopupActionListener cpal = new CenterPopupActionListener(
 																	   valid,
@@ -1876,7 +1878,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 																	   disjoint,
 																	   relatedMatch,
 																	   narrowMatch,
-																	   broaderMatch
+																	   broaderMatch,
+																	   undefined
 																	);
 		valid.addActionListener(cpal);
 		to_confirm.addActionListener(cpal);
@@ -1888,6 +1891,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		disjoint.addActionListener(cpal);
 		narrowMatch.addActionListener(cpal);
 		broaderMatch.addActionListener(cpal);
+		undefined.addActionListener(cpal);
 
 		//Add listener to the text area so the popup menu can come up.
 		MouseListener popupListener = new PopupListener(popup);
@@ -1923,7 +1927,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				JMenuItem disjoint,
 				JMenuItem relatedMatch,
 				JMenuItem narrowMatch,
-				JMenuItem broaderMatch
+				JMenuItem broaderMatch,
+				JMenuItem undefined
 		) {
 			valid_menu = validMenu;
 			to_confirm_menu = toConfirmMenu;
@@ -1934,6 +1939,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			relatedMatch_menu=relatedMatch;
 			narrowMatch_menu=narrowMatch;
 			broaderMatch_menu=broaderMatch;
+			undefined_menu=undefined;
 		}
 
 		@Override
@@ -1962,6 +1968,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				type_to_use = MAPPING_TYPE.SUBSUMES;
 			} else if(source.equals(broaderMatch_menu)){
 				type_to_use = MAPPING_TYPE.SUBSUMEDBY;
+			} else if(source.equals(undefined_menu)){
+				type_to_use = MAPPING_TYPE.UNDEFINED;
 			} else {
 				System.err.println("Don't know the menu which ask me something!"); //$NON-NLS-1$
 				return;
