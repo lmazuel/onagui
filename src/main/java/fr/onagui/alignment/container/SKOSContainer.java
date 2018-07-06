@@ -43,6 +43,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParserRegistry;
 import org.eclipse.rdf4j.rio.helpers.AbstractRDFHandler;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
@@ -54,7 +55,8 @@ import fr.onagui.alignment.OntoVisitor;
  */
 public class SKOSContainer implements OntoContainer<Resource> {
 
-	private static String ALL_CONCEPTS_LABEL = "SKOS Concept Schemes";
+	private static String CONCEPT_SCHEMES_LABEL = "SKOS Concept Schemes";
+	private static String ALL_CONCEPTS_LABEL = "All Concepts (no schemes found)";
 	
 	private Repository triplestore = null;
 	private ValueFactory factory = null;
@@ -84,13 +86,10 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		triplestore.initialize();
 		factory = triplestore.getValueFactory();
 		RepositoryConnection connect = triplestore.getConnection();
-		// Try RDF/XML, fallback to N3 and fail if it's not enough
-		try {
-			connect.add(physicalPath, null, RDFFormat.RDFXML);
-		} catch (RDFParseException e) {
-			connect.add(physicalPath, null, RDFFormat.N3);
-		}
 		
+		// Parse based on file extension, with RDF/XML as default
+		connect.add(physicalPath, null, RDFParserRegistry.getInstance().getFileFormatForFileName(physicalPath.getName()).orElse(RDFFormat.RDFXML));
+
 		//changing skosxl prefLabel to skos prefLabel when we load the file
 		String queryString1 = "PREFIX skos:<http://www.w3.org/2004/02/skos/core#>"
 				+"PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>"
@@ -113,6 +112,7 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		// Preload
 		getAllLanguageInLabels();
 		topConceptOfCache = new HashMap<Resource, Resource>();
+		// note that if we don't find any concept schemes, we don't initialize any topConceptOfCache
 		for(Resource scheme: getConceptSchemes()) {
 			for(Resource topConcept: getTopConcepts(scheme)) {
 				topConceptOfCache.put(topConcept, scheme);
@@ -212,29 +212,32 @@ public class SKOSContainer implements OntoContainer<Resource> {
 
 	@Override
 	public Set<Resource> getChildren(Resource cpt) {
+		// 1. We unfold root
 		if(cpt.equals(getRoot())) {
-			return getConceptSchemes();
+			// if we are on the root and there is not concept scheme...
+			Set<Resource> schemes = getConceptSchemes();
+			if(!schemes.isEmpty() ) {
+				return schemes;
+			} else {
+				// look for every concept that is a root
+				return getTopConcepts();
+			}
 		}
+		
+		// 2. We are on a ConceptScheme node
 		if(conceptSchemes.contains(cpt)) {
 			return getTopConcepts(cpt);
 		}
-		/* "usual" concept */
+		
+		// 3. We are on Concept node
 		Set<Resource> result = new HashSet<Resource>();
-		try {
-			RepositoryConnection connect = triplestore.getConnection();
-			for(Statement res : getStatementWhereSubject(connect, cpt)) {
-				if(res.getPredicate().equals(SKOS.NARROWER) ||
-						res.getPredicate().equals(SKOS.NARROWER_TRANSITIVE)) {
-					result.add((Resource) res.getObject());
-				}
+		try(RepositoryConnection connect = triplestore.getConnection()) {
+			for(Statement res : getStatementWhereSubjectAndPredicate(connect, cpt, SKOS.NARROWER)) {
+				result.add((Resource) res.getObject());
 			}
-			for(Statement res : getStatementWhereObject(connect, cpt)) {
-				if(res.getPredicate().equals(SKOS.BROADER) ||
-						res.getPredicate().equals(SKOS.BROADER_TRANSITIVE)) {
-					result.add(res.getSubject());
-				}
+			for(Statement res : getStatementWherePredicateAndObject(connect, cpt, SKOS.BROADER)) {
+				result.add(res.getSubject());
 			}
-			connect.close();
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -257,17 +260,11 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		Set<Resource> result = new HashSet<Resource>();
 		try {
 			RepositoryConnection connect = triplestore.getConnection();
-			for(Statement res : getStatementWhereSubject(connect, cpt)) {
-				if(res.getPredicate().equals(SKOS.BROADER) ||
-						res.getPredicate().equals(SKOS.BROADER_TRANSITIVE)) {
-					result.add((Resource) res.getObject());
-				}
+			for(Statement res : getStatementWhereSubjectAndPredicate(connect, cpt, SKOS.BROADER)) {
+				result.add((Resource) res.getObject());
 			}
-			for(Statement res : getStatementWhereObject(connect, cpt)) {
-				if(res.getPredicate().equals(SKOS.NARROWER) ||
-						res.getPredicate().equals(SKOS.NARROWER_TRANSITIVE)) {
-					result.add(res.getSubject());
-				}
+			for(Statement res : getStatementWherePredicateAndObject(connect, cpt, SKOS.NARROWER)) {
+				result.add(res.getSubject());
 			}
 			connect.close();
 		} catch (RepositoryException e) {
@@ -328,61 +325,30 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		}
 		return result;		
 	}
-
-	private List<Statement> getStatementWhereSubject(RepositoryConnection connect, Resource res) {
-		try {
-			RepositoryResult<Statement> stmts = connect.getStatements(res, null, null, true);
-			return Iterations.asList(stmts);
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		}
-		return new Vector<Statement>();
-	}
-
-	private List<Statement> getStatementWhereObject(RepositoryConnection connect, Resource res) {
-		try {
-			RepositoryResult<Statement> stmts = connect.getStatements(null, null, res, true);
-			return Iterations.asList(stmts);
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		}
-		return new Vector<Statement>();
-	}	
-
-	private Set<Resource> getSubjectsWhereProp(RepositoryConnection connect, IRI prop) {
+	
+	public Set<Resource> getTopConcepts() {
 		Set<Resource> result = new HashSet<Resource>();
-		// Has top concept
-		try {
-			RepositoryResult<Statement> stmts = connect.getStatements(null, prop, null, true);
-			List<Statement> stmts_list = Iterations.asList(stmts);
-			for (Statement s : stmts_list) {
-				result.add(s.getSubject());
-			}
-			return result;
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
+		try(RepositoryConnection connect = triplestore.getConnection()) {
 
-	private Set<Resource> getResourceObjectWhereProp(RepositoryConnection connect, IRI prop) {
-		Set<Resource> result = new HashSet<Resource>();
-		// Has top concept
-		try {
-			RepositoryResult<Statement> stmts = connect.getStatements(null, prop, null, true);
-			List<Statement> stmts_list = Iterations.asList(stmts);
-			for (Statement s : stmts_list) {
-				try {
-					result.add((Resource) s.getObject());
-				} catch (ClassCastException e) {
-					// Nothing, is a literal
+			String queryString = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
+					+ " SELECT DISTINCT ?racine WHERE {  "
+					+ " ?racine a skos:Concept ."	
+					+ " FILTER NOT EXISTS {?racine skos:broader|^skos:narrower ?x.}"										
+					+ "} ";
+
+			TupleQuery tupleQuery = connect.prepareTupleQuery(QueryLanguage.SPARQL,queryString);
+			try (TupleQueryResult res = tupleQuery.evaluate()) {
+				while (res.hasNext()) {  // iterate over the result			  
+					BindingSet bindingSet = res.next();
+					Resource racine= (Resource)bindingSet.getValue("racine");
+					result.add(racine);
 				}
 			}
-			return result;
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		}
-		return result;
+		System.out.println("Found "+result.size()+" top concepts not in a scheme");
+		return result;		
 	}
 
 	@Override
@@ -408,43 +374,35 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		if (cpt == null)
 			throw new IllegalArgumentException("cpt cannot be null");
 		Set<String> result = new HashSet<String>();
-		// "prefLabel"
-		try {
-			RepositoryConnection connect = triplestore.getConnection();
-			RepositoryResult<Statement> stmts = connect.getStatements(cpt,
-					prop, null, true);
-			List<Statement> stmts_list = Iterations.asList(stmts);
-			for (Statement s : stmts_list) {
-				Literal literal = (Literal) s.getObject();
-				result.add(literal.getLabel());
-			}
-					
-			connect.close();
+		
+		// read the property
+		try(RepositoryConnection connect = triplestore.getConnection()) {
+			RepositoryResult<Statement> stmts = connect.getStatements(cpt, prop, null);
+			while(stmts.hasNext()) {
+				Statement s = stmts.next();
+				result.add(((Literal) s.getObject()).getLabel());
+			}					
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
 
-	private Set<String> getLabels(Resource cpt, String lang,
-			IRI prop) {
+	private Set<String> getLabels(Resource cpt, String lang, IRI prop) {
 		if (cpt == null || lang == null)
-			throw new IllegalArgumentException(
-					"cpt or lang cannot be null: cpt=" + cpt + " lang=" + lang);
+			throw new IllegalArgumentException("cpt or lang cannot be null: cpt=" + cpt + " lang=" + lang);
 		Set<String> result = new HashSet<String>();
-		// "prefLabel"
-		try {
-			RepositoryConnection connect = triplestore.getConnection();
-			RepositoryResult<Statement> stmts = connect.getStatements(cpt,
-					prop, null, true);
-			List<Statement> stmts_list = Iterations.asList(stmts);
-			for (Statement s : stmts_list) {
+		
+		// read the property in the given language
+		try(RepositoryConnection connect = triplestore.getConnection()) {
+			RepositoryResult<Statement> stmts = connect.getStatements(cpt, prop, null);
+			while(stmts.hasNext()) {
+				Statement s = stmts.next();
 				Literal literal = (Literal) s.getObject();
 				Optional<String> language = literal.getLanguage();
 				if (lang.equals(language.orElse("")))
 					result.add(literal.getLabel());
 			}
-			connect.close();
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		}
@@ -482,7 +440,11 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	@Override
 	public Set<String> getPrefLabels(Resource cpt, String lang) {
 		if(cpt.equals(getRoot())) {
-			return Collections.singleton(ALL_CONCEPTS_LABEL);
+			if(!getConceptSchemes().isEmpty() ) {
+				return Collections.singleton(CONCEPT_SCHEMES_LABEL);
+			} else {
+				return Collections.singleton(ALL_CONCEPTS_LABEL);
+			}
 		} else {
 			return getLabels(cpt, lang, SKOS.PREF_LABEL);
 		}
@@ -584,6 +546,62 @@ public class SKOSContainer implements OntoContainer<Resource> {
 			return date;
 		}
 		return date;
+	}
+	
+	private List<Statement> getStatementWhereSubjectAndPredicate(RepositoryConnection connect, Resource res, IRI predicate) {
+		try {
+			RepositoryResult<Statement> stmts = connect.getStatements(res, predicate, null, true);
+			return Iterations.asList(stmts);
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+		}
+		return new Vector<Statement>();
+	}
+
+	private List<Statement> getStatementWherePredicateAndObject(RepositoryConnection connect, Resource res, IRI predicate) {
+		try {
+			RepositoryResult<Statement> stmts = connect.getStatements(null, predicate, res, true);
+			return Iterations.asList(stmts);
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+		}
+		return new Vector<Statement>();
+	}	
+
+	private Set<Resource> getSubjectsWhereProp(RepositoryConnection connect, IRI prop) {
+		Set<Resource> result = new HashSet<Resource>();
+		// Has top concept
+		try {
+			RepositoryResult<Statement> stmts = connect.getStatements(null, prop, null, true);
+			List<Statement> stmts_list = Iterations.asList(stmts);
+			for (Statement s : stmts_list) {
+				result.add(s.getSubject());
+			}
+			return result;
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	private Set<Resource> getResourceObjectWhereProp(RepositoryConnection connect, IRI prop) {
+		Set<Resource> result = new HashSet<Resource>();
+		// Has top concept
+		try {
+			RepositoryResult<Statement> stmts = connect.getStatements(null, prop, null, true);
+			List<Statement> stmts_list = Iterations.asList(stmts);
+			for (Statement s : stmts_list) {
+				try {
+					result.add((Resource) s.getObject());
+				} catch (ClassCastException e) {
+					// Nothing, is a literal
+				}
+			}
+			return result;
+		} catch (RepositoryException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 }
