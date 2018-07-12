@@ -969,7 +969,16 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			loadOntologyWithFileChooser(this.ontologyType);
+			JFileChooser chooser = (lastDirectory != null)?new JFileChooser(lastDirectory):new JFileChooser();
+			FileNameExtensionFilter filter = this.ontologyType.getOntoFormat().getFilter(); 
+			chooser.setFileFilter(filter);
+			int returnVal = chooser.showOpenDialog(null);
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				final File selectedFile = chooser.getSelectedFile();
+				loadOntologyFromFileReference(this.ontologyType, selectedFile.toURI());
+				// Copy to cache the last directory to use it in future FileChooser
+				lastDirectory = selectedFile.getParentFile();
+			}
 		}
 	}
 	
@@ -1019,7 +1028,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JFileChooser chooser = new JFileChooser();
+			JFileChooser chooser = (lastDirectory != null)?new JFileChooser(lastDirectory):new JFileChooser();
 			chooser.addChoosableFileFilter(this.filenameFilter);
 			int returnVal = chooser.showSaveDialog(null);
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
@@ -1030,6 +1039,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				System.out.println("You chose to save into file: " + filename); //$NON-NLS-1$
 				try {
 					AlignmentGUI.this.alignmentControler.saveAlign(filename, validityToExport, format);
+					// Copy to cache the last directory to use it in future FileChooser
+					lastDirectory = chooser.getSelectedFile().getParentFile();
 				} catch (IOException e1) {
 					System.err.println("Ecriture du fichier impossible"); //$NON-NLS-1$
 					e1.printStackTrace();
@@ -1050,7 +1061,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JFileChooser chooser = new JFileChooser();
+			JFileChooser chooser = (lastDirectory != null)?new JFileChooser(lastDirectory):new JFileChooser();
 			chooser.addChoosableFileFilter(this.filenameFilter);
 			int returnVal = chooser.showOpenDialog(null);
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
@@ -1058,6 +1069,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				String filename = selectedFile.getAbsolutePath();
 				System.out.println("You chose to open this file: " + filename); //$NON-NLS-1$
 				loadAlignmentFromFileReference(selectedFile, this.format);
+				// Copy to cache the last directory to use it in future FileChooser
+				lastDirectory = selectedFile.getParentFile();
 			}
 		}
 	}
@@ -1125,22 +1138,9 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		treeFrom2.setSelectionPath(pathToRoot2);
 	}
 
-	private void loadOntologyWithFileChooser(final OntologyType ontoType) {
-		JFileChooser chooser = (lastDirectory != null)?new JFileChooser(lastDirectory):new JFileChooser();
-		FileNameExtensionFilter filter = ontoType.getOntoFormat().getFilter(); 
-		chooser.setFileFilter(filter);
-		int returnVal = chooser.showOpenDialog(null);
-		if(returnVal == JFileChooser.APPROVE_OPTION) {
-			final File selectedFile = chooser.getSelectedFile();
-			loadOntologyFromFileReference(ontoType, selectedFile.toURI());
-		}
-	}
-
 	public void loadOntologyFromFileReference(final OntologyType ontoType, final URI fileReference) {
 		final File selectedFile = new File(fileReference);
 		
-		// Copy to cache the last directory to use it in future FileChooser
-		lastDirectory = selectedFile.getParentFile();
 		saveDynamicOnaguiInfos(lastDirectory);
 		configuration.setOntologyLastOpenDirectory(lastDirectory);
 		final URI filename = selectedFile.toURI();
