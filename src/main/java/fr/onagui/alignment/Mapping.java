@@ -408,31 +408,38 @@ public class Mapping<T, V> implements Comparable<Mapping<?, ?>> {
 		return true;
 	}
 
+	/**
+	 * La méthode compareTo n'utilise que des caractéristiques non éditables dans OnaGUI
+	 * Pour ne pas que la ligne bouge si on édite le type ou la validité.
+	 */
 	@Override
 	public int compareTo(Mapping<?, ?> o) {
-	// Consistance avec l'égalité
+		// Consistance avec l'égalité
 		if (this.equals(o))
 			return 0;
 
-		// On utilise l'ordre ordinal des types (ordres voulus, pas de hasard)
-		if (this.type != o.type) {
-			return o.type.ordinal() - this.type.ordinal();
+		// Comparaison sur le premier concept
+		int compare = firstConcept.toString().compareTo(o.firstConcept.toString());
+		if(compare != 0) {
+			return compare;
 		}
+		// comparaison sur le deuxieme concept
+		compare = secondConcept.toString().compareTo(o.secondConcept.toString());
+		if(compare != 0) {
+			return compare;
+		}		
 
-		// Ici les types sont identiques
-		int compare = Double.valueOf(this.score).compareTo(
-				Double.valueOf(o.score));
+		// Ici les concepts sont identiques, on regarde le score
+		compare = Double.valueOf(this.score).compareTo(Double.valueOf(o.score));
 		if (compare != 0)
 			return compare;
 
-		// Ici les scores et types sont équivalents....
-		// Choix non significatif basé sur les chaines de caractères (prend en
-		// compte label et méthode).
-		return this.toString().compareTo(o.toString());
-		
-		
+		// concept 1, concept 2 et score identique
+		// on se rabat sur un toString
+		return this.toString().compareTo(o.toString());		
 	}
-
+	
+	
 	public void setComment(String comment) {
 		this.comment = comment;
 	}

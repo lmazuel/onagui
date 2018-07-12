@@ -100,6 +100,11 @@ public class EuzenatRDFImpl implements IOAlignment {
 		this.ioEventManager = ioe;
 		timeFormatter = ISODateTimeFormat.dateTimeNoMillis();
 	}
+	
+	@Override
+	public AlignmentFormat getFormat() {
+		return AlignmentFormat.EDOAL;
+	}
 
 	/* (non-Javadoc)
 	 * @see fr.onagui.alignment.io.IOAlignment#loadAlignment(fr.onagui.alignment.OntoContainer, fr.onagui.alignment.OntoContainer, java.io.File)
@@ -303,8 +308,7 @@ public class EuzenatRDFImpl implements IOAlignment {
 		buildOntoMetaData(model, rootAlignment, factory,onto2, 2);
 		// Build the mapping nodes
 		for (Mapping<ONTORES1, ONTORES2> mapping : alignment.getMapping()) {
-			buildCellNode(onto1, onto2, mapping, model, rootAlignment,
-					validityWanted);
+			buildCellNode(onto1, onto2, mapping, model, rootAlignment, validityWanted);
 		}
 
 		// Build the no mapping nodes
@@ -353,14 +357,17 @@ public class EuzenatRDFImpl implements IOAlignment {
 	}
 
 	private <ONTORES1, ONTORES2> void buildCellNode(
-			OntoContainer<ONTORES1> onto1, OntoContainer<ONTORES2> onto2,
-			Mapping<ONTORES1, ONTORES2> mapping, Model model,
-			Resource alignmentRoot, VALIDITY validityWanted) {
+			OntoContainer<ONTORES1> onto1,
+			OntoContainer<ONTORES2> onto2,
+			Mapping<ONTORES1, ONTORES2> mapping,
+			Model model,
+			Resource alignmentRoot,
+			VALIDITY validityWanted
+	) {
 		ValueFactory factory = SimpleValueFactory.getInstance();
 		
 		VALIDITY currentMappingValidity = mapping.getValidity();
-		if (validityWanted != null
-				&& !currentMappingValidity.equals(validityWanted))
+		if (validityWanted != null && !currentMappingValidity.equals(validityWanted))
 			return;
 
 		// ordre d'insertion des proprietes necessaires pour avoir une "belle"

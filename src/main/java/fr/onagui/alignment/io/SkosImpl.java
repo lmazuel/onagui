@@ -58,6 +58,11 @@ public class SkosImpl implements IOAlignment {
 		this.ioEventManager = ioe;
 	}
 	
+	@Override
+	public AlignmentFormat getFormat() {
+		return AlignmentFormat.SKOS;
+	}
+	
 	/* (non-Javadoc)
 	 * @see fr.onagui.alignment.io.IOAlignment#loadAlignment(fr.onagui.alignment.OntoContainer, fr.onagui.alignment.OntoContainer, java.io.File)
 	 */
