@@ -824,33 +824,18 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		fichierMenu.add(new JSeparator());
 		JMenuItem quitItem = new JMenuItem(Messages.getString("ExitMenu")); //$NON-NLS-1$
 		fichierMenu.add(quitItem);
-		quitItem.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				AlignmentGUI.this.dispose();
-			}
-		});
+		quitItem.addActionListener(l -> AlignmentGUI.this.dispose());
 
 		// Le menu barre "rechercher"
 		JMenu searchMenu = new JMenu(Messages.getString("SearchMenu")); //$NON-NLS-1$
 		menuBar.add(searchMenu);
 		searchIn1 = new JMenuItem(Messages.getString("SearchOnto1Menu")); //$NON-NLS-1$
 		searchMenu.add(searchIn1);
-		searchIn1.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				launchFinderDialog(1);
-			}
-		});
+		searchIn1.addActionListener(l -> launchFinderDialog(1));
 		searchIn2 = new JMenuItem(Messages.getString("SearchOnto2Menu")); //$NON-NLS-1$
-		searchMenu.add(searchIn2);
-		searchIn2.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				launchFinderDialog(2);
-			}
-		});		
-
+		searchMenu.add(searchIn2);	
+		searchIn2.addActionListener(l -> launchFinderDialog(2));
+		
 		// Le menu barre "alignement"
 		JMenu alignMenu = new JMenu(Messages.getString("AlignmentMenu")); //$NON-NLS-1$
 		menuBar.add(alignMenu);
@@ -907,101 +892,23 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			}
 		});
 		
-		AlignmentGUI oldGui = this;
-		francaisMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Messages.changeLanguage("fr");
-				// close current window and starts a new one
-				// see http://stackoverflow.com/questions/26075081/java-application-restart-or-reset-button
-				dispose();
-				AlignmentGUI newGui = new AlignmentGUI();
-				newGui.ontology1File = oldGui.ontology1File;
-				newGui.ontology2File = oldGui.ontology2File;
-				newGui.ontology1Type = oldGui.ontology1Type;
-				newGui.ontology2Type = oldGui.ontology2Type;
-				
-				if(newGui.ontology1File != null && newGui.ontology1Type != null) {
-					newGui.loadOntologyFromFileReference(newGui.ontology1Type, newGui.ontology1File);
-				}
-				if(newGui.ontology2File != null && newGui.ontology2Type != null) {
-					newGui.loadOntologyFromFileReference(newGui.ontology2Type, newGui.ontology2File);
-				}
-			}
-		});
-
-		anglaisMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Messages.changeLanguage("en");
-				// close current window and starts a new one
-				// see http://stackoverflow.com/questions/26075081/java-application-restart-or-reset-button
-				dispose();
-				AlignmentGUI newGui = new AlignmentGUI();
-				newGui.ontology1File = oldGui.ontology1File;
-				newGui.ontology2File = oldGui.ontology2File;
-				newGui.ontology1Type = oldGui.ontology1Type;
-				newGui.ontology2Type = oldGui.ontology2Type;
-				
-				if(newGui.ontology1File != null && newGui.ontology1Type != null) {
-					newGui.loadOntologyFromFileReference(newGui.ontology1Type, newGui.ontology1File);
-				}
-				if(newGui.ontology2File != null && newGui.ontology2Type != null) {
-					newGui.loadOntologyFromFileReference(newGui.ontology2Type, newGui.ontology2File);
-				}
-			}
-		});
-		loadLocalOwlMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadOntologyWithFileChooser(OntologyType.FIRST_ONTO_OWL);
-			}
-		});
-
-		loadLocalSkosMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadOntologyWithFileChooser(OntologyType.FIRST_ONTO_SKOS);
-			};
-		});
-		
-		loadLocalRdfMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadOntologyWithFileChooser(OntologyType.FIRST_ONTO_RDF);
-			};
-		});
-
-		loadReferenceOwlMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadOntologyWithFileChooser(OntologyType.SECOND_ONTO_OWL);
-			}
-		});
-
-		loadReferenceSkosMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadOntologyWithFileChooser(OntologyType.SECOND_ONTO_SKOS);
-			}
-		});
-		
-		loadReferenceRdfMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadOntologyWithFileChooser(OntologyType.SECOND_ONTO_RDF);
-			}
-		});
-
+		// Import vocab1 menu
+		loadLocalOwlMenu.addActionListener(new LoadOntologyActionListener(OntologyType.FIRST_ONTO_OWL));
+		loadLocalSkosMenu.addActionListener(new LoadOntologyActionListener(OntologyType.FIRST_ONTO_SKOS));
+		loadLocalRdfMenu.addActionListener(new LoadOntologyActionListener(OntologyType.FIRST_ONTO_RDF));
+		// Import vocab 2 menu
+		loadReferenceOwlMenu.addActionListener(new LoadOntologyActionListener(OntologyType.SECOND_ONTO_OWL));
+		loadReferenceSkosMenu.addActionListener(new LoadOntologyActionListener(OntologyType.SECOND_ONTO_SKOS));
+		loadReferenceRdfMenu.addActionListener(new LoadOntologyActionListener(OntologyType.SECOND_ONTO_RDF));
+		// Import alignment menu
 		importRDF.addActionListener(new ImportAlignmentActionListener(AlignmentFormat.EDOAL, RDF_ALIGNMENT_FILTER));		
 		importSKOS.addActionListener(new ImportAlignmentActionListener(AlignmentFormat.SKOS, SKOS_ALIGNMENT_FILTER));
 		importCSV.addActionListener(new ImportAlignmentActionListener(AlignmentFormat.CSV, CSV_ALIGNMENT_FILTER));
-
+		// export alignment menu
 		exportRDFAll.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.EDOAL, null, RDF_ALIGNMENT_FILTER));
 		exportRDFInvalid.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.EDOAL, VALIDITY.INVALID, RDF_ALIGNMENT_FILTER));
 		exportRDFToConfirm.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.EDOAL, VALIDITY.TO_CONFIRM, RDF_ALIGNMENT_FILTER));
 		exportRDFValid.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.EDOAL, VALIDITY.VALID, RDF_ALIGNMENT_FILTER));
-
 		exportCSV.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.CSV, null, CSV_ALIGNMENT_FILTER));
 		exportSkos.addActionListener(new ExportAlignmentActionListener(AlignmentFormat.SKOS, null, SKOS_ALIGNMENT_FILTER));
 		
@@ -1042,10 +949,59 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 			}
 		});
 
+		// switch languages menu
+		francaisMenu.addActionListener(new SwitchLanguageActionListener("fr", this));
+		anglaisMenu.addActionListener(new SwitchLanguageActionListener("en", this));
+		
 		// Set the initial state of menu activation
 		refreshMenuActivation();
 
 		return menuBar;
+	}
+
+	class LoadOntologyActionListener implements ActionListener {		
+		private OntologyType ontologyType;
+		
+		public LoadOntologyActionListener(OntologyType ontologyType) {
+			super();
+			this.ontologyType = ontologyType;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			loadOntologyWithFileChooser(this.ontologyType);
+		}
+	}
+	
+	class SwitchLanguageActionListener implements ActionListener {
+		private String language;
+		private AlignmentGUI oldGui;
+		
+		public SwitchLanguageActionListener(String language, AlignmentGUI oldGui) {
+			super();
+			this.language = language;
+			this.oldGui = oldGui;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Messages.changeLanguage(this.language);
+			// close current window and starts a new one
+			// see http://stackoverflow.com/questions/26075081/java-application-restart-or-reset-button
+			dispose();
+			AlignmentGUI newGui = new AlignmentGUI();
+			newGui.ontology1File = oldGui.ontology1File;
+			newGui.ontology2File = oldGui.ontology2File;
+			newGui.ontology1Type = oldGui.ontology1Type;
+			newGui.ontology2Type = oldGui.ontology2Type;
+			
+			if(newGui.ontology1File != null && newGui.ontology1Type != null) {
+				newGui.loadOntologyFromFileReference(newGui.ontology1Type, newGui.ontology1File);
+			}
+			if(newGui.ontology2File != null && newGui.ontology2Type != null) {
+				newGui.loadOntologyFromFileReference(newGui.ontology2Type, newGui.ontology2File);
+			}
+		}
 	}
 	
 	class ExportAlignmentActionListener implements ActionListener {
