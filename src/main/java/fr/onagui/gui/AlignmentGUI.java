@@ -61,6 +61,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -405,7 +406,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		//		centerTable.setAutoCreateRowSorter(true);
 		DefaultListSelectionModel listSelectionModel = new DefaultListSelectionModel();
 		listSelectionModel.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		listSelectionModel.addListSelectionListener(new MyTableSelectionListerner());
+		listSelectionModel.addListSelectionListener(new MappingCommentDisplayListener());
+		listSelectionModel.addListSelectionListener(new NumberOfSelectedRowsDisplayListener(southPan));
 		centerTable.setSelectionModel(listSelectionModel);
 		centerTable.setRowSelectionAllowed(true);
 		centerTable.setColumnSelectionAllowed(false);
@@ -1824,7 +1826,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		}
 	}
 
-	public class MyTableSelectionListerner implements ListSelectionListener {
+	public class MappingCommentDisplayListener implements ListSelectionListener {
 		public void valueChanged(ListSelectionEvent e) {
 			// Verifier que la table est en etat d'afficher quelque chose...
 			if(centerTable.getSelectedRowCount() == 1 && !e.getValueIsAdjusting()) {
@@ -1837,6 +1839,29 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				// On vas considérer que c'est un evenement de "deselection"
 				snoComment.setText(""); //$NON-NLS-1$
 			}
+		}	
+	}
+	
+	public class NumberOfSelectedRowsDisplayListener implements ListSelectionListener {
+		JPanel panel;
+		
+		public NumberOfSelectedRowsDisplayListener(JPanel panel) {
+			super();
+			this.panel = panel;
+		}
+
+		public void valueChanged(ListSelectionEvent e) {
+			int rowCount = centerTable.getSelectedRowCount();
+			// TODO : find a way to align this to the left instead of the center
+			if(rowCount == 0) {
+				stateText = new JLabel(GUI_TITLE);
+			} else {
+				stateText = new JLabel(Integer.toString(rowCount)+" "+Messages.getString("SelectedRows"));
+			}
+			panel.removeAll();
+			panel.add(stateText);
+			panel.validate();
+			panel.repaint();
 		}	
 	}
 
