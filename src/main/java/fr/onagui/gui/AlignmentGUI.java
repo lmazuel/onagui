@@ -576,7 +576,8 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 		c.weighty = 0.0;
 		c.insets = new Insets(10, 10, 10, 10);
 		c.anchor = GridBagConstraints.CENTER;
-		c.fill = GridBagConstraints.VERTICAL;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		
 		gridbag.setConstraints(tabbedPane, c);
 		labelPane.add(tabbedPane);
 
