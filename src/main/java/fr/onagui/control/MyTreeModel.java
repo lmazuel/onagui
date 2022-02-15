@@ -153,6 +153,12 @@ public class MyTreeModel<ONTORES> extends DefaultTreeModel {
 		Set<ONTORES> parents = container.getParents(concept);
 		for(ONTORES parent : parents) {
 			List<DefaultMutableTreeNode> parentsTreeNodes = getAllTreeNodesFromConcept(parent);
+			
+			if(parentsTreeNodes == null) {
+				System.err.println("Warning: impossible to find the parent node "+container.getURI(parent)+" of concept "+container.getURI(concept));
+				return null;
+			}
+			
 			for(DefaultMutableTreeNode parentTreeNode : parentsTreeNodes) {
 				TreeNodeOntologyObject<ONTORES> userParentNode = (TreeNodeOntologyObject<ONTORES>) parentTreeNode.getUserObject();
 				userParentNode.expandNode(parentTreeNode);
