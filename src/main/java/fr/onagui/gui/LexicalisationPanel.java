@@ -5,6 +5,8 @@ package fr.onagui.gui;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JLabel;
@@ -73,18 +75,35 @@ public class LexicalisationPanel extends JPanel {
 
 	private void setLabelsToPanel(JTextArea labelPan, Set<String> labels) {
 		if(labels == null || labels.isEmpty()) labelPan.setText(EMPTY_LABEL);
-		else {
-			StringBuffer buf = new StringBuffer();
-			boolean firstLine = true;
-			for(String lab : labels) {
-				if(!firstLine) {
-					buf.append('\n');
+		else {			
+			if(labels.size() > 10) {
+				// long list of labels.
+				// in that case, just print them separate by a comma
+				StringBuffer buf = new StringBuffer();
+				boolean firstItem = true;
+				for(String lab : labels) {
+					if(!firstItem) {
+						buf.append(", ");
+					}
+					buf.append(lab);
+					firstItem = false;
 				}
-				buf.append(lab);
-				firstLine = false;
+				labelPan.setRows(1);
+				labelPan.setText(buf.toString());
+			} else {
+				StringBuffer buf = new StringBuffer();
+				boolean firstLine = true;
+				for(String lab : labels) {
+					if(!firstLine) {
+						buf.append('\n');
+					}
+					buf.append(lab);
+					firstLine = false;
+				}
+				labelPan.setRows(labels.size());
+				labelPan.setText(buf.toString());
 			}
-			labelPan.setRows(labels.size());
-			labelPan.setText(buf.toString());
+			
 		}
 	}
 

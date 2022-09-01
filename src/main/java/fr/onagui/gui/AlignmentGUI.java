@@ -1444,7 +1444,7 @@ public class AlignmentGUI extends JFrame implements TreeSelectionListener {
 				// Gestion du lexique
 				String fragUri = alignmentControler.getURIOfConcept(nodeOntologyObject, 1).getFragment();
 				Set<String> prefLabels = alignmentControler.getPrefLabelsOfConcept(nodeOntologyObject, 1);
-				Set<String> altLabels = alignmentControler.getAltLabelsOfConcept(nodeOntologyObject, 1);
+				Set<String> altLabels = alignmentControler.getAltLabelsOfConcept(nodeOntologyObject, 1);				
 				lexic1.setFragURI(fragUri);
 				lexic1.setPrefLabel(prefLabels);
 				lexic1.setAltLabel(altLabels);

@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -373,7 +374,8 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	private Set<String> getLabels(Resource cpt, IRI prop) {
 		if (cpt == null)
 			throw new IllegalArgumentException("cpt cannot be null");
-		Set<String> result = new HashSet<String>();
+		// note : TreeSet garantees ordering
+		Set<String> result = new TreeSet<String>(Comparator.comparing(String::toString, String::compareToIgnoreCase));
 		
 		// read the property
 		try(RepositoryConnection connect = triplestore.getConnection()) {
@@ -385,13 +387,15 @@ public class SKOSContainer implements OntoContainer<Resource> {
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		}
+		
 		return result;
 	}
 
 	private Set<String> getLabels(Resource cpt, String lang, IRI prop) {
 		if (cpt == null || lang == null)
 			throw new IllegalArgumentException("cpt or lang cannot be null: cpt=" + cpt + " lang=" + lang);
-		Set<String> result = new HashSet<String>();
+		// note : TreeSet garantees ordering
+		Set<String> result = new TreeSet<String>(Comparator.comparing(String::toString, String::compareToIgnoreCase));
 		
 		// read the property in the given language
 		try(RepositoryConnection connect = triplestore.getConnection()) {
@@ -412,7 +416,8 @@ public class SKOSContainer implements OntoContainer<Resource> {
 	public Set<String> getAnnotations(Resource cpt) {
 		if (cpt == null)
 			throw new IllegalArgumentException("cpt cannot be null");
-		Set<String> result = new HashSet<String>();
+		// note : TreeSet garantees ordering
+		Set<String> result = new TreeSet<String>(Comparator.comparing(String::toString, String::compareToIgnoreCase));
 		try {
 			RepositoryConnection connect = triplestore.getConnection();
 			RepositoryResult<Statement> stmts = connect.getStatements(cpt,
